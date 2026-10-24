@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=Application
+Name=Linux Hardware Monitor
+Name[ru]=Монитор оборудования Linux
+Name[uk]=Монітор обладнання Linux
+Name[de]=Linux Hardware-Monitor
+Name[es]=Monitor de hardware de Linux
+Comment=Hardware sensors, performance graphs and a task manager
+Comment[ru]=Датчики, графики производительности и диспетчер задач
+Comment[uk]=Датчики, графіки продуктивності та диспетчер завдань
+Comment[de]=Hardware-Sensoren, Leistungsdiagramme und Task-Manager
+Comment[es]=Sensores de hardware, gráficos de rendimiento y administrador de tareas
+Exec=LinuxHardwareMonitor
+Icon=linux-hardware-monitor
+Terminal=false
+Categories=System;Monitor;
+Keywords=hardware;sensors;temperature;cpu;gpu;task manager;performance;
+StartupWMClass=LinuxHardwareMonitor
