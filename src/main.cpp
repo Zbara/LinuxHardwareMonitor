@@ -1,0 +1,171 @@
+#include "ui/AppController.h"
+
+#include "ui/TrayIcon.h"
+
+#include <QApplication>
+#include <QGuiApplication>
+#include <QIcon>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQuickStyle>
+#include <QQuickWindow>
+#include <QTimer>
+
+#include <cmath>
+
+int main(int argc, char *argv[]) {
+    // The interface is flat 2D; the software scene graph needs ~150 MB less memory than the OpenGL one
+    // and does not wake the discrete GPU. QT_QUICK_BACKEND=rhi (or any other value) overrides it.
+    if (!qEnvironmentVariableIsSet("QT_QUICK_BACKEND") && !qEnvironmentVariableIsSet("QSG_RHI_BACKEND"))
+        QQuickWindow::setGraphicsApi(QSGRendererInterface::Software);
+    QApplication app(argc, argv); // QSystemTrayIcon needs the widgets application
+    app.setApplicationName(QStringLiteral("LinuxHardwareMonitor"));
+    app.setOrganizationName(QStringLiteral("LinuxHardwareMonitor"));
+    // Lets Wayland shells match the window to packaging/linux-hardware-monitor.desktop (name and icon).
+    app.setDesktopFileName(QStringLiteral("linux-hardware-monitor"));
+    app.setWindowIcon(QIcon(QPixmap::fromImage(TrayIcon::renderAppIcon(256))));
+    QQuickStyle::setStyle(QStringLiteral("Basic"));
+
+    // ---- hardware data source: real by default, simulation/fixtures only when asked for
+    AppOptions options;
+    {
+        const QStringList args = app.arguments();
+        auto value = [&](const QString &flag) {
+            const int i = args.indexOf(flag);
+            return i >= 0 && i + 1 < args.size() ? args.at(i + 1) : QString();
+        };
+        options.mockPath = value(QStringLiteral("--mock"));
+        if (const QString speed = value(QStringLiteral("--mock-speed")); !speed.isEmpty())
+            options.mockSpeed = std::max(0.1, speed.toDouble());
+        options.hwmonRoot = value(QStringLiteral("--hwmon-root"));
+        options.procRoot = value(QStringLiteral("--proc-root"));
+        options.cpuRoot = value(QStringLiteral("--cpu-root"));
+        options.powerSupplyRoot = value(QStringLiteral("--power-supply-root"));
+        options.drmRoot = value(QStringLiteral("--drm-root"));
+
+        if (!options.mockPath.isEmpty()) {
+            if (options.fixtureMode()) {
+                qCritical("--mock cannot be combined with --hwmon-root / --proc-root / --cpu-root / --power-supply-root");
+                return 2;
+            }
+            QString error;
+            options.mock = MockProfile::load(options.mockPath, &error);
+            if (!options.mock) {
+                qCritical("Cannot use mock profile %s: %s", qPrintable(options.mockPath), qPrintable(error));
+                return 2; // never silently fall back to real data when simulation was requested
+            }
+        }
+    }
+
+    AppController controller(options);
+
+    QQmlApplicationEngine engine;
+    // Re-evaluate every qsTr() binding when the language changes.
+    QObject::connect(&controller, &AppController::languageChanged, &engine, &QQmlEngine::retranslate);
+    engine.rootContext()->setContextProperty(QStringLiteral("app"), &controller);
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &app,
+                     [] { QCoreApplication::exit(1); }, Qt::QueuedConnection);
+    engine.loadFromModule("HwMonitor", "Main");
+
+    // ---- system tray: shows the CPU temperature, optional "keep running when the window is closed"
+    TrayController tray;
+    controller.setTrayAvailable(TrayController::isAvailable());
+    auto syncTray = [&] {
+        tray.setVisible(controller.trayEnabled());
+        // With a tray the app lives on after the window is closed; without one, closing quits as usual.
+        QGuiApplication::setQuitOnLastWindowClosed(!(controller.trayEnabled() && controller.trayAvailable()));
+    };
+    QObject::connect(&controller, &AppController::trayEnabledChanged, &app, syncTray);
+    syncTray();
+    tray.setStyle(controller.trayStyle());
+    QObject::connect(&controller, &AppController::trayStyleChanged, &tray, [&] { tray.setStyle(controller.trayStyle()); });
+    QObject::connect(&controller, &AppController::languageChanged, &tray, &TrayController::retranslate);
+    QObject::connect(&controller, &AppController::summariesChanged, &tray, [&] {
+        const QVariantList list = controller.highlights();
+        // app.highlights order: 0 CPU temperature, 4 CPU load, 6 memory load
+        auto value = [&](int i) {
+            const QVariantMap m = i < list.size() ? list[i].toMap() : QVariantMap();
+            return m.value(QStringLiteral("available")).toBool() ? m.value(QStringLiteral("value")).toDouble() : double(NAN);
+        };
+        tray.update(value(4), value(0), value(6));
+    });
+    QObject::connect(&tray, &TrayController::quitRequested, &app, &QCoreApplication::quit);
+    QObject::connect(&tray, &TrayController::toggleWindowRequested, &app, [&engine] {
+        const auto roots = engine.rootObjects();
+        auto *window = roots.isEmpty() ? nullptr : qobject_cast<QQuickWindow *>(roots.first());
+        if (!window)
+            return;
+        if (window->isVisible() && window->isActive()) {
+            window->hide();
+        } else {
+            window->show();
+            window->raise();
+            window->requestActivate();
+        }
+    });
+
+    // `--page <n>` selects the initial page (for screenshots).
+    if (const int i = app.arguments().indexOf(QStringLiteral("--page")); i >= 0 && i + 1 < app.arguments().size()) {
+        const auto roots = engine.rootObjects();
+        if (!roots.isEmpty())
+            roots.first()->setProperty("pageIndex", app.arguments().at(i + 1).toInt());
+    }
+
+    // `--resource <n>` selects the Performance resource (for screenshots).
+    if (const int i = app.arguments().indexOf(QStringLiteral("--resource")); i >= 0 && i + 1 < app.arguments().size()) {
+        const auto roots = engine.rootObjects();
+        if (!roots.isEmpty())
+            roots.first()->setProperty("resourceIndex", app.arguments().at(i + 1).toInt());
+    }
+
+    // `--cores` shows the per-core CPU charts (for screenshots).
+    if (app.arguments().contains(QStringLiteral("--cores"))) {
+        const auto roots = engine.rootObjects();
+        if (!roots.isEmpty())
+            roots.first()->setProperty("coreView", true);
+    }
+
+    // `--size <w> <h>` resizes the window (for screenshots).
+    if (const int i = app.arguments().indexOf(QStringLiteral("--size")); i >= 0 && i + 2 < app.arguments().size()) {
+        const auto roots = engine.rootObjects();
+        if (!roots.isEmpty()) {
+            roots.first()->setProperty("width", app.arguments().at(i + 1).toInt());
+            roots.first()->setProperty("height", app.arguments().at(i + 2).toInt());
+        }
+    }
+
+    // `--close-after <ms>`: close the main window after a delay (exercises the real close path).
+    if (const int i = app.arguments().indexOf(QStringLiteral("--close-after")); i >= 0 && i + 1 < app.arguments().size()) {
+        QTimer::singleShot(app.arguments().at(i + 1).toInt(), &app, [&engine] {
+            const auto roots = engine.rootObjects();
+            if (auto *window = roots.isEmpty() ? nullptr : qobject_cast<QQuickWindow *>(roots.first()))
+                window->close();
+        });
+    }
+
+    // `--load-modules`: load the RAM module details at startup (simulation mode answers instantly).
+    if (app.arguments().contains(QStringLiteral("--load-modules")))
+        controller.loadMemoryModules();
+
+    // `--run-scenario <n>` triggers simulation action n; `--scenario-panel` opens the panel (screenshots).
+    if (const int i = app.arguments().indexOf(QStringLiteral("--run-scenario")); i >= 0 && i + 1 < app.arguments().size())
+        controller.runSimulationAction(app.arguments().at(i + 1).toInt());
+    if (app.arguments().contains(QStringLiteral("--scenario-panel"))) {
+        const auto roots = engine.rootObjects();
+        if (!roots.isEmpty())
+            roots.first()->setProperty("scenarioPanel", true);
+    }
+
+    // `--screenshot <file.png>`: save the first window after a few polls and exit.
+    const QStringList args = app.arguments();
+    if (const int i = args.indexOf(QStringLiteral("--screenshot")); i >= 0 && i + 1 < args.size()) {
+        const QString path = args.at(i + 1);
+        QTimer::singleShot(3500, &app, [&engine, path] {
+            const auto windows = engine.rootObjects();
+            auto *window = windows.isEmpty() ? nullptr : qobject_cast<QQuickWindow *>(windows.first());
+            QCoreApplication::exit(window && window->grabWindow().save(path) ? 0 : 1);
+        });
+    }
+
+    return app.exec();
+}
