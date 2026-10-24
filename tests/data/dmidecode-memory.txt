@@ -1,0 +1,70 @@
+# dmidecode 3.6
+Getting SMBIOS data from sysfs.
+SMBIOS 3.6.0 present.
+
+Handle 0x0031, DMI type 16, 23 bytes
+Physical Memory Array
+	Location: System Board Or Motherboard
+	Use: System Memory
+	Error Correction Type: None
+	Maximum Capacity: 64 GB
+	Error Information Handle: Not Provided
+	Number Of Devices: 4
+
+Handle 0x0032, DMI type 17, 92 bytes
+Memory Device
+	Array Handle: 0x0031
+	Error Information Handle: Not Provided
+	Total Width: 64 bits
+	Data Width: 64 bits
+	Size: 16 GB
+	Form Factor: SODIMM
+	Set: None
+	Locator: Controller0-ChannelA-DIMM0
+	Bank Locator: BANK 0
+	Type: DDR5
+	Type Detail: Synchronous
+	Speed: 5600 MT/s
+	Manufacturer: Micron Technology
+	Serial Number: 0A1B2C3D
+	Asset Tag: Not Specified
+	Part Number: MTC8C1084S1SC56B
+	Rank: 1
+	Configured Memory Speed: 5200 MT/s
+	Minimum Voltage: 1.1 V
+
+Handle 0x0033, DMI type 17, 92 bytes
+Memory Device
+	Array Handle: 0x0031
+	Total Width: 64 bits
+	Data Width: 64 bits
+	Size: No Module Installed
+	Form Factor: Unknown
+	Locator: Controller0-ChannelA-DIMM1
+	Bank Locator: BANK 1
+	Type: Unknown
+	Type Detail: None
+	Speed: Unknown
+	Manufacturer: Unknown
+	Part Number: Unknown
+	Rank: Unknown
+
+Handle 0x0034, DMI type 17, 92 bytes
+Memory Device
+	Array Handle: 0x0031
+	Size: 8192 MB
+	Form Factor: SODIMM
+	Locator: Controller1-ChannelA-DIMM0
+	Bank Locator: BANK 2
+	Type: DDR5
+	Type Detail: Synchronous
+	Speed: 5600 MT/s
+	Manufacturer: Samsung
+	Part Number: M425R1GB4BB0-CWM
+	Rank: 1
+
+Handle 0x0035, DMI type 17, 92 bytes
+Memory Device
+	Array Handle: 0x0031
+	Size: No Module Installed
+	Locator: Controller1-ChannelA-DIMM1
