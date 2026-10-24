@@ -9,6 +9,8 @@
  "Restart": "Перезапустить",
  "Restart service?": "Перезапустить службу?",
  "Running": "Работает",
+ "Search sensors": "Поиск датчиков",
+ "No sensors match the filter": "Нет датчиков, подходящих под фильтр",
  "Search services": "Поиск служб",
  "Services": "Службы",
  "Start": "Запустить",

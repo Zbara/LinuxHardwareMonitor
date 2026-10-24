@@ -24,6 +24,38 @@ SensorReading reading(const QString &id, double value, bool available = true) {
 class TstSensorManager : public QObject {
     Q_OBJECT
 private slots:
+    void sensorProxyFiltersByTextAndType() {
+        SensorManager m;
+        SensorReading cpu = reading("cpu_temp", 50);
+        cpu.deviceName = "CPU";
+        cpu.name = "Package";
+        SensorReading fan = reading("fan1", 1200);
+        fan.deviceName = "Chassis";
+        fan.name = "Fan 1";
+        fan.type = SensorType::FanSpeed;
+        SensorReading driver = reading("drv", 0);
+        driver.type = SensorType::Text;
+        m.applyReadings({cpu, fan, driver});
+
+        SensorProxyModel proxy;
+        proxy.setSourceModel(m.model());
+        QCOMPARE(proxy.rowCount(), 2); // Text sensors are never listed
+
+        proxy.setFilterText("  PACK ");
+        QCOMPARE(proxy.rowCount(), 1);
+        proxy.setFilterText("chassis"); // matches the device name too
+        QCOMPARE(proxy.rowCount(), 1);
+        proxy.setFilterText("");
+
+        proxy.setTypeFilter(static_cast<int>(SensorType::FanSpeed));
+        QCOMPARE(proxy.rowCount(), 1);
+        proxy.setFilterText("package");
+        QCOMPARE(proxy.rowCount(), 0); // both conditions apply
+        proxy.setTypeFilter(-1);
+        proxy.setFilterText("");
+        QCOMPARE(proxy.rowCount(), 2);
+    }
+
     void tracksMinMax() {
         SensorManager m;
         m.applyReadings({reading("a", 40)});

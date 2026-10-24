@@ -6,12 +6,35 @@ import HwMonitor
 Item {
     id: page
 
+    // SensorType values: Temperature, FanSpeed, Voltage, Power, Utilization, Frequency (-1 = all)
+    readonly property var typeFilters: [-1, 0, 1, 2, 3, 4, 5]
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 20
         spacing: 14
 
-        PageTitle { text: qsTr("Sensors") }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
+            PageTitle { text: qsTr("Sensors") }
+            Item { Layout.fillWidth: true }
+            TextField {
+                id: search
+                Component.onCompleted: text = app.sensorFilter.filterText
+                Layout.preferredWidth: 260
+                placeholderText: qsTr("Search sensors")
+                color: Theme.text
+                placeholderTextColor: Theme.textMuted
+                leftPadding: 12
+                background: Rectangle {
+                    radius: 6
+                    color: Theme.surface
+                    border.color: search.activeFocus ? Theme.accent : Theme.border
+                }
+                onTextChanged: app.sensorFilter.filterText = text
+            }
+        }
 
         GridLayout {
             Layout.fillWidth: true
@@ -34,6 +57,14 @@ Item {
                     accent: modelData.color
                 }
             }
+        }
+
+        PillTabs {
+            titles: [qsTr("All"), qsTr("Temperature"), qsTr("Fan"), qsTr("Voltage"), qsTr("Power"),
+                     qsTr("Utilization"), qsTr("Frequency")]
+            current: Math.max(0, page.typeFilters.indexOf(app.sensorFilter.typeFilter))
+            accent: Theme.accent
+            onSelected: index => app.sensorFilter.typeFilter = page.typeFilters[index]
         }
 
         Rectangle {
@@ -78,14 +109,15 @@ Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
-                    model: app.sensors
+                    model: app.sensorFilter
                     boundsBehavior: Flickable.StopAtBounds
                     ScrollBar.vertical: ScrollBar {}
 
                     Label {
                         anchors.centerIn: parent
                         visible: list.count === 0
-                        text: qsTr("No sensors detected")
+                        text: search.text !== "" || app.sensorFilter.typeFilter >= 0 ? qsTr("No sensors match the filter")
+                                                                       : qsTr("No sensors detected")
                         color: Theme.textMuted
                     }
 
@@ -119,10 +151,8 @@ Item {
                         required property string sensorId
                         required property int type
 
-                        // SensorType::Text rows carry static facts for other pages, not values.
-                        visible: type !== 10
                         width: list.width
-                        height: visible ? 38 : 0
+                        height: 38
                         color: hover.hovered ? Theme.surfaceAlt : "transparent"
                         HoverHandler { id: hover }
 

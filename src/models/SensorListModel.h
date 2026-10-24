@@ -4,6 +4,7 @@
 
 #include <QAbstractListModel>
 #include <QHash>
+#include <QSortFilterProxyModel>
 
 // Flat list of all sensors, kept sorted by device so that QML can group it
 // with ListView sections.
@@ -43,4 +44,31 @@ public:
 private:
     QVector<Row> m_rows;
     QHash<QString, int> m_index;
+};
+
+// What the Sensors page shows: numeric sensors only (Text rows carry static facts for other pages),
+// optionally narrowed by a search string (sensor or device name) and a sensor type.
+class SensorProxyModel : public QSortFilterProxyModel {
+    Q_OBJECT
+    Q_PROPERTY(QString filterText READ filterText WRITE setFilterText NOTIFY filterTextChanged)
+    // -1 = every type, otherwise a SensorType value
+    Q_PROPERTY(int typeFilter READ typeFilter WRITE setTypeFilter NOTIFY typeFilterChanged)
+public:
+    explicit SensorProxyModel(QObject *parent = nullptr);
+
+    QString filterText() const { return m_filter; }
+    void setFilterText(const QString &text);
+    int typeFilter() const { return m_type; }
+    void setTypeFilter(int type);
+
+signals:
+    void filterTextChanged();
+    void typeFilterChanged();
+
+protected:
+    bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
+
+private:
+    QString m_filter;
+    int m_type = -1;
 };

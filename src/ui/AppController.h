@@ -49,6 +49,7 @@ class MockProvider;
 class AppController : public QObject {
     Q_OBJECT
     Q_PROPERTY(SensorListModel *sensors READ sensors CONSTANT)
+    Q_PROPERTY(SensorProxyModel *sensorFilter READ sensorFilter CONSTANT)
     Q_PROPERTY(ServiceProxyModel *services READ services CONSTANT)
     Q_PROPERTY(bool servicesActive READ servicesActive WRITE setServicesActive NOTIFY servicesActiveChanged)
     Q_PROPERTY(int servicesRunning READ servicesRunning NOTIFY serviceSummaryChanged)
@@ -91,6 +92,7 @@ public:
     explicit AppController(AppOptions options = {}, QObject *parent = nullptr);
 
     SensorListModel *sensors() { return m_manager.model(); }
+    SensorProxyModel *sensorFilter() { return &m_sensorProxy; }
     ServiceProxyModel *services() { return &m_serviceProxy; }
     bool servicesActive() const { return m_serviceManager.active(); }
     void setServicesActive(bool active);
@@ -210,6 +212,7 @@ private:
     bool m_trayAvailable = false;
     ServiceListModel m_serviceModel;
     ServiceProxyModel m_serviceProxy;
+    SensorProxyModel m_sensorProxy;
     ServiceManager m_serviceManager;
     QString m_servicesMessage;
     bool m_servicesListFailed = false;

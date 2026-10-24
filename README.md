@@ -15,7 +15,7 @@ interface. No Electron, no web view, no root: everything comes from `/sys`, `/pr
 - **Services** – systemd services over D-Bus: filter, search, start / stop / restart (asks for your password through polkit).
 - **Startup apps** – XDG autostart entries with enable/disable (system entries are overridden in your own
   `~/.config/autostart`, never edited in `/etc`).
-- **Sensors / Overview** – every hwmon sensor with min/max and history, plus a summary dashboard.
+- **Sensors / Overview** – every hwmon sensor with min/max and history (search by name and filter by type), plus a summary dashboard.
 - **System tray** – optional icon with the program's logo (or, as a setting, the CPU temperature on a blue / amber / red tile) and a load/RAM tooltip; closing the window can keep the app running there (needs a desktop with tray support, e.g. the AppIndicator extension on GNOME).
 - **History across restarts** – the last ~15 minutes of every sensor are saved on exit (and every 5 minutes) to `~/.local/share/LinuxHardwareMonitor/history.bin`; after a restart the charts continue where they stopped, with the downtime shown as a gap. Not used in simulation or fixture mode.
 - **Settings** – update interval, history length, dark/light theme, language, start with the system, CSV export of the history.

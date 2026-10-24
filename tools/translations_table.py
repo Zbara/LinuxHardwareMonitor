@@ -19,6 +19,8 @@ ROWS = [
     ("Restart", "Перезапустить", "Перезапустити", "Neu starten", "Reiniciar"),
     ("Restart service?", "Перезапустить службу?", "Перезапустити службу?", "Dienst neu starten?", "¿Reiniciar el servicio?"),
     ("Running", "Работает", "Працює", "Läuft", "En ejecución"),
+    ("Search sensors", "Поиск датчиков", "Пошук датчиків", "Sensoren suchen", "Buscar sensores"),
+    ("No sensors match the filter", "Нет датчиков, подходящих под фильтр", "Немає датчиків, що відповідають фільтру", "Keine Sensoren entsprechen dem Filter", "Ningún sensor coincide con el filtro"),
     ("Search services", "Поиск служб", "Пошук служб", "Dienste suchen", "Buscar servicios"),
     ("Services", "Службы", "Служби", "Dienste", "Servicios"),
     ("Start", "Запустить", "Запустити", "Starten", "Iniciar"),

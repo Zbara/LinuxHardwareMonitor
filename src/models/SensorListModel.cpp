@@ -91,3 +91,37 @@ void SensorListModel::update(const SensorReading &reading, bool hasStats, double
         m_index.insert(m_rows[i].reading.id, i);
     endInsertRows();
 }
+
+SensorProxyModel::SensorProxyModel(QObject *parent) : QSortFilterProxyModel(parent) {
+    setDynamicSortFilter(true);
+}
+
+void SensorProxyModel::setFilterText(const QString &text) {
+    const QString normalized = text.trimmed().toLower();
+    if (normalized == m_filter)
+        return;
+    m_filter = normalized;
+    invalidateFilter();
+    emit filterTextChanged();
+}
+
+void SensorProxyModel::setTypeFilter(int type) {
+    if (type == m_type)
+        return;
+    m_type = type;
+    invalidateFilter();
+    emit typeFilterChanged();
+}
+
+bool SensorProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const {
+    const QModelIndex idx = sourceModel()->index(row, 0, parent);
+    const int type = sourceModel()->data(idx, SensorListModel::TypeRole).toInt();
+    if (type == static_cast<int>(SensorType::Text))
+        return false;
+    if (m_type >= 0 && type != m_type)
+        return false;
+    if (m_filter.isEmpty())
+        return true;
+    return sourceModel()->data(idx, SensorListModel::NameRole).toString().toLower().contains(m_filter)
+        || sourceModel()->data(idx, SensorListModel::DeviceNameRole).toString().toLower().contains(m_filter);
+}

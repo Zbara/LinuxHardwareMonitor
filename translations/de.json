@@ -9,6 +9,8 @@
  "Restart": "Neu starten",
  "Restart service?": "Dienst neu starten?",
  "Running": "Läuft",
+ "Search sensors": "Sensoren suchen",
+ "No sensors match the filter": "Keine Sensoren entsprechen dem Filter",
  "Search services": "Dienste suchen",
  "Services": "Dienste",
  "Start": "Starten",

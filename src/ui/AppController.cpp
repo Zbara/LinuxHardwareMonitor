@@ -119,6 +119,7 @@ AppController::AppController(AppOptions options, QObject *parent)
     connect(&m_manager, &SensorManager::updated, this, &AppController::rebuildSummaries);
     connect(&m_wifiMonitor, &WifiInfoMonitor::updated, this, [this](const WifiInfoMap &info) { m_wifi = info; });
     m_serviceProxy.setSourceModel(&m_serviceModel);
+    m_sensorProxy.setSourceModel(m_manager.model());
     connect(&m_serviceManager, &ServiceManager::servicesReady, this, [this](const QVector<ServiceInfo> &list) {
         m_serviceModel.update(list);
         if (m_servicesListFailed) { // the list works again, drop the stale error
