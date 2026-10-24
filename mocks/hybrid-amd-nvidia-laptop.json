@@ -1,0 +1,228 @@
+{
+  "_comment": "Simulation profile: every value is made up for testing the UI, not a real measurement.",
+  "name": "Hybrid laptop (Ryzen + Radeon 780M iGPU + RTX 4060)",
+  "seed": 51,
+  "cpu": {
+    "vendor": "AuthenticAMD",
+    "model": "AMD Ryzen 9 7940HS",
+    "cores": 8,
+    "threads": 16,
+    "base_mhz": 4000,
+    "max_mhz": 5200,
+    "l1_kb": 512,
+    "l2_kb": 8192,
+    "l3_kb": 16384,
+    "power_limit_w": 54,
+    "temperature": {
+      "base": 62,
+      "min": 38,
+      "max": 98,
+      "variation": 8
+    },
+    "usage": {
+      "base": 22,
+      "min": 0,
+      "max": 100,
+      "variation": 14
+    },
+    "frequency_mhz": {
+      "base": 3400,
+      "min": 600,
+      "max": 5200,
+      "variation": 500
+    }
+  },
+  "memory": {
+    "total_gb": 32,
+    "swap_gb": 4,
+    "usage": {
+      "base": 46,
+      "min": 20,
+      "max": 88,
+      "variation": 2
+    }
+  },
+  "gpus": [
+    {
+      "vendor": "AMD",
+      "model": "AMD Radeon 780M Graphics",
+      "vram_mb": 2048,
+      "driver": "amdgpu",
+      "pci_id": "1002:15BF",
+      "max_clock_mhz": 2700,
+      "has_fan": false,
+      "temperature": {
+        "base": 52,
+        "min": 30,
+        "max": 90,
+        "variation": 4
+      },
+      "usage": {
+        "base": 10,
+        "min": 0,
+        "max": 100,
+        "variation": 9
+      },
+      "power_w": {
+        "base": 7,
+        "min": 2,
+        "max": 30,
+        "variation": 3
+      },
+      "clock_mhz": {
+        "base": 800,
+        "min": 200,
+        "max": 2700,
+        "variation": 250
+      },
+      "vram_usage": {
+        "base": 30,
+        "min": 5,
+        "max": 90,
+        "variation": 2
+      }
+    },
+    {
+      "vendor": "NVIDIA",
+      "model": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "vram_mb": 8192,
+      "driver": "550.67",
+      "pci_id": "10DE:28A0",
+      "max_clock_mhz": 2370,
+      "temperature": {
+        "base": 58,
+        "min": 32,
+        "max": 92,
+        "variation": 4
+      },
+      "usage": {
+        "base": 28,
+        "min": 0,
+        "max": 100,
+        "variation": 14
+      },
+      "power_w": {
+        "base": 40,
+        "min": 8,
+        "max": 115,
+        "variation": 8
+      },
+      "clock_mhz": {
+        "base": 1300,
+        "min": 210,
+        "max": 2370,
+        "variation": 200
+      },
+      "vram_usage": {
+        "base": 25,
+        "min": 5,
+        "max": 92,
+        "variation": 2
+      },
+      "fan_percent": {
+        "base": 36,
+        "min": 0,
+        "max": 100,
+        "variation": 4
+      }
+    }
+  ],
+  "disks": [
+    {
+      "name": "nvme0n1",
+      "model": "Simulated NVMe 1TB",
+      "size_gb": 1000,
+      "used_fraction": 0.5,
+      "temperature": {
+        "base": 45,
+        "min": 28,
+        "max": 78,
+        "variation": 2
+      },
+      "read_mbps": {
+        "base": 8,
+        "min": 0,
+        "max": 5000,
+        "variation": 20
+      },
+      "write_mbps": {
+        "base": 5,
+        "min": 0,
+        "max": 4000,
+        "variation": 15
+      },
+      "busy": {
+        "base": 5,
+        "min": 0,
+        "max": 100,
+        "variation": 5
+      }
+    }
+  ],
+  "networks": [
+    {
+      "name": "wlp1s0",
+      "kind": "Wi-Fi",
+      "ssid": "SimulatedWiFi",
+      "speed_mbps": 1200,
+      "vendor": "Simulated Networks",
+      "model": "Wi-Fi 6E Adapter",
+      "down_mbps": {
+        "base": 0.8,
+        "min": 0,
+        "max": 90,
+        "variation": 2
+      },
+      "up_mbps": {
+        "base": 0.3,
+        "min": 0,
+        "max": 40,
+        "variation": 1
+      },
+      "signal_dbm": {
+        "base": -58,
+        "min": -85,
+        "max": -35,
+        "variation": 3
+      }
+    }
+  ],
+  "fans": [
+    {
+      "name": "CPU Fan",
+      "rpm": {
+        "base": 2600,
+        "min": 0,
+        "max": 5200,
+        "variation": 250
+      }
+    },
+    {
+      "name": "GPU Fan",
+      "rpm": {
+        "base": 2400,
+        "min": 0,
+        "max": 5000,
+        "variation": 250
+      }
+    }
+  ],
+  "battery": {
+    "design_wh": 90,
+    "full_wh": 82,
+    "cycles": 64,
+    "status": "Discharging",
+    "charge": {
+      "base": 66,
+      "min": 5,
+      "max": 100,
+      "variation": 1
+    },
+    "power_w": {
+      "base": 22,
+      "min": 5,
+      "max": 90,
+      "variation": 4
+    }
+  }
+}

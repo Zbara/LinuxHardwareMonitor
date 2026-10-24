@@ -1,0 +1,162 @@
+{
+  "_comment": "Simulation profile: every value is made up for testing the UI, not a real measurement.",
+  "name": "Intel desktop (Core i9 + Arc A770)",
+  "seed": 21,
+  "cpu": {
+    "vendor": "GenuineIntel",
+    "model": "Intel(R) Core(TM) i9-14900K",
+    "cores": 24,
+    "threads": 32,
+    "base_mhz": 3200,
+    "max_mhz": 6000,
+    "l1_kb": 1920,
+    "l2_kb": 32768,
+    "l3_kb": 36864,
+    "power_limit_w": 253,
+    "temperature": {
+      "base": 58,
+      "min": 30,
+      "max": 100,
+      "variation": 9
+    },
+    "usage": {
+      "base": 20,
+      "min": 0,
+      "max": 100,
+      "variation": 14
+    },
+    "frequency_mhz": {
+      "base": 3800,
+      "min": 800,
+      "max": 6000,
+      "variation": 700
+    }
+  },
+  "memory": {
+    "total_gb": 32,
+    "swap_gb": 2,
+    "usage": {
+      "base": 38,
+      "min": 15,
+      "max": 80,
+      "variation": 2
+    }
+  },
+  "gpu": {
+    "vendor": "Intel",
+    "model": "Intel Arc A770 Graphics",
+    "vram_mb": 16384,
+    "driver": "i915 / xe",
+    "pci_id": "8086:56A0",
+    "max_clock_mhz": 2400,
+    "temperature": {
+      "base": 55,
+      "min": 30,
+      "max": 90,
+      "variation": 3
+    },
+    "usage": {
+      "base": 18,
+      "min": 0,
+      "max": 100,
+      "variation": 12
+    },
+    "power_w": {
+      "base": 60,
+      "min": 10,
+      "max": 225,
+      "variation": 12
+    },
+    "clock_mhz": {
+      "base": 1200,
+      "min": 300,
+      "max": 2400,
+      "variation": 200
+    },
+    "vram_usage": {
+      "base": 22,
+      "min": 5,
+      "max": 90,
+      "variation": 2
+    },
+    "fan_percent": {
+      "base": 32,
+      "min": 0,
+      "max": 100,
+      "variation": 4
+    }
+  },
+  "disks": [
+    {
+      "name": "nvme0n1",
+      "model": "Simulated NVMe 1TB",
+      "size_gb": 1000,
+      "used_fraction": 0.35,
+      "temperature": {
+        "base": 42,
+        "min": 28,
+        "max": 75,
+        "variation": 2
+      },
+      "read_mbps": {
+        "base": 15,
+        "min": 0,
+        "max": 6500,
+        "variation": 30
+      },
+      "write_mbps": {
+        "base": 9,
+        "min": 0,
+        "max": 5500,
+        "variation": 25
+      },
+      "busy": {
+        "base": 6,
+        "min": 0,
+        "max": 100,
+        "variation": 5
+      }
+    }
+  ],
+  "networks": [
+    {
+      "name": "eno1",
+      "kind": "Ethernet",
+      "speed_mbps": 1000,
+      "vendor": "Simulated Networks",
+      "model": "Gigabit Controller",
+      "down_mbps": {
+        "base": 0.9,
+        "min": 0,
+        "max": 115,
+        "variation": 2
+      },
+      "up_mbps": {
+        "base": 0.3,
+        "min": 0,
+        "max": 115,
+        "variation": 1
+      }
+    }
+  ],
+  "fans": [
+    {
+      "name": "CPU Fan",
+      "rpm": {
+        "base": 1100,
+        "min": 400,
+        "max": 2200,
+        "variation": 90
+      }
+    },
+    {
+      "name": "Case Fan",
+      "rpm": {
+        "base": 850,
+        "min": 400,
+        "max": 1600,
+        "variation": 50
+      }
+    }
+  ]
+}

@@ -1,0 +1,266 @@
+{
+  "_comment": "Simulation profile: every value is made up for testing the UI, not a real measurement.",
+  "name": "Stress test: overheating, GPU loss, sensor dropout, fan changes",
+  "seed": 99,
+  "cpu": {
+    "vendor": "AuthenticAMD",
+    "model": "AMD Ryzen 9 7950X 16-Core Processor",
+    "cores": 16,
+    "threads": 32,
+    "base_mhz": 4500,
+    "max_mhz": 5700,
+    "l1_kb": 1024,
+    "l2_kb": 16384,
+    "l3_kb": 65536,
+    "virtualization": true,
+    "power_limit_w": 170,
+    "sensors": {
+      "temperature": {
+        "base": 65,
+        "min": 35,
+        "max": 95,
+        "variation": 8
+      },
+      "usage": {
+        "base": 25,
+        "min": 0,
+        "max": 100,
+        "variation": 15
+      },
+      "frequency_mhz": {
+        "base": 4200,
+        "min": 500,
+        "max": 5700,
+        "variation": 600
+      }
+    }
+  },
+  "memory": {
+    "total_gb": 64,
+    "swap_gb": 8,
+    "usage": {
+      "base": 40,
+      "min": 15,
+      "max": 85,
+      "variation": 2
+    }
+  },
+  "gpu": {
+    "vendor": "AMD",
+    "model": "AMD Radeon RX 7900 XTX",
+    "vram_mb": 24576,
+    "driver": "amdgpu (Mesa 24.0)",
+    "pci_id": "1002:744C",
+    "max_clock_mhz": 2500,
+    "has_fan": true,
+    "sensors": {
+      "temperature": {
+        "base": 58,
+        "min": 35,
+        "max": 95,
+        "variation": 3
+      },
+      "usage": {
+        "base": 30,
+        "min": 0,
+        "max": 100,
+        "variation": 14
+      },
+      "power_w": {
+        "base": 120,
+        "min": 15,
+        "max": 355,
+        "variation": 20
+      },
+      "clock_mhz": {
+        "base": 1500,
+        "min": 200,
+        "max": 2500,
+        "variation": 250
+      },
+      "vram_usage": {
+        "base": 28,
+        "min": 5,
+        "max": 95,
+        "variation": 2
+      },
+      "fan_percent": {
+        "base": 35,
+        "min": 0,
+        "max": 100,
+        "variation": 4
+      }
+    }
+  },
+  "disks": [
+    {
+      "name": "nvme0n1",
+      "model": "Simulated NVMe 2TB",
+      "size_gb": 2000,
+      "used_fraction": 0.45,
+      "temperature": {
+        "base": 46,
+        "min": 30,
+        "max": 80,
+        "variation": 2
+      },
+      "read_mbps": {
+        "base": 20,
+        "min": 0,
+        "max": 7000,
+        "variation": 40
+      },
+      "write_mbps": {
+        "base": 12,
+        "min": 0,
+        "max": 6000,
+        "variation": 30
+      },
+      "busy": {
+        "base": 8,
+        "min": 0,
+        "max": 100,
+        "variation": 6
+      }
+    },
+    {
+      "name": "sda",
+      "model": "Simulated HDD 4TB",
+      "size_gb": 4000,
+      "used_fraction": 0.7,
+      "rotational": true,
+      "temperature": {
+        "base": 38,
+        "min": 25,
+        "max": 60,
+        "variation": 1
+      },
+      "read_mbps": {
+        "base": 2,
+        "min": 0,
+        "max": 200,
+        "variation": 5
+      },
+      "write_mbps": {
+        "base": 1,
+        "min": 0,
+        "max": 180,
+        "variation": 4
+      },
+      "busy": {
+        "base": 3,
+        "min": 0,
+        "max": 100,
+        "variation": 4
+      }
+    }
+  ],
+  "networks": [
+    {
+      "name": "enp5s0",
+      "kind": "Ethernet",
+      "speed_mbps": 2500,
+      "vendor": "Simulated Networks",
+      "model": "2.5GbE Controller",
+      "down_mbps": {
+        "base": 1.2,
+        "min": 0,
+        "max": 280,
+        "variation": 3
+      },
+      "up_mbps": {
+        "base": 0.4,
+        "min": 0,
+        "max": 280,
+        "variation": 1
+      }
+    },
+    {
+      "name": "tun0",
+      "kind": "Virtual",
+      "speed_mbps": 10000,
+      "down_mbps": {
+        "base": 0.05,
+        "min": 0,
+        "max": 12,
+        "variation": 0.4
+      },
+      "up_mbps": {
+        "base": 0.02,
+        "min": 0,
+        "max": 4,
+        "variation": 0.15
+      }
+    }
+  ],
+  "fans": [
+    {
+      "name": "CPU Fan",
+      "rpm": {
+        "base": 1400,
+        "min": 500,
+        "max": 2400,
+        "variation": 100
+      }
+    },
+    {
+      "name": "Case Fan 1",
+      "rpm": {
+        "base": 900,
+        "min": 400,
+        "max": 1800,
+        "variation": 60
+      }
+    },
+    {
+      "name": "Case Fan 2",
+      "rpm": {
+        "base": 950,
+        "min": 400,
+        "max": 1800,
+        "variation": 60
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "type": "overheat",
+      "target": "cpu",
+      "start_s": 10,
+      "duration_s": 30,
+      "peak": 100
+    },
+    {
+      "type": "gpu_loss",
+      "target": "gpu0",
+      "start_s": 50,
+      "duration_s": 20
+    },
+    {
+      "type": "sensor_dropout",
+      "target": "fan:CPU Fan",
+      "start_s": 75,
+      "duration_s": 15
+    },
+    {
+      "type": "fan_change",
+      "target": "fan:Case Fan 1",
+      "start_s": 95,
+      "duration_s": 20,
+      "rpm": 4800
+    },
+    {
+      "type": "overheat",
+      "target": "gpu0",
+      "start_s": 120,
+      "duration_s": 30,
+      "peak": 105
+    },
+    {
+      "type": "sensor_dropout",
+      "target": "disk:nvme0n1",
+      "start_s": 160,
+      "duration_s": 15
+    }
+  ]
+}

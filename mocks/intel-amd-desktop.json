@@ -1,0 +1,185 @@
+{
+  "_comment": "Simulation profile: every value is made up for testing the UI, not a real measurement.",
+  "name": "Intel + Radeon desktop (Core i5 with UHD 770 + Radeon RX 6700 XT)",
+  "seed": 61,
+  "cpu": {
+    "vendor": "GenuineIntel",
+    "model": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "cores": 14,
+    "threads": 20,
+    "base_mhz": 3500,
+    "max_mhz": 5100,
+    "l1_kb": 1088,
+    "l2_kb": 20480,
+    "l3_kb": 24576,
+    "power_limit_w": 181,
+    "temperature": {
+      "base": 55,
+      "min": 28,
+      "max": 100,
+      "variation": 8
+    },
+    "usage": {
+      "base": 18,
+      "min": 0,
+      "max": 100,
+      "variation": 12
+    },
+    "frequency_mhz": {
+      "base": 3900,
+      "min": 800,
+      "max": 5100,
+      "variation": 600
+    }
+  },
+  "memory": {
+    "total_gb": 32,
+    "swap_gb": 2,
+    "usage": {
+      "base": 40,
+      "min": 15,
+      "max": 85,
+      "variation": 2
+    }
+  },
+  "gpus": [
+    {
+      "vendor": "Intel",
+      "model": "Intel UHD Graphics 770",
+      "vram_mb": 0,
+      "driver": "i915",
+      "pci_id": "8086:A780",
+      "max_clock_mhz": 1500,
+      "has_fan": false,
+      "power_w": {
+        "base": 4,
+        "min": 1,
+        "max": 25,
+        "variation": 2
+      },
+      "clock_mhz": {
+        "base": 350,
+        "min": 300,
+        "max": 1500,
+        "variation": 60
+      }
+    },
+    {
+      "vendor": "AMD",
+      "model": "AMD Radeon RX 6700 XT",
+      "vram_mb": 12288,
+      "driver": "amdgpu",
+      "pci_id": "1002:73DF",
+      "max_clock_mhz": 2581,
+      "temperature": {
+        "base": 56,
+        "min": 32,
+        "max": 95,
+        "variation": 4
+      },
+      "usage": {
+        "base": 24,
+        "min": 0,
+        "max": 100,
+        "variation": 13
+      },
+      "power_w": {
+        "base": 70,
+        "min": 10,
+        "max": 230,
+        "variation": 12
+      },
+      "clock_mhz": {
+        "base": 1500,
+        "min": 200,
+        "max": 2581,
+        "variation": 250
+      },
+      "vram_usage": {
+        "base": 27,
+        "min": 5,
+        "max": 92,
+        "variation": 2
+      },
+      "fan_percent": {
+        "base": 34,
+        "min": 0,
+        "max": 100,
+        "variation": 4
+      }
+    }
+  ],
+  "disks": [
+    {
+      "name": "nvme0n1",
+      "model": "Simulated NVMe 1TB",
+      "size_gb": 1000,
+      "used_fraction": 0.4,
+      "temperature": {
+        "base": 43,
+        "min": 28,
+        "max": 75,
+        "variation": 2
+      },
+      "read_mbps": {
+        "base": 12,
+        "min": 0,
+        "max": 6500,
+        "variation": 30
+      },
+      "write_mbps": {
+        "base": 8,
+        "min": 0,
+        "max": 5500,
+        "variation": 25
+      },
+      "busy": {
+        "base": 6,
+        "min": 0,
+        "max": 100,
+        "variation": 5
+      }
+    }
+  ],
+  "networks": [
+    {
+      "name": "enp4s0",
+      "kind": "Ethernet",
+      "speed_mbps": 2500,
+      "vendor": "Simulated Networks",
+      "model": "2.5GbE Controller",
+      "down_mbps": {
+        "base": 1.0,
+        "min": 0,
+        "max": 280,
+        "variation": 3
+      },
+      "up_mbps": {
+        "base": 0.3,
+        "min": 0,
+        "max": 280,
+        "variation": 1
+      }
+    }
+  ],
+  "fans": [
+    {
+      "name": "CPU Fan",
+      "rpm": {
+        "base": 1200,
+        "min": 400,
+        "max": 2400,
+        "variation": 100
+      }
+    },
+    {
+      "name": "Case Fan",
+      "rpm": {
+        "base": 850,
+        "min": 400,
+        "max": 1600,
+        "variation": 60
+      }
+    }
+  ]
+}

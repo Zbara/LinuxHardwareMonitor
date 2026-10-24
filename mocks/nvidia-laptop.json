@@ -1,0 +1,187 @@
+{
+  "_comment": "Simulation profile: every value is made up for testing the UI, not a real measurement.",
+  "name": "Intel + NVIDIA laptop (Core i7 + RTX 3060)",
+  "seed": 31,
+  "cpu": {
+    "vendor": "GenuineIntel",
+    "model": "12th Gen Intel(R) Core(TM) i7-12700H",
+    "cores": 14,
+    "threads": 20,
+    "base_mhz": 2300,
+    "max_mhz": 4700,
+    "l1_kb": 1088,
+    "l2_kb": 11776,
+    "l3_kb": 24576,
+    "power_limit_w": 45,
+    "temperature": {
+      "base": 62,
+      "min": 35,
+      "max": 100,
+      "variation": 9
+    },
+    "usage": {
+      "base": 24,
+      "min": 0,
+      "max": 100,
+      "variation": 15
+    },
+    "frequency_mhz": {
+      "base": 2900,
+      "min": 800,
+      "max": 4700,
+      "variation": 500
+    }
+  },
+  "memory": {
+    "total_gb": 16,
+    "swap_gb": 4,
+    "usage": {
+      "base": 55,
+      "min": 25,
+      "max": 92,
+      "variation": 3
+    }
+  },
+  "gpu": {
+    "vendor": "NVIDIA",
+    "model": "NVIDIA GeForce RTX 3060 Laptop GPU",
+    "vram_mb": 6144,
+    "driver": "535.00",
+    "pci_id": "10DE:2520",
+    "max_clock_mhz": 1900,
+    "temperature": {
+      "base": 57,
+      "min": 32,
+      "max": 92,
+      "variation": 4
+    },
+    "usage": {
+      "base": 28,
+      "min": 0,
+      "max": 100,
+      "variation": 14
+    },
+    "power_w": {
+      "base": 45,
+      "min": 8,
+      "max": 115,
+      "variation": 8
+    },
+    "clock_mhz": {
+      "base": 1100,
+      "min": 210,
+      "max": 1900,
+      "variation": 200
+    },
+    "vram_usage": {
+      "base": 33,
+      "min": 5,
+      "max": 92,
+      "variation": 2
+    },
+    "fan_percent": {
+      "base": 38,
+      "min": 0,
+      "max": 100,
+      "variation": 4
+    }
+  },
+  "disks": [
+    {
+      "name": "nvme0n1",
+      "model": "Simulated NVMe 512GB",
+      "size_gb": 512,
+      "used_fraction": 0.6,
+      "temperature": {
+        "base": 48,
+        "min": 30,
+        "max": 82,
+        "variation": 3
+      },
+      "read_mbps": {
+        "base": 10,
+        "min": 0,
+        "max": 3500,
+        "variation": 25
+      },
+      "write_mbps": {
+        "base": 7,
+        "min": 0,
+        "max": 3000,
+        "variation": 20
+      },
+      "busy": {
+        "base": 7,
+        "min": 0,
+        "max": 100,
+        "variation": 6
+      }
+    }
+  ],
+  "networks": [
+    {
+      "name": "wlp0s20f3",
+      "kind": "Wi-Fi",
+      "ssid": "SimulatedWiFi",
+      "speed_mbps": 866,
+      "vendor": "Simulated Networks",
+      "model": "Wi-Fi 6 Adapter",
+      "down_mbps": {
+        "base": 0.6,
+        "min": 0,
+        "max": 70,
+        "variation": 2
+      },
+      "up_mbps": {
+        "base": 0.2,
+        "min": 0,
+        "max": 35,
+        "variation": 1
+      },
+      "signal_dbm": {
+        "base": -52,
+        "min": -85,
+        "max": -35,
+        "variation": 3
+      }
+    }
+  ],
+  "fans": [
+    {
+      "name": "CPU Fan",
+      "rpm": {
+        "base": 2700,
+        "min": 0,
+        "max": 5600,
+        "variation": 300
+      }
+    },
+    {
+      "name": "GPU Fan",
+      "rpm": {
+        "base": 2500,
+        "min": 0,
+        "max": 5400,
+        "variation": 300
+      }
+    }
+  ],
+  "battery": {
+    "design_wh": 80,
+    "full_wh": 71,
+    "cycles": 210,
+    "status": "Charging",
+    "charge": {
+      "base": 72,
+      "min": 5,
+      "max": 100,
+      "variation": 1
+    },
+    "power_w": {
+      "base": 30,
+      "min": 5,
+      "max": 90,
+      "variation": 5
+    }
+  }
+}

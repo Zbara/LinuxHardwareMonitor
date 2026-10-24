@@ -1,0 +1,91 @@
+{
+  "_comment": "Simulation profile: every value is made up for testing the UI, not a real measurement.",
+  "name": "Minimal system (no GPU, no fans)",
+  "seed": 41,
+  "cpu": {
+    "vendor": "GenuineIntel",
+    "model": "Simulated Dual-Core CPU",
+    "cores": 2,
+    "threads": 2,
+    "base_mhz": 1800,
+    "max_mhz": 2600,
+    "temperature": {
+      "base": 48,
+      "min": 30,
+      "max": 85,
+      "variation": 5
+    },
+    "usage": {
+      "base": 18,
+      "min": 0,
+      "max": 100,
+      "variation": 12
+    },
+    "frequency_mhz": {
+      "base": 1900,
+      "min": 800,
+      "max": 2600,
+      "variation": 200
+    }
+  },
+  "memory": {
+    "total_gb": 4,
+    "usage": {
+      "base": 50,
+      "min": 20,
+      "max": 90,
+      "variation": 3
+    }
+  },
+  "disks": [
+    {
+      "name": "sda",
+      "model": "Simulated SSD 120GB",
+      "size_gb": 120,
+      "used_fraction": 0.5,
+      "temperature": {
+        "base": 35,
+        "min": 25,
+        "max": 60,
+        "variation": 1
+      },
+      "read_mbps": {
+        "base": 3,
+        "min": 0,
+        "max": 500,
+        "variation": 8
+      },
+      "write_mbps": {
+        "base": 2,
+        "min": 0,
+        "max": 450,
+        "variation": 6
+      },
+      "busy": {
+        "base": 4,
+        "min": 0,
+        "max": 100,
+        "variation": 4
+      }
+    }
+  ],
+  "networks": [
+    {
+      "name": "eth0",
+      "kind": "Ethernet",
+      "speed_mbps": 100,
+      "down_mbps": {
+        "base": 0.2,
+        "min": 0,
+        "max": 11,
+        "variation": 0.5
+      },
+      "up_mbps": {
+        "base": 0.1,
+        "min": 0,
+        "max": 11,
+        "variation": 0.3
+      }
+    }
+  ]
+}
