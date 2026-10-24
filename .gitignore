@@ -1,0 +1,26 @@
+# Build trees (CLion, manual, sanitizer runs)
+/build/
+/build-*/
+/cmake-build-*/
+/out/
+CMakeUserPresets.json
+compile_commands.json
+CMakeLists.txt.user
+
+# Packages and release artifacts (rebuild with `cpack -G DEB`)
+/dist/
+*.deb
+*.AppImage
+
+# IDEs
+/.idea/
+/.vscode/
+*.swp
+*~
+
+# Local profiling / screenshot output
+*.png.tmp
+/screenshots/
+/core
+/core.*
+perf.data*
