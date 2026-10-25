@@ -21,6 +21,7 @@ interface. No Electron, no web view, no root: everything comes from `/sys`, `/pr
 - **Overheat notifications** – optional desktop notification (freedesktop `Notify` over D-Bus) when a temperature sensor reaches a threshold you choose; off by default. A temperature sensor can have a threshold of its own (in its detail window), which replaces the global one for that sensor.
 - **Keyboard** – `Ctrl+1`…`Ctrl+7` switch pages, `Ctrl+F` focuses the search field of the Processes, Services and Sensors pages.
 - **Temperature unit** – Celsius or Fahrenheit (Settings); only what is shown changes, thresholds and data stay in Celsius.
+- **System information** – Settings > About copies a short description of the hardware, versions and renderer for a bug report. It never contains serial numbers, MAC/IP addresses or Wi-Fi names.
 - **Settings** – update interval, history length, dark/light theme, language, start with the system, CSV export of the history.
 - **Languages** – English, Русский, Українська, Deutsch, Español (switchable at runtime, follows the system by default).
 

@@ -166,6 +166,12 @@ public:
     Q_INVOKABLE void setUiSetting(const QString &key, const QVariant &value);
 
     Q_INVOKABLE void copyToClipboard(const QString &text);
+    // Hardware and program description for a bug report (no serial numbers, addresses or names).
+    Q_INVOKABLE QString systemReport() const;
+    Q_PROPERTY(QString appVersion READ appVersion CONSTANT)
+    QString appVersion() const;
+    // Which Qt Quick backend main() selected; only used in the system report.
+    void setRendererName(const QString &name) { m_rendererName = name; }
 
     // Sends SIGTERM (or SIGKILL when force is set). Returns an error message,
     // or an empty string on success.
@@ -231,6 +237,7 @@ private:
     Autostart m_autostart;
     Localization m_localization;
     QString m_languageSetting;
+    QString m_rendererName;
     bool m_trayEnabled = false;
     QStringList m_favorites;
     QString m_trayStyle = QStringLiteral("app");

@@ -230,6 +230,29 @@ ScrollView {
                     Label { id: exportResult; visible: false }
                 }
             }
+
+            Section {
+                title: qsTr("About")
+
+                SettingRow {
+                    label: qsTr("Linux Hardware Monitor %1").arg(app.appVersion)
+                    hint: qsTr("Free software, GPL-3.0-or-later")
+                    Item { width: 1; height: 1 }
+                }
+                SettingRow {
+                    label: qsTr("System information")
+                    hint: reportResult.text !== "" ? reportResult.text : qsTr("Hardware models and versions for a bug report; no serial numbers or addresses")
+                    Button {
+                        anchors.right: parent.right
+                        text: qsTr("Copy")
+                        onClicked: {
+                            app.copyToClipboard(app.systemReport())
+                            reportResult.text = qsTr("Copied to the clipboard")
+                        }
+                    }
+                    Label { id: reportResult; visible: false }
+                }
+            }
         }
     }
 }

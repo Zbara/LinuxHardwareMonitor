@@ -32,8 +32,11 @@ int main(int argc, char *argv[]) {
     }
     // The interface is flat 2D; the software scene graph needs ~150 MB less memory than the OpenGL one
     // and does not wake the discrete GPU. QT_QUICK_BACKEND=rhi (or any other value) overrides it.
-    if (!qEnvironmentVariableIsSet("QT_QUICK_BACKEND") && !qEnvironmentVariableIsSet("QSG_RHI_BACKEND"))
+    QString rendererName = qEnvironmentVariable("QT_QUICK_BACKEND", qEnvironmentVariable("QSG_RHI_BACKEND", QStringLiteral("default")));
+    if (!qEnvironmentVariableIsSet("QT_QUICK_BACKEND") && !qEnvironmentVariableIsSet("QSG_RHI_BACKEND")) {
         QQuickWindow::setGraphicsApi(QSGRendererInterface::Software);
+        rendererName = QStringLiteral("software");
+    }
     QApplication app(argc, argv); // QSystemTrayIcon needs the widgets application
     app.setApplicationName(QStringLiteral("LinuxHardwareMonitor"));
     app.setOrganizationName(QStringLiteral("LinuxHardwareMonitor"));
@@ -74,6 +77,7 @@ int main(int argc, char *argv[]) {
     }
 
     AppController controller(options);
+    controller.setRendererName(rendererName);
 
     QQmlApplicationEngine engine;
     // Re-evaluate every qsTr() binding when the language changes.

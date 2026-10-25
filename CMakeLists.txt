@@ -43,6 +43,8 @@ add_library(hwmon_core STATIC
     src/core/ProcessMonitor.cpp
     src/core/CommandLine.h
     src/core/CommandLine.cpp
+    src/core/SystemReport.h
+    src/core/SystemReport.cpp
     src/core/Notifier.h
     src/core/Notifier.cpp
     src/core/SensorManager.h

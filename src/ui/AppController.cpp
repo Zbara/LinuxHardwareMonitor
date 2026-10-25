@@ -2,6 +2,7 @@
 
 #include <QRegularExpression>
 #include "core/Notifier.h"
+#include "core/SystemReport.h"
 #include "TrayIcon.h"
 
 #include "core/ProcessControl.h"
@@ -25,7 +26,9 @@
 #include <QDir>
 #include <QClipboard>
 #include <QFile>
+#include <QFileInfo>
 #include <QGuiApplication>
+#include <QSysInfo>
 #include <QStandardPaths>
 #include <QVariantMap>
 
@@ -318,6 +321,25 @@ QString AppController::endProcesses(const QVariantList &pids, bool force) {
             firstError = err;
     }
     return describe(firstError);
+}
+
+QString AppController::appVersion() const {
+    return QStringLiteral(HWMON_VERSION);
+}
+
+QString AppController::systemReport() const {
+    SystemReport::Environment env;
+    env.appVersion = appVersion();
+    env.os = QSysInfo::prettyProductName();
+    env.kernel = QSysInfo::kernelVersion();
+    env.qtVersion = QString::fromLatin1(qVersion());
+    env.renderer = m_rendererName;
+    env.language = m_languageSetting.isEmpty() ? QLocale::system().name() + QStringLiteral(" (system)") : m_languageSetting;
+    if (m_options.mock)
+        env.mode = QStringLiteral("simulation (%1)").arg(QFileInfo(m_options.mockPath).fileName());
+    else if (m_options.fixtureMode())
+        env.mode = QStringLiteral("test data (fixture directories)");
+    return SystemReport::format(m_details, env);
 }
 
 QString AppController::exportHistory() {
