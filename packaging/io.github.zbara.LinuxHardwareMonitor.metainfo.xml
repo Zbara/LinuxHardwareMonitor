@@ -30,11 +30,11 @@
   <url type="bugtracker">https://github.com/Zbara/LinuxHardwareMonitor/issues</url>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/Zbara/LinuxHardwareMonitor/master/docs/screenshots/performance-cpu.png</image>
+      <image>https://raw.githubusercontent.com/Zbara/LinuxHardwareMonitor/main/docs/screenshots/performance-cpu.png</image>
       <caption>CPU performance page (simulated data)</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/Zbara/LinuxHardwareMonitor/master/docs/screenshots/sensors.png</image>
+      <image>https://raw.githubusercontent.com/Zbara/LinuxHardwareMonitor/main/docs/screenshots/sensors.png</image>
       <caption>All sensors (simulated data)</caption>
     </screenshot>
   </screenshots>

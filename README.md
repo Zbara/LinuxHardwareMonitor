@@ -107,8 +107,24 @@ sudo apt install ./linux-hardware-monitor_0.1.0-1_ubuntu26.04_amd64.deb
 ```
 
 If `apt` prints a notice about the `_apt` user, copy the file out of your home directory first (e.g. to `/tmp`).
-When the release contains `SHA256SUMS.asc`, check it with `gpg --import signing-key.asc && gpg --verify SHA256SUMS.asc
-SHA256SUMS`. Maintainers: see `RELEASING.md`.
+Releases are signed: `SHA256SUMS.asc` is a detached signature of `SHA256SUMS`.
+
+```
+gpg --import signing-key.asc            # in the release, or docs/signing-key.asc in this repository
+gpg --fingerprint 455F2B9C5659DD1BECB73300F2AAEDFB7B8CB932
+gpg --verify SHA256SUMS.asc SHA256SUMS
+sha256sum -c SHA256SUMS --ignore-missing
+```
+
+Signing key: **Zbara (Linux Hardware Monitor releases) <zbara.dev@gmail.com>**, ed25519, valid until 2029-10-24,
+fingerprint
+
+```
+455F 2B9C 5659 DD1B ECB7  3300 F2AA EDFB 7B8C B932
+```
+
+`gpg --verify` says "unknown" for the trust of a key you have just imported; what matters is that the fingerprint it
+prints is this one. Maintainers: see `RELEASING.md`.
 
 ## Build a package yourself
 

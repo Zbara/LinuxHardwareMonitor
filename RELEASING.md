@@ -16,7 +16,7 @@ dependencies are right for that release) and published as a GitHub release. Noth
 3. Commit, then tag and push:
    ```
    git tag -a vX.Y.Z -m "Linux Hardware Monitor X.Y.Z"
-   git push origin master vX.Y.Z
+   git push origin main vX.Y.Z
    ```
 4. The `Release` workflow builds and tests both packages, runs `lintian` and `appstreamcli`, writes `SHA256SUMS`,
    signs it when a key is configured and creates the release with the notes from `packaging/changelog`.
@@ -24,22 +24,25 @@ dependencies are right for that release) and published as a GitHub release. Noth
 A change to the packaging alone (same program version) uses a new revision: `X.Y.Z-2` in the changelog and
 `HWMON_DEB_REVISION` in `CMakeLists.txt`.
 
-## Signing (optional, recommended)
+## Signing
 
 The `.deb` files are not signed themselves; the signature covers `SHA256SUMS`, which lists them.
 
-1. Make a key for releases (once): `gpg --quick-generate-key "Your Name <you@example.org>" ed25519 sign 3y`
-2. Add two repository secrets (Settings > Secrets and variables > Actions):
-   - `GPG_PRIVATE_KEY`: the output of `gpg --armor --export-secret-keys <key id>`
-   - `GPG_PASSPHRASE`: its passphrase
-3. Without `GPG_PRIVATE_KEY` the release is simply published unsigned. With it, the release also contains
-   `SHA256SUMS.asc` and `signing-key.asc`. Publish the key's fingerprint somewhere users can compare it
-   (the README, your profile), otherwise the signature only proves that the same key signed the files.
+The release key is **455F 2B9C 5659 DD1B ECB7 3300 F2AA EDFB 7B8C B932** (ed25519, "Zbara (Linux Hardware Monitor
+releases)", valid until **2029-10-24**; extend it with `gpg --quick-set-expire <fingerprint> 3y` and publish the new
+`docs/signing-key.asc` before it runs out). The workflow signs when these repository secrets exist (Settings >
+Secrets and variables > Actions), otherwise it publishes unsigned with checksums only:
 
-Users verify with:
-```
-gpg --import signing-key.asc && gpg --verify SHA256SUMS.asc SHA256SUMS && sha256sum -c SHA256SUMS --ignore-missing
-```
+- `GPG_PRIVATE_KEY`: `gpg --armor --export-secret-keys <fingerprint>`
+- `GPG_PASSPHRASE`: its passphrase
+
+The private key, the passphrase and a copy of the revocation certificate (`~/.gnupg/openpgp-revocs.d/<fingerprint>.rev`)
+must be backed up somewhere safe (a password manager). Whoever has the key can sign releases in your name; if it is
+ever exposed, revoke it with the certificate and publish a new one in the README. Nothing secret is stored in this
+repository: only the public key (`docs/signing-key.asc`) and the fingerprint.
+
+The release contains `SHA256SUMS.asc` and `signing-key.asc`. Users verify with the commands in the README
+(they must compare the fingerprint, otherwise the signature only proves that the same key signed the files).
 
 ## Checking a package locally
 
