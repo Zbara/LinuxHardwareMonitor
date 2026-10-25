@@ -21,9 +21,10 @@ Canvas {
     property bool filled: false
     // > 0: X axis shows exactly this many seconds; otherwise it fills as data arrives.
     property real fixedSpan: 0
-    // Auto-span charts draw only the latest uninterrupted run of samples. Otherwise the downtime gap of
-    // a restart (history is restored from the previous session) stretches the X axis and squeezes the
-    // fresh data into specks at the right edge. The detail dialog turns this off to show everything.
+    // Live charts draw only the latest uninterrupted run of samples. History restored from earlier
+    // sessions is separated from it by gaps, which would stretch an auto-span X axis (fresh data became
+    // specks at the right edge) and litter a 60 s window with leftovers of previous runs. The detail
+    // dialog turns this off to show everything, gaps included.
     property bool latestRunOnly: true
     property bool grid: false
     property color gridColor: Theme.border
@@ -76,7 +77,7 @@ Canvas {
             while (start > 0 && !isNaN(pts[start - 1].y)) start--
             return end < 0 ? [] : pts.slice(start, end + 1)
         }
-        const prepare = pts => (chart.latestRunOnly && chart.fixedSpan <= 0) ? latestRun(pts) : pts
+        const prepare = pts => chart.latestRunOnly ? latestRun(pts) : pts
 
         const series = []
         if (sensorId !== "") series.push({ pts: prepare(app.history(sensorId)), color: lineColor })
