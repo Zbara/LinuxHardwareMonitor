@@ -67,6 +67,8 @@ add_library(hwmon_core STATIC
     src/core/CpuTemperature.cpp
     src/core/ThemeMode.h
     src/core/ThemeMode.cpp
+    src/core/BuildInfo.h
+    src/core/BuildInfo.cpp
     src/core/Notifier.h
     src/core/Notifier.cpp
     src/core/SensorManager.h
@@ -109,6 +111,31 @@ add_library(hwmon_core STATIC
 )
 target_include_directories(hwmon_core PUBLIC src)
 target_compile_definitions(hwmon_core PUBLIC HWMON_VERSION="${PROJECT_VERSION}")
+
+# Which commit the binary comes from, for `--version` and the About page. Read when CMake configures (a
+# source archive without git simply has none). Only BuildInfo.cpp gets the definitions, so a new commit
+# recompiles one file, not the library.
+find_package(Git QUIET)
+set(HWMON_GIT_DESCRIBE "")
+set(HWMON_GIT_DATE "")
+if(GIT_FOUND AND EXISTS ${CMAKE_SOURCE_DIR}/.git)
+    execute_process(COMMAND ${GIT_EXECUTABLE} describe --always --tags --abbrev=7
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE HWMON_GIT_DESCRIBE
+                    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+    execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%cs
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE HWMON_GIT_DATE
+                    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+    # Reconfigure when the checked-out commit changes (HEAD, or the branch it points at).
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/.git/HEAD)
+    file(READ ${CMAKE_SOURCE_DIR}/.git/HEAD HWMON_GIT_HEAD)
+    if(HWMON_GIT_HEAD MATCHES "^ref: (.+)\n")
+        if(EXISTS ${CMAKE_SOURCE_DIR}/.git/${CMAKE_MATCH_1})
+            set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/.git/${CMAKE_MATCH_1})
+        endif()
+    endif()
+endif()
+set_source_files_properties(src/core/BuildInfo.cpp PROPERTIES COMPILE_DEFINITIONS
+    "HWMON_GIT_DESCRIBE=\"${HWMON_GIT_DESCRIBE}\";HWMON_GIT_DATE=\"${HWMON_GIT_DATE}\"")
 target_link_libraries(hwmon_core PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets Qt6::DBus Qt6::Network Qt6::Qml)
 
 set_source_files_properties(qml/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)

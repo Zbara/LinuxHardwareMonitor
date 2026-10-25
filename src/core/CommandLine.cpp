@@ -1,12 +1,9 @@
 #include "CommandLine.h"
 
+#include "BuildInfo.h"
 #include "ProjectInfo.h"
 
 namespace CommandLine {
-
-#ifndef HWMON_VERSION
-#define HWMON_VERSION "unknown"
-#endif
 
 const QList<Flag> &flags() {
     static const QList<Flag> list = {
@@ -31,13 +28,26 @@ const QList<Flag> &flags() {
         {"--screenshot-delay", "<ms>", "wait this long before the screenshot (default 3500) so the charts have history"},
         {"--close-after", "<ms>", "close the window after this many milliseconds"},
         {"--help, -h", "", "show this text"},
-        {"--version, -v", "", "show the version"},
+        {"--version, -v", "", "show the version, the build (commit), the Qt version and the license"},
     };
     return list;
 }
 
 QString version() {
-    return QStringLiteral("LinuxHardwareMonitor ") + QStringLiteral(HWMON_VERSION);
+    return QStringLiteral("LinuxHardwareMonitor ") + BuildInfo::version();
+}
+
+QString versionDetails() {
+    QString out = version();
+    if (const QString build = BuildInfo::build(); !build.isEmpty())
+        out += QStringLiteral("\nBuild:   %1").arg(build);
+    out += QStringLiteral("\nQt:      %1").arg(BuildInfo::qtRuntime());
+    if (BuildInfo::qtBuiltWith() != BuildInfo::qtRuntime())
+        out += QStringLiteral(" (built with %1)").arg(BuildInfo::qtBuiltWith());
+    out += QStringLiteral("\nLicense: %1\nAuthor:  %2 (%3)")
+               .arg(QString::fromLatin1(ProjectInfo::kLicense), QString::fromLatin1(ProjectInfo::kAuthor),
+                    QString::fromLatin1(ProjectInfo::kWebsite));
+    return out;
 }
 
 QString help(const QString &program) {

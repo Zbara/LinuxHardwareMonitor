@@ -1,5 +1,6 @@
 #include "ui/AppController.h"
 
+#include "core/BuildInfo.h"
 #include "core/CommandLine.h"
 #include "core/CpuTemperature.h"
 #include "core/QuitSignals.h"
@@ -63,7 +64,7 @@ int runDump(int argc, char *argv[], const QStringList &args) {
     const QString mode = options.mock ? QStringLiteral("simulation (%1)").arg(QFileInfo(options.mockPath).fileName())
                          : options.fixtureMode() ? QStringLiteral("test data")
                                                  : QStringLiteral("real");
-    const QByteArray json = SensorSnapshot::toJson(readings, QStringLiteral(HWMON_VERSION), mode,
+    const QByteArray json = SensorSnapshot::toJson(readings, BuildInfo::version(), mode,
                                                    QDateTime::currentDateTime(), args.contains(QStringLiteral("--compact")));
     QFile out;
     out.open(stdout, QIODevice::WriteOnly);
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
         const bool help = CommandLine::wantsHelp(args), version = CommandLine::wantsVersion(args);
         if (help || version) {
             const QString text = help ? CommandLine::help(QFileInfo(QString::fromLocal8Bit(argv[0])).fileName())
-                                      : CommandLine::version();
+                                      : CommandLine::versionDetails();
             QTextStream(stdout) << text << Qt::endl;
             return 0;
         }

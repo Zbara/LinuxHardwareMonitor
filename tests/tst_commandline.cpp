@@ -21,6 +21,14 @@ private slots:
         QVERIFY(!CommandLine::version().endsWith("unknown"));
     }
 
+    void versionDetailsKeepTheFirstLineAndAddTheBuild() {
+        const QString d = CommandLine::versionDetails();
+        QCOMPARE(d.section('\n', 0, 0), CommandLine::version()); // scripts parse the first line
+        QVERIFY(d.contains("\nQt:"));
+        QVERIFY(d.contains("\nLicense: GPL-3.0-or-later"));
+        QVERIFY(d.contains("https://zbara.dev/"));
+    }
+
     void helpListsEveryFlag() {
         const QString text = CommandLine::help("prog");
         QVERIFY(text.startsWith("Usage: prog [options]"));

@@ -1,6 +1,7 @@
 #include "AppController.h"
 
 #include <QRegularExpression>
+#include "core/BuildInfo.h"
 #include "core/Notifier.h"
 #include "core/ProjectInfo.h"
 #include "core/ThemeMode.h"
@@ -386,7 +387,18 @@ QString AppController::endProcesses(const QVariantList &pids, bool force) {
 }
 
 QString AppController::appVersion() const {
-    return QStringLiteral(HWMON_VERSION);
+    return BuildInfo::version();
+}
+
+QVariantMap AppController::aboutInfo() const {
+    QVariantMap m;
+    m["version"] = BuildInfo::version();
+    m["build"] = BuildInfo::build(); // empty for a build without git
+    m["qt"] = BuildInfo::qtRuntime();
+    m["system"] = QSysInfo::prettyProductName() + QStringLiteral("  ·  ") + QSysInfo::kernelVersion();
+    m["architecture"] = QSysInfo::currentCpuArchitecture();
+    m["renderer"] = m_rendererName;
+    return m;
 }
 
 QString AppController::authorName() const { return QString::fromLatin1(ProjectInfo::kAuthor); }
@@ -396,6 +408,7 @@ QString AppController::projectUrl() const { return QString::fromLatin1(ProjectIn
 QString AppController::systemReport() const {
     SystemReport::Environment env;
     env.appVersion = appVersion();
+    env.build = BuildInfo::build();
     env.os = QSysInfo::prettyProductName();
     env.kernel = QSysInfo::kernelVersion();
     env.qtVersion = QString::fromLatin1(qVersion());

@@ -20,6 +20,7 @@ void add(QStringList &lines, const QString &label, const QString &value) {
 QString format(const QVariantMap &d, const Environment &env) {
     QStringList lines;
     lines << QStringLiteral("Linux Hardware Monitor %1").arg(env.appVersion.isEmpty() ? QStringLiteral("(unknown version)") : env.appVersion);
+    add(lines, QStringLiteral("Build"), env.build);
     add(lines, QStringLiteral("Mode"), env.mode);
     add(lines, QStringLiteral("OS"), env.os);
     add(lines, QStringLiteral("Kernel"), env.kernel);

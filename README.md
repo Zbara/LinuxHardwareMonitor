@@ -69,7 +69,7 @@ ctest --test-dir build --output-on-failure
 ./build/LinuxHardwareMonitor
 ```
 
-`LinuxHardwareMonitor --help` lists every option. Useful flags for screenshots and smoke tests: `--page <n>`, `--resource <n>`, `--size <w> <h>`,
+`LinuxHardwareMonitor --help` lists every option; `--version` prints the version, the build (commit), the Qt version and the license (Settings > About shows the same, plus the system). Useful flags for screenshots and smoke tests: `--page <n>`, `--resource <n>`, `--size <w> <h>`,
 `--screenshot <file.png>` (e.g. `QT_QPA_PLATFORM=offscreen ./build/LinuxHardwareMonitor --page 0 --screenshot out.png`).
 
 ## Resource usage

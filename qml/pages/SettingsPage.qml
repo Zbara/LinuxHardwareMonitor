@@ -253,6 +253,38 @@ ScrollView {
                     hint: qsTr("Free software, GPL-3.0-or-later")
                     Item { width: 1; height: 1 }
                 }
+                // Which build this is: the same facts a bug report needs.
+                Repeater {
+                    readonly property var info: app.aboutInfo()
+                    model: [
+                        { label: qsTr("Version"), value: info.version },
+                        { label: qsTr("Build"), value: info.build },
+                        { label: qsTr("Qt"), value: info.qt },
+                        { label: qsTr("System"), value: info.system },
+                        { label: qsTr("Architecture"), value: info.architecture },
+                        { label: qsTr("Graphics"), value: info.renderer }
+                    ]
+                    delegate: RowLayout {
+                        required property var modelData
+                        visible: modelData.value !== ""
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: visible ? 24 : 0
+                        spacing: 16
+                        Text {
+                            text: modelData.label
+                            color: Theme.textMuted
+                            font.pixelSize: 12
+                            Layout.preferredWidth: 110
+                        }
+                        Text {
+                            text: modelData.value
+                            color: Theme.text
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
+                            Layout.fillWidth: true
+                        }
+                    }
+                }
                 SettingRow {
                     label: qsTr("Author")
                     hint: app.authorName + "  ·  " + app.websiteUrl

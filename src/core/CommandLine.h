@@ -14,7 +14,8 @@ struct Flag {
 
 const QList<Flag> &flags();
 
-QString version();
+QString version();         // the first line of `--version`: "LinuxHardwareMonitor 0.1.0" (scripts rely on it)
+QString versionDetails();  // all of `--version`: that line plus the build, Qt and license
 QString help(const QString &program);
 
 // True when `args` (argv without the program name) asks for help or the version.

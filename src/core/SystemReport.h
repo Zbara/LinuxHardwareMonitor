@@ -10,6 +10,7 @@ namespace SystemReport {
 
 struct Environment {
     QString appVersion;
+    QString build;    // commit the binary was built from, "" when unknown
     QString os;       // pretty product name
     QString kernel;
     QString qtVersion;

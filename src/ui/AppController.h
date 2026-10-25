@@ -177,6 +177,8 @@ public:
     Q_PROPERTY(QString websiteUrl READ websiteUrl CONSTANT)
     Q_PROPERTY(QString projectUrl READ projectUrl CONSTANT)
     QString appVersion() const;
+    // Facts about this build and system for the About page: version, build, qt, system, architecture, renderer.
+    Q_INVOKABLE QVariantMap aboutInfo() const;
     QString authorName() const;
     QString websiteUrl() const;
     QString projectUrl() const;
