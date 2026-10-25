@@ -6,6 +6,11 @@ import HwMonitor
 Item {
     id: page
 
+    function focusSearch() {
+        search.forceActiveFocus()
+        search.selectAll()
+    }
+
     // SensorType values: Temperature, FanSpeed, Voltage, Power, Utilization, Frequency (-1 = all)
     readonly property var typeFilters: [-1, 0, 1, 2, 3, 4, 5]
 

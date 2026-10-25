@@ -6,6 +6,11 @@ import HwMonitor
 Item {
     id: page
 
+    function focusSearch() {
+        search.forceActiveFocus()
+        search.selectAll()
+    }
+
     property string selected: ""
     property string pendingAction: ""
 

@@ -19,6 +19,7 @@ interface. No Electron, no web view, no root: everything comes from `/sys`, `/pr
 - **System tray** – optional icon with the program's logo (or, as a setting, the CPU temperature on a blue / amber / red tile) and a load/RAM tooltip; closing the window can keep the app running there (needs a desktop with tray support, e.g. the AppIndicator extension on GNOME).
 - **History across restarts** – the last ~15 minutes of every sensor are saved on exit (and every 5 minutes) to `~/.local/share/LinuxHardwareMonitor/history.bin`; live charts start fresh after a restart, while the sensor detail window (click a sensor on the Sensors page) shows the restored history with the downtime as a gap. Not used in simulation or fixture mode.
 - **Overheat notifications** – optional desktop notification (freedesktop `Notify` over D-Bus) when a temperature sensor reaches a threshold you choose; off by default.
+- **Keyboard** – `Ctrl+1`…`Ctrl+7` switch pages, `Ctrl+F` focuses the search field of the Processes, Services and Sensors pages.
 - **Settings** – update interval, history length, dark/light theme, language, start with the system, CSV export of the history.
 - **Languages** – English, Русский, Українська, Deutsch, Español (switchable at runtime, follows the system by default).
 

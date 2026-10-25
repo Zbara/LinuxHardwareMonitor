@@ -155,6 +155,22 @@ ApplicationWindow {
         value: pages.currentIndex <= 1
     }
 
+    // Ctrl+1..7 switch pages, Ctrl+F jumps to the search field of the current page (if it has one).
+    Shortcut { sequence: "Ctrl+1"; onActivated: pages.currentIndex = 0 }
+    Shortcut { sequence: "Ctrl+2"; onActivated: pages.currentIndex = 1 }
+    Shortcut { sequence: "Ctrl+3"; onActivated: pages.currentIndex = 2 }
+    Shortcut { sequence: "Ctrl+4"; onActivated: pages.currentIndex = 3 }
+    Shortcut { sequence: "Ctrl+5"; onActivated: pages.currentIndex = 4 }
+    Shortcut { sequence: "Ctrl+6"; onActivated: pages.currentIndex = 5 }
+    Shortcut { sequence: "Ctrl+7"; onActivated: pages.currentIndex = 6 }
+    Shortcut {
+        sequences: [StandardKey.Find]
+        onActivated: {
+            const loader = pages.children[pages.currentIndex]
+            if (loader && loader.item && loader.item.focusSearch) loader.item.focusSearch()
+        }
+    }
+
     readonly property var navItems: [
         { title: qsTr("Performance"), glyph: "◔" },
         { title: qsTr("Processes"), glyph: "☰" },

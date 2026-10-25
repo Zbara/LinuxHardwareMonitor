@@ -6,6 +6,11 @@ import HwMonitor
 Item {
     id: page
 
+    function focusSearch() {
+        search.forceActiveFocus()
+        search.selectAll()
+    }
+
     property string selectedKey: ""
     property string selectedName: ""
     property int selectedCount: 0
