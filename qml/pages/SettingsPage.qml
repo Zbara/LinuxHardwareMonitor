@@ -47,22 +47,24 @@ ScrollView {
         property string hint
         default property alias control: slot.data
         Layout.fillWidth: true
-        implicitHeight: 54
+        // Taller when the hint needs a second line, instead of cutting it in the middle.
+        implicitHeight: Math.max(54, texts.implicitHeight + 20)
 
         Column {
+            id: texts
             anchors.left: parent.left
             anchors.right: slot.left
             anchors.rightMargin: 16
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 1
-            Text { text: setting.label; color: Theme.text; font.pixelSize: 13 }
+            spacing: 2
+            Text { text: setting.label; color: Theme.text; font.pixelSize: 13; width: parent.width; wrapMode: Text.WordWrap }
             Text {
                 visible: setting.hint !== ""
                 text: setting.hint
                 color: Theme.textMuted
                 font.pixelSize: 11
                 width: parent.width
-                elide: Text.ElideMiddle
+                wrapMode: Text.WordWrap
             }
         }
         Item {
@@ -74,22 +76,20 @@ ScrollView {
         }
     }
 
-    ColumnLayout {
+    Item {
         width: page.availableWidth
-        spacing: 14
+        implicitHeight: centred.implicitHeight + 40
 
-        PageTitle {
-            text: qsTr("Settings")
-            Layout.leftMargin: 20
-            Layout.topMargin: 20
-        }
-
+        // The settings are a column of at most 760 px, centred, so a wide window is not left with a strip of
+        // cards on the left and nothing on the right; a narrow one keeps a 20 px margin on both sides.
         ColumnLayout {
-            Layout.fillWidth: true
-            Layout.leftMargin: 20
-            Layout.rightMargin: 20
-            Layout.bottomMargin: 20
+            id: centred
+            width: Math.min(760, parent.width - 40)
+            x: (parent.width - width) / 2
+            y: 20
             spacing: 14
+
+            PageTitle { text: qsTr("Settings") }
 
             Section {
                 title: qsTr("General")
