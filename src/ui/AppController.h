@@ -87,6 +87,7 @@ class AppController : public QObject {
     Q_PROPERTY(QString trayStyle READ trayStyle WRITE setTrayStyle NOTIFY trayStyleChanged)
     Q_PROPERTY(bool trayAvailable READ trayAvailable NOTIFY trayAvailableChanged)
     Q_PROPERTY(bool autostart READ autostart WRITE setAutostart NOTIFY autostartChanged)
+    Q_PROPERTY(bool overheatNotify READ overheatNotify WRITE setOverheatNotify NOTIFY overheatNotifyChanged)
     Q_PROPERTY(int overheatThreshold READ overheatThreshold WRITE setOverheatThreshold NOTIFY overheatThresholdChanged)
     Q_PROPERTY(int historySeconds READ historySeconds WRITE setHistorySeconds NOTIFY historySecondsChanged)
 public:
@@ -143,6 +144,8 @@ public:
     Q_INVOKABLE void quit();
     bool autostart() const { return m_autostart.isEnabled(); }
     void setAutostart(bool enabled);
+    bool overheatNotify() const { return m_overheatNotify; }
+    void setOverheatNotify(bool on);
     int overheatThreshold() const { return m_overheat.threshold(); }
     void setOverheatThreshold(int celsius);
     int historySeconds() const { return m_historySeconds; }
@@ -183,6 +186,7 @@ signals:
     void processSummaryChanged();
     void overheat(const QString &message);
     void overheatThresholdChanged();
+    void overheatNotifyChanged();
     void autostartChanged();
     void trayEnabledChanged();
     void trayStyleChanged();
@@ -208,6 +212,7 @@ private:
 
     SensorManager m_manager;
     OverheatMonitor m_overheat;
+    bool m_overheatNotify = false; // opt-in: no popups unless the user asks for them
     Autostart m_autostart;
     Localization m_localization;
     QString m_languageSetting;

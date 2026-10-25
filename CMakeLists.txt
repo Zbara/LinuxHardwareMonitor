@@ -41,6 +41,8 @@ add_library(hwmon_core STATIC
     src/core/SystemInfo.cpp
     src/core/ProcessMonitor.h
     src/core/ProcessMonitor.cpp
+    src/core/Notifier.h
+    src/core/Notifier.cpp
     src/core/SensorManager.h
     src/core/SensorManager.cpp
     src/mock/MockActions.h

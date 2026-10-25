@@ -155,6 +155,33 @@ ScrollView {
             }
 
             Section {
+                title: qsTr("Alerts")
+
+                SettingRow {
+                    label: qsTr("Notify when a sensor overheats")
+                    hint: qsTr("A desktop notification, once per overheating event")
+                    Toggle {
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        checked: app.overheatNotify
+                        onToggled: app.overheatNotify = checked
+                    }
+                }
+                SettingRow {
+                    label: qsTr("Temperature threshold")
+                    ComboBox {
+                        anchors.right: parent.right
+                        width: 220
+                        enabled: app.overheatNotify
+                        readonly property var values: [70, 80, 85, 90, 95, 100]
+                        model: values.map(v => v + " °C")
+                        currentIndex: Math.max(0, values.indexOf(app.overheatThreshold))
+                        onActivated: app.overheatThreshold = values[currentIndex]
+                    }
+                }
+            }
+
+            Section {
                 title: qsTr("Data")
 
                 SettingRow {
