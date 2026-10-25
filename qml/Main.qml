@@ -162,6 +162,13 @@ ApplicationWindow {
         value: window.shown
     }
 
+    // SMART data is only read while the Performance page (where the disk Health tab lives) is on screen.
+    Binding {
+        target: app
+        property: "diskHealthActive"
+        value: window.shown && pages.currentIndex === 0
+    }
+
     // Process data is only collected while a page that shows it is visible.
     Binding {
         target: app

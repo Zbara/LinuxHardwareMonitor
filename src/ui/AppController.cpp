@@ -138,6 +138,11 @@ AppController::AppController(AppOptions options, QObject *parent)
     if (!m_options.mock && !m_options.fixtureMode()) {
         m_wifiMonitor = std::make_unique<WifiInfoMonitor>();
         connect(m_wifiMonitor.get(), &WifiInfoMonitor::updated, this, [this](const WifiInfoMap &info) { m_wifi = info; });
+        m_diskHealth = std::make_unique<DiskHealthMonitor>();
+        connect(m_diskHealth.get(), &DiskHealthMonitor::updated, this, [this](const DiskHealthMap &health) {
+            m_health = health;
+            rebuildSummaries(); // the Health tab should not wait for the next poll
+        });
     }
     m_serviceProxy.setSourceModel(&m_serviceModel);
     m_sensorProxy.setSourceModel(m_manager.model());
@@ -244,6 +249,13 @@ int AppController::sensorsAvailable() const {
     return n;
 }
 
+void AppController::setDiskHealthActive(bool active) {
+    if (!m_diskHealth || active == m_diskHealth->active())
+        return;
+    m_diskHealth->setActive(active);
+    emit diskHealthActiveChanged();
+}
+
 void AppController::setWindowActive(bool active) {
     if (active == m_windowActive)
         return;
@@ -283,6 +295,33 @@ QString describe(int err) {
     case ESRCH:  return AppController::tr("The process no longer exists");
     default:     return QString::fromLocal8Bit(std::strerror(err));
     }
+}
+
+QVariantMap healthMap(const DiskHealth &h) {
+    QVariantMap m;
+    m["available"] = h.available();
+    if (!h.available())
+        return m;
+    auto num = [](qint64 v) { return v >= 0 ? QVariant(double(v)) : QVariant(); }; // unknown stays unknown
+    m["nvme"] = h.kind == DiskHealth::Kind::Nvme;
+    m["status"] = h.status() == DiskHealth::Status::Good      ? QStringLiteral("good")
+                  : h.status() == DiskHealth::Status::Warning ? QStringLiteral("warning")
+                  : h.status() == DiskHealth::Status::Failing ? QStringLiteral("failing")
+                                                              : QStringLiteral("unknown");
+    m["powerOnHours"] = num(h.powerOnHours);
+    m["percentUsed"] = h.percentUsed >= 0 ? QVariant(h.percentUsed) : QVariant();
+    m["availableSpare"] = h.availableSpare >= 0 ? QVariant(h.availableSpare) : QVariant();
+    m["spareThreshold"] = h.spareThreshold >= 0 ? QVariant(h.spareThreshold) : QVariant();
+    m["dataReadBytes"] = num(h.dataReadBytes);
+    m["dataWrittenBytes"] = num(h.dataWrittenBytes);
+    m["powerCycles"] = num(h.powerCycles);
+    m["unsafeShutdowns"] = num(h.unsafeShutdowns);
+    m["mediaErrors"] = num(h.mediaErrors);
+    m["errorLogEntries"] = num(h.errorLogEntries);
+    m["badSectors"] = num(h.badSectors);
+    m["selfTest"] = h.selfTestStatus;
+    m["criticalWarnings"] = h.criticalWarnings;
+    return m;
 }
 
 } // namespace
@@ -691,6 +730,7 @@ void AppController::fillHardwareLists(const QHash<QString, const SensorListModel
         d["write"] = sensorRef(find("disk/" + n + "_write"));
         d["busy"] = sensorRef(find("disk/" + n + "_busy"));
         d["temp"] = sensorRef(diskTemperature(n));
+        d["health"] = healthMap(m_health.value(n));
         if (!m_options.mock) {
             // /sys/block/<n>/stat: field 3 = sectors read, field 7 = sectors written (512 bytes each).
             QFile stat(QStringLiteral("/sys/block/%1/stat").arg(n));

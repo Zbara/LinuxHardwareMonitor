@@ -177,6 +177,53 @@ Item {
         }
     }
 
+    function powerOnText(h) {
+        if (h === undefined || h === null) return Theme.na
+        return h >= 48 ? qsTr("%1 h (%2 days)").arg(Math.round(h).toLocaleString(Qt.locale(), "f", 0)).arg(Math.floor(h / 24))
+                       : qsTr("%1 h").arg(Math.round(h))
+    }
+    function healthStatusText(status) {
+        return status === "good" ? qsTr("Good") : status === "warning" ? qsTr("Warning") : status === "failing" ? qsTr("Failing") : Theme.na
+    }
+    // The Health tab: what the drive itself reports (SMART through udisks2, no root needed). Values the
+    // drive does not report stay N/A.
+    function healthView(h) {
+        const ok = h.status === "good"
+        const wear = h.percentUsed !== undefined && h.percentUsed !== null
+        const warnings = h.criticalWarnings && h.criticalWarnings.length > 0 ? h.criticalWarnings.join(", ") : qsTr("None")
+        const sections = []
+        if (wear) {
+            const used = Math.min(100, h.percentUsed)
+            sections.push({
+                kind: "bar", title: qsTr("Wear"), totalText: qsTr("Estimated by the drive"),
+                segments: [
+                    { label: qsTr("Used"), value: h.percentUsed + "%", fraction: used / 100, color: h.percentUsed >= 90 ? Theme.hot : h.percentUsed >= 70 ? Theme.warn : Theme.diskColor },
+                    { label: qsTr("Remaining"), value: Math.max(0, 100 - h.percentUsed) + "%", fraction: 0, color: "#4a5d8a" }
+                ]
+            })
+        }
+        const known = v => v !== undefined && v !== null
+        const statusRows = [row(qsTr("Status"), healthStatusText(h.status))]
+        if (h.nvme) {
+            statusRows.push(row(qsTr("Spare capacity"), known(h.availableSpare) ? h.availableSpare + "%" : undefined),
+                            row(qsTr("Media errors"), known(h.mediaErrors) ? count(h.mediaErrors) : undefined),
+                            row(qsTr("Error log entries"), known(h.errorLogEntries) ? count(h.errorLogEntries) : undefined),
+                            row(qsTr("Critical warnings"), warnings))
+        } else {
+            statusRows.push(row(qsTr("Bad sectors"), known(h.badSectors) ? count(h.badSectors) : undefined))
+        }
+        statusRows.push(row(qsTr("Self-test"), h.selfTest))
+        const status = { title: qsTr("Health"), rows: statusRows }
+        const usage = { title: qsTr("Usage over the drive's life"), rows: [
+            row(qsTr("Power-on time"), powerOnText(h.powerOnHours)),
+            row(qsTr("Data written"), bytes(h.dataWrittenBytes)),
+            row(qsTr("Data read"), bytes(h.dataReadBytes)),
+            row(qsTr("Power cycles"), h.powerCycles !== undefined && h.powerCycles !== null ? count(h.powerCycles) : undefined),
+            row(qsTr("Unsafe shutdowns"), h.unsafeShutdowns !== undefined && h.unsafeShutdowns !== null ? count(h.unsafeShutdowns) : undefined) ] }
+        sections.push({ kind: "cards", cards: [status, usage] })
+        return view(qsTr("Health"), sections)
+    }
+
     function diskItem(disk, i) {
         const type = disk.rotational ? qsTr("HDD") : (disk.name.indexOf("nvme") === 0 ? qsTr("SSD (NVMe)") : qsTr("SSD"))
         const hasTemp = disk.temp.id !== ""
@@ -207,6 +254,8 @@ Item {
         const views = [view(qsTr("Activity"), [charts(activity, 3), { kind: "tiles", cols: 6 }, usageBar, { kind: "cards", cards: [deviceInfo, stats] }])]
         if (hasTemp)
             views.push(view(qsTr("Temperature"), [charts([tempChart], 1, { height: 320 })]))
+        if (disk.health && disk.health.available)
+            views.push(healthView(disk.health))
         views.push(view(qsTr("Details"), [{ kind: "cards", cards: [deviceInfo, stats] }]))
         const tiles = [
             tile(qsTr("Active time"), pct(disk.busy), "◉", { sparkId: disk.busy.id, sparkFixedMax: 100 }),

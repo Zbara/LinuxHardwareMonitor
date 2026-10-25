@@ -21,7 +21,7 @@ and the orange bar says so. To make your own: `LinuxHardwareMonitor --mock mocks
 ## Features
 
 - **Performance** – CPU (overall and per-core load, frequency, temperature, caches, topology), memory
-  (composition, swap, slab), every disk (activity, throughput, usage, serial/firmware, since-boot totals),
+  (composition, swap, slab), every disk (activity, throughput, usage, serial/firmware, since-boot totals, and a Health tab with the drive's own SMART data: wear, spare capacity, media errors, data written, power-on time - read through udisks2, no root needed),
   every network adapter (throughput, totals, packets, driver, IP addresses; Wi-Fi SSID/channel/security through
   NetworkManager), GPUs of any mix of vendors - NVIDIA (load, VRAM, clocks, power, encoder/decoder, driver/CUDA/PCI IDs), AMD (load, VRAM, temperature, fan, power, clocks) and Intel (clocks, power) and the laptop battery
   (charge, health, power, time remaining).

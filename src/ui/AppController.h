@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/Autostart.h"
+#include "core/DiskHealthMonitor.h"
 #include "core/DmiMemory.h"
 #include "core/HardwareInfo.h"
 #include "mock/MockActions.h"
@@ -63,6 +64,8 @@ class AppController : public QObject {
     Q_PROPERTY(QString servicesMessage READ servicesMessage NOTIFY servicesMessageChanged)
     Q_PROPERTY(StartupModel *startup READ startup CONSTANT)
     Q_PROPERTY(ProcessProxyModel *processes READ processes CONSTANT)
+    // SMART data is read (from udisks2, once a minute) only while something shows it.
+    Q_PROPERTY(bool diskHealthActive READ diskHealthActive WRITE setDiskHealthActive NOTIFY diskHealthActiveChanged)
     Q_PROPERTY(bool processesActive READ processesActive WRITE setProcessesActive NOTIFY processesActiveChanged)
     Q_PROPERTY(int processCount READ processCount NOTIFY processSummaryChanged)
     Q_PROPERTY(int threadCount READ threadCount NOTIFY processSummaryChanged)
@@ -101,6 +104,8 @@ public:
     SensorListModel *sensors() { return m_manager.model(); }
     SensorProxyModel *sensorFilter() { return &m_sensorProxy; }
     ServiceProxyModel *services() { return &m_serviceProxy; }
+    bool diskHealthActive() const { return m_diskHealth && m_diskHealth->active(); }
+    void setDiskHealthActive(bool active);
     bool windowActive() const { return m_windowActive; }
     void setWindowActive(bool active);
     bool servicesActive() const { return m_serviceManager.active(); }
@@ -208,6 +213,7 @@ signals:
     void summariesChanged();
     void processesActiveChanged();
     void windowActiveChanged();
+    void diskHealthActiveChanged();
     // The highlights (and so the tray text) were refreshed; emitted every update, also while the window is hidden.
     void highlightsUpdated();
     void processSummaryChanged();
@@ -278,6 +284,8 @@ private:
     QVector<MockAction> m_mockActions;
     QElapsedTimer m_simClock;
     std::unique_ptr<WifiInfoMonitor> m_wifiMonitor; // only on the real machine
+    std::unique_ptr<DiskHealthMonitor> m_diskHealth; // likewise (udisks2 is the real machine's)
+    DiskHealthMap m_health;
     WifiInfoMap m_wifi;
     QVector<HardwareInfo::Volume> m_volumes;
     qint64 m_volumesStamp = 0;

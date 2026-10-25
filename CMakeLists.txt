@@ -47,6 +47,10 @@ add_library(hwmon_core STATIC
     src/core/SystemReport.cpp
     src/core/QuitSignals.h
     src/core/QuitSignals.cpp
+    src/core/DiskHealth.h
+    src/core/DiskHealth.cpp
+    src/core/DiskHealthMonitor.h
+    src/core/DiskHealthMonitor.cpp
     src/core/Notifier.h
     src/core/Notifier.cpp
     src/core/SensorManager.h
