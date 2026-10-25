@@ -57,6 +57,8 @@ sudo apt install build-essential cmake ninja-build python3 \
     qml6-module-qtquick-window qml6-module-qtquick-templates qml6-module-qtqml-workerscript
 ```
 
+On Ubuntu 22.04 (Qt 6.2) the build also needs `libqt6opengl6-dev`.
+
 Optional at runtime: the proprietary NVIDIA driver (`libnvidia-ml.so.1`) for GPU metrics, NetworkManager for Wi-Fi
 details, systemd for the Services page. Without them the corresponding parts are simply empty.
 
@@ -103,7 +105,7 @@ of the window. Details and the profile format: `mocks/README.md`.
 ## Install
 
 Download the package for your system from the [Releases](https://github.com/Zbara/LinuxHardwareMonitor/releases)
-page: `ubuntu26.04` (Ubuntu 26.04), `ubuntu24.04` (Ubuntu 24.04) or `debian13` (Debian 13). A package depends on the Qt version of its
+page: `ubuntu26.04` (Ubuntu 26.04), `ubuntu24.04` (Ubuntu 24.04), `ubuntu22.04` (Ubuntu 22.04) or `debian13` (Debian 13). A package depends on the Qt version of its
 distribution, so the one for another release will not install.
 
 ```

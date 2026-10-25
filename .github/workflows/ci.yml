@@ -19,6 +19,8 @@ jobs:
         include:
           - { image: "ubuntu:26.04", tag: ubuntu26.04 }
           - { image: "ubuntu:24.04", tag: ubuntu24.04 } # Qt 6.4: builds with the guards for the Qt 6.5 API
+          # Qt 6.2: Qt6Quick needs Qt6OpenGL, which is a package of its own there (merged into qt6-base-dev later)
+          - { image: "ubuntu:22.04", tag: ubuntu22.04, extra: libqt6opengl6-dev }
           - { image: "debian:13", tag: debian13 }
     env:
       DEBIAN_FRONTEND: noninteractive
@@ -31,7 +33,7 @@ jobs:
               qt6-base-dev qt6-declarative-dev \
               qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts \
               qml6-module-qtquick-window qml6-module-qtquick-templates qml6-module-qtqml-workerscript \
-              dbus fonts-dejavu-core file lintian appstream desktop-file-utils
+              dbus fonts-dejavu-core file lintian appstream desktop-file-utils ${{ matrix.extra }}
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # the tags, so a release is built as "v0.2.0" and not as a bare commit

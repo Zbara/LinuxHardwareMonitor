@@ -15,11 +15,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_link_options(-Wl,-z,relro -Wl,-z,now)
 endif()
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Core Gui Widgets DBus Network Qml Quick QuickControls2 Test)
-# The project builds with Qt 6.4 (Ubuntu 24.04, Debian 12) and newer; REQUIRES is only understood from 6.5.
+find_package(Qt6 6.2 REQUIRED COMPONENTS Core Gui Widgets DBus Network Qml Quick QuickControls2 Test)
+# The project builds with Qt 6.2 (Ubuntu 22.04) and newer. qt_standard_project_setup exists from Qt 6.3, and
+# its REQUIRES argument from 6.5.
 if(Qt6_VERSION VERSION_GREATER_EQUAL 6.5)
     qt_standard_project_setup(REQUIRES 6.5)
-else()
+elseif(COMMAND qt_standard_project_setup)
     qt_standard_project_setup()
 endif()
 

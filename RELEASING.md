@@ -56,9 +56,9 @@ desktop-file-validate packaging/linux-hardware-monitor.desktop
 
 ## Supported distributions
 
-The program needs Qt 6.4 or newer (6.4 is Ubuntu 24.04 and Debian 12; the few Qt 6.5 calls are guarded by `QT_VERSION`
-checks). Ubuntu 22.04 (Qt 6.2) is out: its Qt 6 packages ship no Qt Quick development files at all. For 22.04 the way
-forward would be an AppImage with its own Qt. To add a release, add a line to the
+The program builds with Qt 6.2 or newer: Ubuntu 22.04 (6.2), Ubuntu 24.04 and Debian 12 (6.4), Debian 13 (6.8),
+Ubuntu 26.04 (6.10). The few calls that are newer than Qt 6.2 are guarded by `QT_VERSION` checks or have a portable
+form. A Qt 6.2 build needs the extra package `libqt6opengl6-dev` (Qt6Quick depends on Qt6OpenGL there). To add a release, add a line to the
 matrix in `.github/workflows/ci.yml` (`image` and the `tag` used in the file name). The package depends on the Qt of
 the distribution it was built on (`qt6-declarative-private-abi (= <version>)`), so a package never installs on a
 different release than the one it was built for.
