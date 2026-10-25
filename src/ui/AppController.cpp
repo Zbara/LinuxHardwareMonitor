@@ -92,6 +92,9 @@ AppController::AppController(AppOptions options, QObject *parent)
         m_overheat.setSensorThresholds(perSensor);
     }
     m_fahrenheit = m_settings.value("fahrenheit", false).toBool();
+    if (!m_options.mock)
+        m_cpuThrottle = std::make_unique<CpuThrottleReader>(m_options.cpuRoot.isEmpty() ? QStringLiteral("/sys/devices/system/cpu")
+                                                                                         : m_options.cpuRoot);
     m_simClock.start();
     if (qEnvironmentVariableIsSet("HWMON_PROFILE")) { // prints per-second cost of the C++ side of each refresh
         auto *t = new QTimer(this);
@@ -916,6 +919,31 @@ void AppController::rebuildSummaries() {
         const QString text = m_fahrenheit
             ? tr("%1 — %2: %3 °F").arg(a.deviceName, a.sensorName).arg(TrayIcon::toFahrenheit(a.value), 0, 'f', 1)
             : tr("%1 — %2: %3 °C").arg(a.deviceName, a.sensorName).arg(a.value, 0, 'f', 1);
+        emit overheat(text);
+        if (m_overheatNotify)
+            Notifier::send(tr("Temperature warning"), text);
+    }
+    // Throttling and a stopped fan: things a temperature limit alone does not show.
+    for (const ThermalWatch::Event &e : m_thermalWatch.update(readings, m_cpuThrottle ? m_cpuThrottle->read() : -1,
+                                                                QDateTime::currentMSecsSinceEpoch())) {
+        auto hot = [&](double c) {
+            return m_fahrenheit ? tr("%1 °F").arg(TrayIcon::toFahrenheit(c), 0, 'f', 0) : tr("%1 °C").arg(c, 0, 'f', 0);
+        };
+        const bool known = !std::isnan(e.temperature);
+        QString text;
+        switch (e.kind) {
+        case ThermalWatch::Kind::CpuThrottled:
+            text = known ? tr("The processor is slowing itself down because of heat (%1)").arg(hot(e.temperature))
+                         : tr("The processor is slowing itself down because of heat");
+            break;
+        case ThermalWatch::Kind::GpuThrottled:
+            text = known ? tr("%1 is slowing down because of heat (%2)").arg(e.subject, hot(e.temperature))
+                         : tr("%1 is slowing down because of heat").arg(e.subject);
+            break;
+        case ThermalWatch::Kind::FanStopped:
+            text = tr("%1 reads 0 RPM while the temperature is %2").arg(e.subject, hot(e.temperature)); // only raised when hot
+            break;
+        }
         emit overheat(text);
         if (m_overheatNotify)
             Notifier::send(tr("Temperature warning"), text);

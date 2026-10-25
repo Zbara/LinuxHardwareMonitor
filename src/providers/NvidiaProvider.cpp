@@ -47,6 +47,7 @@ struct NvidiaProvider::Api {
     nvmlReturn_t (*getDecoder)(nvmlDevice_t, unsigned int *, unsigned int *) = nullptr;
     nvmlReturn_t (*getPci)(nvmlDevice_t, nvmlPciInfo_t *) = nullptr;
     nvmlReturn_t (*getPowerLimit)(nvmlDevice_t, unsigned int *) = nullptr;
+    nvmlReturn_t (*getThrottleReasons)(nvmlDevice_t, unsigned long long *) = nullptr;
     nvmlReturn_t (*driverVersion)(char *, unsigned int) = nullptr;
     nvmlReturn_t (*cudaVersion)(int *) = nullptr;
     bool initialised = false;
@@ -76,6 +77,8 @@ struct NvidiaProvider::Api {
         resolve(getDecoder, "nvmlDeviceGetDecoderUtilization");
         resolve(getPci, "nvmlDeviceGetPciInfo_v3");
         resolve(getPowerLimit, "nvmlDeviceGetEnforcedPowerLimit");
+        if (!resolve(getThrottleReasons, "nvmlDeviceGetCurrentClocksEventReasons")) // the newer name
+            resolve(getThrottleReasons, "nvmlDeviceGetCurrentClocksThrottleReasons");
         resolve(driverVersion, "nvmlSystemGetDriverVersion");
         if (!resolve(cudaVersion, "nvmlSystemGetCudaDriverVersion_v2"))
             resolve(cudaVersion, "nvmlSystemGetCudaDriverVersion");
@@ -229,6 +232,22 @@ QVector<SensorReading> NvidiaProvider::poll() {
             const bool ok = m_api->getPowerLimit(gpu.handle, &v) == NVML_SUCCESS;
             add(QStringLiteral("power_limit"), QStringLiteral("GPU Power Limit"), SensorType::Power,
                 QStringLiteral("W"), ok, v / 1000.0);
+        }
+        if (m_api->getThrottleReasons) {
+            // Why the clocks are held back right now. Idle, application-set and display clocks are
+            // normal states, so only heat and power limits are reported.
+            unsigned long long reasons = 0;
+            if (m_api->getThrottleReasons(gpu.handle, &reasons) == NVML_SUCCESS) {
+                QStringList active;
+                if (reasons & (0x20ULL | 0x40ULL)) // software / hardware thermal slowdown
+                    active << QStringLiteral("thermal");
+                if (reasons & (0x4ULL | 0x80ULL))  // software power cap / hardware power brake
+                    active << QStringLiteral("power");
+                if (reasons & 0x8ULL)              // hardware slowdown (any cause)
+                    active << QStringLiteral("hw_slowdown");
+                add(QStringLiteral("throttle"), QStringLiteral("Clock throttling"), SensorType::Text, QString(), true, 0);
+                out.last().text = active.isEmpty() ? QStringLiteral("none") : active.join(QLatin1Char(','));
+            }
         }
         // Static facts, reported as text sensors.
         auto addText = [&](const QString &key, const QString &name, const QString &text) {

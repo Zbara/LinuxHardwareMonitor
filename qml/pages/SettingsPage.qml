@@ -169,7 +169,7 @@ ScrollView {
 
                 SettingRow {
                     label: qsTr("Notify when a sensor overheats")
-                    hint: qsTr("A desktop notification, once per overheating event")
+                    hint: qsTr("Overheating, thermal throttling or a stopped fan: one desktop notification per event")
                     Toggle {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter

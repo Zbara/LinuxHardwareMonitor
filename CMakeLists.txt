@@ -53,6 +53,10 @@ add_library(hwmon_core STATIC
     src/core/DiskHealthMonitor.cpp
     src/core/SensorSnapshot.h
     src/core/SensorSnapshot.cpp
+    src/core/ThermalWatch.h
+    src/core/ThermalWatch.cpp
+    src/core/CpuThrottleReader.h
+    src/core/CpuThrottleReader.cpp
     src/core/Notifier.h
     src/core/Notifier.cpp
     src/core/SensorManager.h

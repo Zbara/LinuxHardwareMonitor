@@ -10,7 +10,9 @@
 #include "core/Localization.h"
 #include "core/WifiInfoMonitor.h"
 #include "core/ServiceManager.h"
+#include "core/CpuThrottleReader.h"
 #include "core/OverheatMonitor.h"
+#include "core/ThermalWatch.h"
 #include "core/ProcessMonitor.h"
 #include "core/SystemInfo.h"
 #include "core/SensorManager.h"
@@ -229,6 +231,8 @@ private:
     SensorManager m_manager;
     QString exportCsvFile(const QString &label, const QString &sensorId);
     OverheatMonitor m_overheat;
+    ThermalWatch m_thermalWatch;
+    std::unique_ptr<CpuThrottleReader> m_cpuThrottle; // not in simulation mode
     bool m_windowActive = true;
     bool m_fahrenheit = false; // display only: all data and thresholds stay in Celsius
     bool m_overheatNotify = false; // opt-in: no popups unless the user asks for them
