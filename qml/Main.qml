@@ -151,14 +151,22 @@ ApplicationWindow {
     Binding {
         target: app
         property: "servicesActive"
-        value: pages.currentIndex === 2
+        value: window.shown && pages.currentIndex === 2
+    }
+
+    // Hidden to the tray or minimized: the app stops preparing data for the interface and scanning processes.
+    readonly property bool shown: visible && visibility !== Window.Minimized
+    Binding {
+        target: app
+        property: "windowActive"
+        value: window.shown
     }
 
     // Process data is only collected while a page that shows it is visible.
     Binding {
         target: app
         property: "processesActive"
-        value: pages.currentIndex <= 1
+        value: window.shown && pages.currentIndex <= 1
     }
 
     // Ctrl+1..7 switch pages, Ctrl+F jumps to the search field of the current page (if it has one).

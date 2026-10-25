@@ -239,6 +239,15 @@ int AppController::sensorsAvailable() const {
     return n;
 }
 
+void AppController::setWindowActive(bool active) {
+    if (active == m_windowActive)
+        return;
+    m_windowActive = active;
+    emit windowActiveChanged();
+    if (active)
+        rebuildSummaries(); // catch up at once instead of showing stale numbers for up to a second
+}
+
 void AppController::setServicesActive(bool active) {
     if (active == m_serviceManager.active())
         return;
@@ -985,6 +994,12 @@ void AppController::rebuildSummaries() {
                  << single(tr("Disk Read"), "MB/s", usable("disk/total_read"))
                  << single(tr("Disk Write"), "MB/s", usable("disk/total_write"));
 
+    if (!m_windowActive) {
+        // Nobody is looking: the details, device cards and hardware lists below are for the window.
+        emit highlightsUpdated();
+        return;
+    }
+
     m_devices.clear();
     for (const DeviceInfo &d : std::as_const(devices)) {
         QVariantMap m;
@@ -1058,6 +1073,7 @@ void AppController::rebuildSummaries() {
     m_details["l2Kb"] = info.l2Kb >= 0 ? QVariant(double(info.l2Kb)) : QVariant();
     m_details["l3Kb"] = info.l3Kb >= 0 ? QVariant(double(info.l3Kb)) : QVariant();
     fillHardwareLists(byId);
+    emit highlightsUpdated();
     emit summariesChanged();
     emit sensorSummaryChanged();
 }

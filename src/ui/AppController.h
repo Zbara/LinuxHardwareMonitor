@@ -51,6 +51,9 @@ class AppController : public QObject {
     Q_PROPERTY(SensorListModel *sensors READ sensors CONSTANT)
     Q_PROPERTY(SensorProxyModel *sensorFilter READ sensorFilter CONSTANT)
     Q_PROPERTY(ServiceProxyModel *services READ services CONSTANT)
+    // False while the window is hidden (tray) or minimized: nothing is rebuilt for the interface then,
+    // only the few numbers the tray shows and the overheat alerts keep running.
+    Q_PROPERTY(bool windowActive READ windowActive WRITE setWindowActive NOTIFY windowActiveChanged)
     Q_PROPERTY(bool servicesActive READ servicesActive WRITE setServicesActive NOTIFY servicesActiveChanged)
     Q_PROPERTY(int servicesRunning READ servicesRunning NOTIFY serviceSummaryChanged)
     Q_PROPERTY(int servicesFailed READ servicesFailed NOTIFY serviceSummaryChanged)
@@ -97,6 +100,8 @@ public:
     SensorListModel *sensors() { return m_manager.model(); }
     SensorProxyModel *sensorFilter() { return &m_sensorProxy; }
     ServiceProxyModel *services() { return &m_serviceProxy; }
+    bool windowActive() const { return m_windowActive; }
+    void setWindowActive(bool active);
     bool servicesActive() const { return m_serviceManager.active(); }
     void setServicesActive(bool active);
     int servicesRunning() const { return m_serviceModel.countWithState(QStringLiteral("running")); }
@@ -201,6 +206,9 @@ public:
 signals:
     void summariesChanged();
     void processesActiveChanged();
+    void windowActiveChanged();
+    // The highlights (and so the tray text) were refreshed; emitted every update, also while the window is hidden.
+    void highlightsUpdated();
     void processSummaryChanged();
     void overheat(const QString &message);
     void overheatThresholdChanged();
@@ -232,6 +240,7 @@ private:
     SensorManager m_manager;
     QString exportCsvFile(const QString &label, const QString &sensorId);
     OverheatMonitor m_overheat;
+    bool m_windowActive = true;
     bool m_fahrenheit = false; // display only: all data and thresholds stay in Celsius
     bool m_overheatNotify = false; // opt-in: no popups unless the user asks for them
     Autostart m_autostart;

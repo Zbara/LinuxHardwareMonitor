@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
     tray.setFahrenheit(controller.useFahrenheit());
     QObject::connect(&controller, &AppController::useFahrenheitChanged, &tray, [&] { tray.setFahrenheit(controller.useFahrenheit()); });
     QObject::connect(&controller, &AppController::languageChanged, &tray, &TrayController::retranslate);
-    QObject::connect(&controller, &AppController::summariesChanged, &tray, [&] {
+    QObject::connect(&controller, &AppController::highlightsUpdated, &tray, [&] {
         const QVariantList list = controller.highlights();
         // app.highlights order: 0 CPU temperature, 4 CPU load, 6 memory load
         auto value = [&](int i) {

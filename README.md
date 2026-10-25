@@ -54,7 +54,7 @@ ctest --test-dir build --output-on-failure
 
 ## Resource usage
 
-Pages are created only while they are visible, static CPU facts are read once, and Qt Quick uses the software
+Pages are created only while they are visible, nothing is prepared for the interface (and no processes are scanned) while the window is hidden to the tray or minimized, static CPU facts are read once, and Qt Quick uses the software
 renderer by default (about 150-190 MB RSS and 2-5 % of one core on a 32-thread machine, versus ~330 MB with OpenGL).
 Set `QT_QUICK_BACKEND=rhi` (or `QSG_RHI_BACKEND=opengl`) to use the GPU renderer instead.
 
