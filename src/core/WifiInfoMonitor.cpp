@@ -1,9 +1,8 @@
 #include "WifiInfoMonitor.h"
 
 #include <QDBusConnection>
-#include <QDBusInterface>
+#include <QDBusMessage>
 #include <QDBusObjectPath>
-#include <QDBusReply>
 #include <QDBusVariant>
 #include <QDir>
 #include <QFileInfo>
@@ -73,23 +72,32 @@ namespace {
 constexpr auto kNm = "org.freedesktop.NetworkManager";
 constexpr auto kNmPath = "/org/freedesktop/NetworkManager";
 
+// Plain method calls: a QDBusInterface would introspect the object on every use, which costs an extra
+// round trip per property on this 5 s poll.
+QDBusMessage call(QDBusConnection &bus, const QString &path, const QString &iface, const QString &method,
+                  const QVariantList &args) {
+    QDBusMessage msg = QDBusMessage::createMethodCall(QLatin1String(kNm), path, iface, method);
+    msg.setArguments(args);
+    return bus.call(msg, QDBus::Block, 1500);
+}
+
 QVariant prop(QDBusConnection &bus, const QString &path, const QString &iface, const QString &name) {
-    QDBusInterface props(QLatin1String(kNm), path, QStringLiteral("org.freedesktop.DBus.Properties"), bus);
-    props.setTimeout(1500);
-    QDBusReply<QDBusVariant> reply = props.call(QStringLiteral("Get"), iface, name);
-    return reply.isValid() ? reply.value().variant() : QVariant();
+    const QDBusMessage reply = call(bus, path, QStringLiteral("org.freedesktop.DBus.Properties"),
+                                    QStringLiteral("Get"), {iface, name});
+    if (reply.type() != QDBusMessage::ReplyMessage || reply.arguments().isEmpty())
+        return {};
+    return reply.arguments().constFirst().value<QDBusVariant>().variant();
 }
 
 WifiInfo query(QDBusConnection &bus, const QString &ifaceName) {
     WifiInfo info;
-    QDBusInterface manager(QLatin1String(kNm), QLatin1String(kNmPath), QStringLiteral("org.freedesktop.NetworkManager"), bus);
-    manager.setTimeout(1500);
-    QDBusReply<QDBusObjectPath> device = manager.call(QStringLiteral("GetDeviceByIpIface"), ifaceName);
-    if (!device.isValid())
+    const QDBusMessage device = call(bus, QLatin1String(kNmPath), QStringLiteral("org.freedesktop.NetworkManager"),
+                                     QStringLiteral("GetDeviceByIpIface"), {ifaceName});
+    if (device.type() != QDBusMessage::ReplyMessage || device.arguments().isEmpty())
         return info;
 
     const QString wireless = QStringLiteral("org.freedesktop.NetworkManager.Device.Wireless");
-    const QString devicePath = device.value().path();
+    const QString devicePath = device.arguments().constFirst().value<QDBusObjectPath>().path();
     const QVariant ap = prop(bus, devicePath, wireless, QStringLiteral("ActiveAccessPoint"));
     const QString apPath = ap.value<QDBusObjectPath>().path();
     if (apPath.isEmpty() || apPath == QLatin1String("/"))
