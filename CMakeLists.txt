@@ -121,10 +121,12 @@ target_compile_definitions(hwmon_core PUBLIC HWMON_VERSION="${PROJECT_VERSION}")
 # Which commit the binary comes from, for `--version` and the About page. Read when CMake configures (a
 # source archive without git simply has none). Only BuildInfo.cpp gets the definitions, so a new commit
 # recompiles one file, not the library.
+# A package built from a source archive has no git: its recipe passes -DHWMON_GIT_DESCRIBE=v<version> (and
+# optionally -DHWMON_GIT_DATE=<date>).
 find_package(Git QUIET)
-set(HWMON_GIT_DESCRIBE "")
-set(HWMON_GIT_DATE "")
-if(GIT_FOUND AND EXISTS ${CMAKE_SOURCE_DIR}/.git)
+set(HWMON_GIT_DESCRIBE "" CACHE STRING "What --version shows as the build; read from git when empty")
+set(HWMON_GIT_DATE "" CACHE STRING "The date shown next to it; read from git when empty")
+if(NOT HWMON_GIT_DESCRIBE AND GIT_FOUND AND EXISTS ${CMAKE_SOURCE_DIR}/.git)
     execute_process(COMMAND ${GIT_EXECUTABLE} describe --always --tags --abbrev=7
                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE HWMON_GIT_DESCRIBE
                     OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
@@ -180,6 +182,9 @@ file(GLOB HWMON_TRANSLATIONS CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/translations/
 qt_add_resources(LinuxHardwareMonitor i18n PREFIX "/i18n" BASE ${CMAKE_SOURCE_DIR}/translations FILES ${HWMON_TRANSLATIONS})
 
 target_link_libraries(LinuxHardwareMonitor PRIVATE hwmon_core Qt6::Quick Qt6::QuickControls2)
+# Qt's project setup gives the installed program an RPATH of $ORIGIN:$ORIGIN/../lib64. The program has no libraries of
+# its own to find there, and distribution policies (Fedora's rpmlint) reject an RPATH.
+set_target_properties(LinuxHardwareMonitor PROPERTIES INSTALL_RPATH "")
 
 enable_testing()
 add_subdirectory(tests)
@@ -189,11 +194,16 @@ include(GNUInstallDirs)
 install(TARGETS LinuxHardwareMonitor RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES packaging/linux-hardware-monitor.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(DIRECTORY mocks/ DESTINATION ${CMAKE_INSTALL_DATADIR}/linux-hardware-monitor/mocks FILES_MATCHING PATTERN "*.json")
-install(FILES packaging/copyright DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/linux-hardware-monitor)
+# The files only a Debian package wants (a DEP-5 copyright file, the Debian changelog, lintian overrides). The RPM
+# and the Arch recipes pass -DHWMON_DEBIAN_PACKAGING=OFF and install the license themselves.
+option(HWMON_DEBIAN_PACKAGING "Install the files that only the Debian package wants" ON)
+if(HWMON_DEBIAN_PACKAGING)
+    install(FILES packaging/copyright DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/linux-hardware-monitor)
+    install(FILES packaging/lintian-overrides DESTINATION ${CMAKE_INSTALL_DATADIR}/lintian/overrides
+            RENAME linux-hardware-monitor)
+endif()
 install(FILES packaging/linux-hardware-monitor.svg
         DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
-install(FILES packaging/lintian-overrides DESTINATION ${CMAKE_INSTALL_DATADIR}/lintian/overrides
-        RENAME linux-hardware-monitor)
 install(FILES packaging/io.github.zbara.LinuxHardwareMonitor.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
 
 # The changelog and the manual page are shipped compressed, as Debian policy asks. -n keeps the output
@@ -207,8 +217,10 @@ foreach(doc changelog LinuxHardwareMonitor.1)
     set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/packaging/${doc})
 endforeach()
 # The version has a revision (0.2.1-1), so this is the Debian changelog (changelog.Debian.gz).
-install(FILES ${HWMON_PACKAGING_OUT}/changelog.gz DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/linux-hardware-monitor
-        RENAME changelog.Debian.gz)
+if(HWMON_DEBIAN_PACKAGING)
+    install(FILES ${HWMON_PACKAGING_OUT}/changelog.gz DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/linux-hardware-monitor
+            RENAME changelog.Debian.gz)
+endif()
 install(FILES ${HWMON_PACKAGING_OUT}/LinuxHardwareMonitor.1.gz DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 
 # Package version: <upstream>-<revision>. The packages for different distributions have the same version

@@ -26,13 +26,17 @@ jobs:
             exit 1
           fi
           python3 tools/check_release_metadata.py
+      # Everything the workflow built: the DEBs, the RPM and source RPM, the source archive, the PKGBUILD.
       - uses: actions/download-artifact@v4
         with:
           path: dist
-          pattern: deb-*
           merge-multiple: true
       - name: Checksums
-        run: cd dist && sha256sum *.deb > SHA256SUMS && cat SHA256SUMS
+        run: |
+          cd dist
+          mv .SRCINFO SRCINFO # GitHub does not keep a leading dot in an asset name
+          find . -maxdepth 1 -type f ! -name SHA256SUMS -printf '%f\n' | sort | xargs sha256sum > SHA256SUMS
+          cat SHA256SUMS
       - name: Sign the checksums (only when a key is configured)
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}

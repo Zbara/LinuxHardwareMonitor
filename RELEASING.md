@@ -1,7 +1,7 @@
 # Releasing
 
-Packages are built by GitHub Actions for **Ubuntu 26.04**, **Ubuntu 24.04** and **Debian 13** (a container of each, so the
-dependencies are right for that release) and published as a GitHub release. Nothing is built by hand.
+Packages are built by GitHub Actions for **Ubuntu 26.04, 24.04 and 22.04**, **Debian 13** (DEB), **Fedora** (RPM) and **Arch Linux** (PKGBUILD), each in a container of its own so the
+dependencies are right for that release, and published as a GitHub release. Nothing is built by hand.
 
 ## Cut a release
 
@@ -11,6 +11,7 @@ dependencies are right for that release) and published as a GitHub release. Noth
      changes and a correct date (`date -R`)
    - `packaging/io.github.zbara.LinuxHardwareMonitor.metainfo.xml`: a new `<release version="X.Y.Z" date="...">` first
    - the `.TH` line of `packaging/LinuxHardwareMonitor.1`
+   - `Version:` and a new top `%changelog` entry in `packaging/linux-hardware-monitor.spec`, and `pkgver` in `packaging/arch/PKGBUILD`
    `python3 tools/check_release_metadata.py` (also the `release_metadata` test) fails if one of them is forgotten.
 2. Run the tests and, if you want to see what CI will do, the lint locally (see below).
 3. Commit, then tag and push:
@@ -18,7 +19,7 @@ dependencies are right for that release) and published as a GitHub release. Noth
    git tag -a vX.Y.Z -m "Linux Hardware Monitor X.Y.Z"
    git push origin main vX.Y.Z
    ```
-4. The `Release` workflow builds and tests both packages, runs `lintian` and `appstreamcli`, writes `SHA256SUMS`,
+4. The `Release` workflow builds and tests the DEBs (Ubuntu, Debian), the RPM (Fedora) and the Arch package, runs `lintian`, `rpmlint`, `namcap` and `appstreamcli`, publishes the source archive and the PKGBUILD (with the archive's checksum filled in) and `.SRCINFO`, writes `SHA256SUMS`,
    signs it when a key is configured and creates the release with the notes from `packaging/changelog`.
 
 A change to the packaging alone (same program version) uses a new revision: `X.Y.Z-2` in the changelog and
@@ -26,7 +27,7 @@ A change to the packaging alone (same program version) uses a new revision: `X.Y
 
 ## Signing
 
-The `.deb` files are not signed themselves; the signature covers `SHA256SUMS`, which lists them.
+The packages are not signed themselves; the signature covers `SHA256SUMS`, which lists them.
 
 The release key is **455F 2B9C 5659 DD1B ECB7 3300 F2AA EDFB 7B8C B932** (ed25519, "Zbara (Linux Hardware Monitor
 releases)", valid until **2029-10-24**; extend it with `gpg --quick-set-expire <fingerprint> 3y` and publish the new

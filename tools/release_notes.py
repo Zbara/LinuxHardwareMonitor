@@ -18,13 +18,27 @@ print(f"""## Linux Hardware Monitor {upstream}
 
 ### Install
 
-Pick the package for your system (`ubuntu26.04`, `ubuntu24.04`, `ubuntu22.04` or `debian13`) and install it:
+**Debian and Ubuntu.** Pick the package for your system (`ubuntu26.04`, `ubuntu24.04`, `ubuntu22.04` or `debian13`):
 
 ```
 sudo apt install ./linux-hardware-monitor_{version}_<system>_amd64.deb
 ```
 
-The package depends on the Qt version of its distribution, so the one for another release will not install.
+**Fedora.**
+
+```
+sudo dnf install ./linux-hardware-monitor-{upstream}-1.fc*.x86_64.rpm
+```
+
+**Arch Linux.** The `PKGBUILD` of this release downloads the source archive (below) and builds the package:
+
+```
+curl -LO https://github.com/Zbara/LinuxHardwareMonitor/releases/download/v{upstream}/PKGBUILD
+makepkg -si
+```
+
+The DEB and the RPM depend on the Qt version of the distribution they were built for, so the one for another release will
+not install; other systems can build the program from `linux-hardware-monitor-{upstream}.tar.gz` (see the README).
 (If `apt` prints a notice about the `_apt` user, copy the file out of your home directory first, e.g. to `/tmp`.)
 
 ### Verify the download

@@ -54,10 +54,24 @@ Anything that cannot be read without privileges (DIMM details, SMART data, RAPL 
 |--------|----|------------------|
 | Ubuntu 26.04, 24.04, 22.04 | 6.10, 6.4, 6.2 | built, tested and packaged (`.deb`) by CI; the package installed into a clean system |
 | Debian 13 | 6.8 | built, tested and packaged (`.deb`) by CI; the released package installed into a clean system |
-| Fedora 44, Arch Linux | 6.11, 6.12 | builds from source with no warnings, all tests pass and every page loads in a container; no packages yet |
+| Fedora 44 | 6.11 | built, tested and packaged (`.rpm`, checked with rpmlint) by CI; the package installed into a clean container |
+| Arch Linux | 6.12 | built, tested and packaged with the `PKGBUILD` (checked with namcap) by CI |
 
 Other distributions with Qt 6.2 or newer should build from source (see below); Debian 12 (Qt 6.4) is expected to work
 like Ubuntu 24.04 but has not been tried. Only Linux is supported: the program reads `/sys` and `/proc`.
+
+## Install
+
+Packages come with every [release](https://github.com/Zbara/LinuxHardwareMonitor/releases):
+
+```
+sudo apt install ./linux-hardware-monitor_<version>_<system>_amd64.deb   # Debian, Ubuntu
+sudo dnf install ./linux-hardware-monitor-<version>-1.fc*.x86_64.rpm     # Fedora
+makepkg -si                                                              # Arch, in a directory with the release's PKGBUILD
+```
+
+`packaging/linux-hardware-monitor.spec` and `packaging/arch/PKGBUILD` are the recipes; `tools/build_rpm.sh` and
+`tools/build_arch.sh` run them in a clean environment (the checks CI does).
 
 ## Dependencies (Ubuntu / Debian)
 

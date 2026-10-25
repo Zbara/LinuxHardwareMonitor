@@ -65,3 +65,71 @@ jobs:
           name: deb-${{ matrix.tag }}
           path: build/*.deb
           if-no-files-found: error
+
+  # The source archive of this commit: the RPM and the Arch package are built from it, and the release publishes it
+  # (the PKGBUILD downloads it by its checksum).
+  source:
+    name: source archive
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Make the archive
+        run: |
+          version=$(sed -n 's/^project(LinuxHardwareMonitor VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
+          mkdir -p out
+          git archive --format=tar --prefix="linux-hardware-monitor-$version/" HEAD | gzip -n > "out/linux-hardware-monitor-$version.tar.gz"
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source
+          path: out/*.tar.gz
+          if-no-files-found: error
+
+  rpm:
+    name: rpm (${{ matrix.tag }})
+    needs: source
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { image: "fedora:latest", tag: fedora }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: source
+          path: source
+      - name: Build the RPM (the tests run inside the build) and check it with rpmlint
+        run: tools/build_rpm.sh source/linux-hardware-monitor-*.tar.gz out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rpm-${{ matrix.tag }}
+          path: out/linux-hardware-monitor-[0-9]*.rpm   # the program and the source RPM, not the debug packages
+          if-no-files-found: error
+
+  arch:
+    name: arch
+    needs: source
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: source
+          path: source
+      - name: Build the package (the tests run inside the build) and check it with namcap
+        run: tools/build_arch.sh source/linux-hardware-monitor-*.tar.gz out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arch-pkgbuild
+          # The PKGBUILD with the checksum of the archive above and its .SRCINFO; they are published with the release.
+          path: |
+            out/PKGBUILD
+            out/.SRCINFO
+          include-hidden-files: true
+          if-no-files-found: error

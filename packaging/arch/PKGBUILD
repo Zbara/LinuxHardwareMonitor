@@ -1,0 +1,40 @@
+# Maintainer: Zbara <zbara.dev@gmail.com>
+pkgname=linux-hardware-monitor
+pkgver=0.2.1
+pkgrel=1
+pkgdesc='Hardware sensors, performance graphs and a task manager'
+arch=('x86_64' 'aarch64')
+url='https://github.com/Zbara/LinuxHardwareMonitor'
+license=('GPL-3.0-or-later')
+depends=('qt6-base' 'qt6-declarative' 'hicolor-icon-theme')
+makedepends=('cmake' 'ninja')
+checkdepends=('python' 'dbus' 'ttf-dejavu')
+optdepends=('networkmanager: Wi-Fi details'
+            'udisks2: disk health (SMART)'
+            'polkit: RAM module details (asked only on a click)'
+            'dmidecode: RAM module details (asked only on a click)')
+# The source archive is attached to the GitHub release of the same version; the checksum is filled in by the release.
+source=("$pkgname-$pkgver.tar.gz::$url/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  # The Debian-only files are not installed. The archive has no git, so the build line of --version is given here.
+  cmake -S "$pkgname-$pkgver" -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DHWMON_DEBIAN_PACKAGING=OFF \
+    -DHWMON_GIT_DESCRIBE="v$pkgver" \
+    -Wno-dev
+  cmake --build build
+}
+
+check() {
+  # The tests start the real program (without a screen) for every page and need a session bus.
+  export QT_QPA_PLATFORM=offscreen
+  dbus-run-session -- ctest --test-dir build --output-on-failure --timeout 120
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 "$pkgname-$pkgver/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname"
+}
