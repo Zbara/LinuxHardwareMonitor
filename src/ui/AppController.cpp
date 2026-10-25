@@ -2,6 +2,7 @@
 
 #include <QRegularExpression>
 #include "core/Notifier.h"
+#include "core/ThemeMode.h"
 #include "ProviderFactory.h"
 #include "core/SystemReport.h"
 #include "TrayIcon.h"
@@ -29,6 +30,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QGuiApplication>
+#include <QStyleHints>
 #include <QSysInfo>
 #include <QStandardPaths>
 #include <QVariantMap>
@@ -74,7 +76,14 @@ AppController::AppController(AppOptions options, QObject *parent)
                        : kDefaultIntervalMs;
     m_historySeconds = std::clamp(m_settings.value("historySeconds", kDefaultHistorySeconds).toInt(),
                                   30, 3600);
-    m_dark = m_settings.value("darkTheme", true).toBool();
+    // The theme: the new "themeMode" setting, else the old boolean one (so nobody's choice is lost).
+    m_themeMode = m_settings.contains("themeMode")
+                      ? ThemeMode::normalize(m_settings.value("themeMode").toString())
+                      : ThemeMode::fromLegacy(m_settings.value("darkTheme", true).toBool());
+    m_dark = ThemeMode::isDark(m_themeMode, systemColorScheme());
+    if (auto *hints = QGuiApplication::styleHints()) { // the desktop switched between dark and light
+        connect(hints, &QStyleHints::colorSchemeChanged, this, [this] { updateDark(); });
+    }
 
     m_trayEnabled = m_settings.value("trayEnabled", false).toBool();
     m_trayStyle = m_settings.value("trayStyle", "app").toString() == QLatin1String("temperature") ? QStringLiteral("temperature") : QStringLiteral("app");
@@ -612,12 +621,27 @@ void AppController::copyToClipboard(const QString &text) {
         clipboard->setText(text);
 }
 
-void AppController::setDarkTheme(bool dark) {
+Qt::ColorScheme AppController::systemColorScheme() {
+    auto *hints = QGuiApplication::styleHints();
+    return hints ? hints->colorScheme() : Qt::ColorScheme::Unknown;
+}
+
+void AppController::updateDark() {
+    const bool dark = ThemeMode::isDark(m_themeMode, systemColorScheme());
     if (dark == m_dark)
         return;
     m_dark = dark;
-    m_settings.setValue("darkTheme", dark);
     emit darkThemeChanged();
+}
+
+void AppController::setThemeMode(const QString &mode) {
+    const QString normalized = ThemeMode::normalize(mode);
+    if (normalized == m_themeMode)
+        return;
+    m_themeMode = normalized;
+    m_settings.setValue("themeMode", normalized);
+    emit themeModeChanged();
+    updateDark();
 }
 
 void AppController::setHistorySeconds(int seconds) {

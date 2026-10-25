@@ -39,6 +39,7 @@ and the orange bar says so. To make your own: `LinuxHardwareMonitor --mock mocks
   what throttling reacts to) and one per core, and tools disagree on which is "the" CPU temperature (a package reading
   is typically 5-10 °C above the cores' average). Settings > Appearance lets you pick the package sensor (default),
   the hottest core or the average of the cores; the tiles say which one they show and the tray follows the choice.
+- **Theme** – follows the desktop's dark/light preference (Settings > Appearance), or stays dark or light; the choice of earlier versions is kept.
 - **Temperature unit** – Celsius or Fahrenheit (Settings); only what is shown changes, thresholds and data stay in Celsius.
 - **System information** – Settings > About copies a short description of the hardware, versions and renderer for a bug report. It never contains serial numbers, MAC/IP addresses or Wi-Fi names.
 - **Settings** – update interval, history length, dark/light theme, language, start with the system, CSV export of the history.

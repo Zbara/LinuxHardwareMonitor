@@ -64,7 +64,9 @@ class AppController : public QObject {
     Q_PROPERTY(QVariantMap details READ details NOTIFY summariesChanged)
     Q_PROPERTY(QVariantList devices READ devices NOTIFY summariesChanged)
     Q_PROPERTY(int intervalMs READ intervalMs WRITE setIntervalMs NOTIFY intervalMsChanged)
-    Q_PROPERTY(bool darkTheme READ darkTheme WRITE setDarkTheme NOTIFY darkThemeChanged)
+    // "system" (follow the desktop), "dark" or "light"; darkTheme is what that currently means.
+    Q_PROPERTY(QString themeMode READ themeMode WRITE setThemeMode NOTIFY themeModeChanged)
+    Q_PROPERTY(bool darkTheme READ darkTheme NOTIFY darkThemeChanged)
     // "" (real hardware), "mock" (simulated profile) or "fixtures" (prepared test directories)
     Q_PROPERTY(QString simulationKind READ simulationKind CONSTANT)
     Q_PROPERTY(QString simulationName READ simulationName CONSTANT)
@@ -121,8 +123,9 @@ public:
 
     int intervalMs() const { return m_intervalMs; }
     void setIntervalMs(int ms);
+    QString themeMode() const { return m_themeMode; }
+    void setThemeMode(const QString &mode);
     bool darkTheme() const { return m_dark; }
-    void setDarkTheme(bool dark);
     QString simulationKind() const { return m_options.mock ? QStringLiteral("mock") : m_options.fixtureMode() ? QStringLiteral("fixtures") : QString(); }
     QString simulationName() const { return m_options.mock ? m_options.mock->name : m_options.hwmonRoot.isEmpty() ? m_options.procRoot : m_options.hwmonRoot; }
     QVariantList simulationActions() const;
@@ -224,6 +227,7 @@ signals:
     void servicesMessageChanged();
     void intervalMsChanged();
     void darkThemeChanged();
+    void themeModeChanged();
     void historySecondsChanged();
 
 private:
@@ -287,5 +291,8 @@ private:
     QHash<QString, QVariantMap> m_staticInfo; // per disk / interface facts that never change
     int m_intervalMs;
     int m_historySeconds;
-    bool m_dark;
+    QString m_themeMode = QStringLiteral("dark");
+    bool m_dark = true;
+    static Qt::ColorScheme systemColorScheme();
+    void updateDark();
 };

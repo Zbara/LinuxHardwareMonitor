@@ -166,12 +166,14 @@ ScrollView {
                     }
                 }
                 SettingRow {
-                    label: qsTr("Dark theme")
-                    Toggle {
+                    label: qsTr("Theme")
+                    ComboBox {
                         anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        checked: app.darkTheme
-                        onToggled: app.darkTheme = checked
+                        width: 220
+                        readonly property var values: ["system", "dark", "light"]
+                        model: [qsTr("As in the system"), qsTr("Dark"), qsTr("Light")]
+                        currentIndex: Math.max(0, values.indexOf(app.themeMode))
+                        onActivated: app.themeMode = values[currentIndex]
                     }
                 }
             }

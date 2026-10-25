@@ -65,6 +65,8 @@ add_library(hwmon_core STATIC
     src/core/CpuThrottleReader.cpp
     src/core/CpuTemperature.h
     src/core/CpuTemperature.cpp
+    src/core/ThemeMode.h
+    src/core/ThemeMode.cpp
     src/core/Notifier.h
     src/core/Notifier.cpp
     src/core/SensorManager.h
