@@ -2,6 +2,7 @@
 
 #include <QRegularExpression>
 #include "core/Notifier.h"
+#include "core/ProjectInfo.h"
 #include "core/ThemeMode.h"
 #include "ProviderFactory.h"
 #include "core/SystemReport.h"
@@ -387,6 +388,10 @@ QString AppController::endProcesses(const QVariantList &pids, bool force) {
 QString AppController::appVersion() const {
     return QStringLiteral(HWMON_VERSION);
 }
+
+QString AppController::authorName() const { return QString::fromLatin1(ProjectInfo::kAuthor); }
+QString AppController::websiteUrl() const { return QString::fromLatin1(ProjectInfo::kWebsite); }
+QString AppController::projectUrl() const { return QString::fromLatin1(ProjectInfo::kProjectUrl); }
 
 QString AppController::systemReport() const {
     SystemReport::Environment env;

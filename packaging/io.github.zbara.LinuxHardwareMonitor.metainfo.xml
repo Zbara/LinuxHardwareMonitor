@@ -27,6 +27,7 @@
   </description>
   <launchable type="desktop-id">linux-hardware-monitor.desktop</launchable>
   <url type="homepage">https://github.com/Zbara/LinuxHardwareMonitor</url>
+  <url type="contact">https://zbara.dev/</url>
   <url type="bugtracker">https://github.com/Zbara/LinuxHardwareMonitor/issues</url>
   <screenshots>
     <screenshot type="default">

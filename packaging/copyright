@@ -1,6 +1,8 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Linux Hardware Monitor
-Upstream-Contact: zbara.dev@gmail.com
+Upstream-Contact: Zbara <zbara.dev@gmail.com>
+Source: https://github.com/Zbara/LinuxHardwareMonitor
+Comment: The author's website is https://zbara.dev/
 
 Files: *
 Copyright: 2026 Zbara <zbara.dev@gmail.com>

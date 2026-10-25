@@ -37,6 +37,25 @@ man = (root / "packaging/LinuxHardwareMonitor.1").read_text()
 if f"linux-hardware-monitor {version}" not in man.splitlines()[0]:
     errors.append(f"packaging/LinuxHardwareMonitor.1: the .TH line does not mention {version}")
 
+# Author and website: ProjectInfo.h is the source; the files that cannot include it must say the same.
+info = (root / "src/core/ProjectInfo.h").read_text()
+def constant(name):
+    m = re.search(r'k%s = "([^"]+)"' % name, info)
+    if not m:
+        sys.exit(f"src/core/ProjectInfo.h: k{name} not found")
+    return m.group(1)
+website, project, author = constant("Website"), constant("ProjectUrl"), constant("Author")
+for path, needles in {
+    "README.md": [website, project, author],
+    "packaging/LinuxHardwareMonitor.1": [website, project],
+    "packaging/io.github.zbara.LinuxHardwareMonitor.metainfo.xml": [website, project],
+    "packaging/copyright": [website, project],
+}.items():
+    text = (root / path).read_text()
+    for needle in needles:
+        if needle not in text:
+            errors.append(f"{path}: does not mention {needle} (see src/core/ProjectInfo.h)")
+
 if errors:
     print("release metadata is out of sync:")
     for e in errors:

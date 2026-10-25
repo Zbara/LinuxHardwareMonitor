@@ -162,3 +162,14 @@ level) and `appstreamcli` in CI.
 Wrap the string in `qsTr()` (QML) or `tr()` (C++), add a row with all languages to `tools/translations_table.py`, then run
 `python3 tools/translations_table.py`. The `translations_complete` test fails when a string is missing, stale or has
 mismatching `%1` placeholders.
+
+## Author
+
+Made by **Zbara** - [zbara.dev](https://zbara.dev/). Project page and bug reports:
+[github.com/Zbara/LinuxHardwareMonitor](https://github.com/Zbara/LinuxHardwareMonitor). The same details are in
+Settings > About.
+
+## License
+
+GPL-3.0-or-later, see [`LICENSE`](LICENSE). The Debian package carries the machine-readable copyright file
+(`/usr/share/doc/linux-hardware-monitor/copyright`).

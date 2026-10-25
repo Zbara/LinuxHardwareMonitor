@@ -1,5 +1,7 @@
 #include "CommandLine.h"
 
+#include "ProjectInfo.h"
+
 namespace CommandLine {
 
 #ifndef HWMON_VERSION
@@ -52,6 +54,9 @@ QString help(const QString &program) {
     }
     for (int i = 0; i < left.size(); ++i)
         out += QStringLiteral("  %1  %2\n").arg(left[i], -width).arg(QString::fromLatin1(flags()[i].description));
+    out += QStringLiteral("\nAuthor:  %1 (%2)\nProject: %3\nLicense: %4\n")
+               .arg(QString::fromLatin1(ProjectInfo::kAuthor), QString::fromLatin1(ProjectInfo::kWebsite),
+                    QString::fromLatin1(ProjectInfo::kProjectUrl), QString::fromLatin1(ProjectInfo::kLicense));
     return out;
 }
 

@@ -254,6 +254,24 @@ ScrollView {
                     Item { width: 1; height: 1 }
                 }
                 SettingRow {
+                    label: qsTr("Author")
+                    hint: app.authorName + "  ·  " + app.websiteUrl
+                    Button {
+                        anchors.right: parent.right
+                        text: qsTr("Website")
+                        onClicked: Qt.openUrlExternally(app.websiteUrl)
+                    }
+                }
+                SettingRow {
+                    label: qsTr("Project page")
+                    hint: app.projectUrl
+                    Button {
+                        anchors.right: parent.right
+                        text: qsTr("Open")
+                        onClicked: Qt.openUrlExternally(app.projectUrl)
+                    }
+                }
+                SettingRow {
                     label: qsTr("System information")
                     hint: reportResult.text !== "" ? reportResult.text : qsTr("Hardware models and versions for a bug report; no serial numbers or addresses")
                     Button {

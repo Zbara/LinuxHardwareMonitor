@@ -172,7 +172,14 @@ public:
     // Hardware and program description for a bug report (no serial numbers, addresses or names).
     Q_INVOKABLE QString systemReport() const;
     Q_PROPERTY(QString appVersion READ appVersion CONSTANT)
+    // About page: who made it and where to find it (ProjectInfo).
+    Q_PROPERTY(QString authorName READ authorName CONSTANT)
+    Q_PROPERTY(QString websiteUrl READ websiteUrl CONSTANT)
+    Q_PROPERTY(QString projectUrl READ projectUrl CONSTANT)
     QString appVersion() const;
+    QString authorName() const;
+    QString websiteUrl() const;
+    QString projectUrl() const;
     // Which Qt Quick backend main() selected; only used in the system report.
     void setRendererName(const QString &name) { m_rendererName = name; }
 
