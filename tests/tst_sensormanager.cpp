@@ -54,6 +54,15 @@ private slots:
         proxy.setTypeFilter(-1);
         proxy.setFilterText("");
         QCOMPARE(proxy.rowCount(), 2);
+
+        proxy.setFavorites({"fan1"});
+        QCOMPARE(proxy.rowCount(), 2); // the flag alone changes nothing
+        proxy.setFavoritesOnly(true);
+        QCOMPARE(proxy.rowCount(), 1);
+        proxy.setFavorites({"fan1", "cpu_temp", "unknown"});
+        QCOMPARE(proxy.rowCount(), 2); // ids that no longer exist are harmless
+        proxy.setFavorites({});
+        QCOMPARE(proxy.rowCount(), 0);
     }
 
     void tracksMinMax() {

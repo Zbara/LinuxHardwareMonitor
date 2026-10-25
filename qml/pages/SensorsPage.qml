@@ -59,12 +59,23 @@ Item {
             }
         }
 
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 12
         PillTabs {
             titles: [qsTr("All"), qsTr("Temperature"), qsTr("Fan"), qsTr("Voltage"), qsTr("Power"),
                      qsTr("Utilization"), qsTr("Frequency")]
             current: Math.max(0, page.typeFilters.indexOf(app.sensorFilter.typeFilter))
             accent: Theme.accent
             onSelected: index => app.sensorFilter.typeFilter = page.typeFilters[index]
+        }
+            Item { Layout.fillWidth: true }
+            PillTabs {
+                titles: [qsTr("★ Favorites")]
+                current: app.sensorFilter.favoritesOnly ? 0 : -1
+                accent: Theme.warn
+                onSelected: app.sensorFilter.favoritesOnly = !app.sensorFilter.favoritesOnly
+            }
         }
 
         Rectangle {
@@ -88,6 +99,7 @@ Item {
                     Layout.leftMargin: 14
                     Layout.rightMargin: 14
                     spacing: 8
+                    Item { Layout.preferredWidth: 22 }
                     Repeater {
                         model: [qsTr("Sensor"), qsTr("Value"), qsTr("Min"), qsTr("Max"), qsTr("History"), qsTr("Status")]
                         delegate: Text {
@@ -116,7 +128,7 @@ Item {
                     Label {
                         anchors.centerIn: parent
                         visible: list.count === 0
-                        text: search.text !== "" || app.sensorFilter.typeFilter >= 0 ? qsTr("No sensors match the filter")
+                        text: search.text !== "" || app.sensorFilter.typeFilter >= 0 || app.sensorFilter.favoritesOnly ? qsTr("No sensors match the filter")
                                                                        : qsTr("No sensors detected")
                         color: Theme.textMuted
                     }
@@ -161,6 +173,15 @@ Item {
                             anchors.leftMargin: 14
                             anchors.rightMargin: 14
                             spacing: 8
+                            Text {
+                                readonly property bool fav: app.favoriteSensors.indexOf(row.sensorId) >= 0
+                                text: fav ? "★" : "☆"
+                                color: fav ? Theme.warn : Theme.textMuted
+                                font.pixelSize: 15
+                                Layout.preferredWidth: 22
+                                horizontalAlignment: Text.AlignHCenter
+                                TapHandler { onTapped: app.toggleFavorite(row.sensorId) }
+                            }
                             Text {
                                 text: row.name
                                 color: Theme.text

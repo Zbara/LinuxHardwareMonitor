@@ -83,6 +83,7 @@ class AppController : public QObject {
     // Keep running in the system tray when the window is closed.
     Q_PROPERTY(bool trayEnabled READ trayEnabled WRITE setTrayEnabled NOTIFY trayEnabledChanged)
     // "app" (program icon) or "temperature" (CPU temperature on a coloured tile)
+    Q_PROPERTY(QStringList favoriteSensors READ favoriteSensors NOTIFY favoriteSensorsChanged)
     Q_PROPERTY(QString trayStyle READ trayStyle WRITE setTrayStyle NOTIFY trayStyleChanged)
     Q_PROPERTY(bool trayAvailable READ trayAvailable NOTIFY trayAvailableChanged)
     Q_PROPERTY(bool autostart READ autostart WRITE setAutostart NOTIFY autostartChanged)
@@ -133,6 +134,8 @@ public:
     QVariantList languages() const;
     bool trayEnabled() const { return m_trayEnabled; }
     void setTrayEnabled(bool enabled);
+    QStringList favoriteSensors() const { return m_favorites; }
+    Q_INVOKABLE void toggleFavorite(const QString &sensorId);
     QString trayStyle() const { return m_trayStyle; }
     void setTrayStyle(const QString &style);
     bool trayAvailable() const { return m_trayAvailable; }
@@ -183,6 +186,7 @@ signals:
     void autostartChanged();
     void trayEnabledChanged();
     void trayStyleChanged();
+    void favoriteSensorsChanged();
     void trayAvailableChanged();
     void languageChanged();
     void sensorSummaryChanged();
@@ -208,6 +212,7 @@ private:
     Localization m_localization;
     QString m_languageSetting;
     bool m_trayEnabled = false;
+    QStringList m_favorites;
     QString m_trayStyle = QStringLiteral("app");
     bool m_trayAvailable = false;
     ServiceListModel m_serviceModel;

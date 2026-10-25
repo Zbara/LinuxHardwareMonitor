@@ -113,12 +113,28 @@ void SensorProxyModel::setTypeFilter(int type) {
     emit typeFilterChanged();
 }
 
+void SensorProxyModel::setFavoritesOnly(bool on) {
+    if (on == m_favoritesOnly)
+        return;
+    m_favoritesOnly = on;
+    invalidateFilter();
+    emit favoritesOnlyChanged();
+}
+
+void SensorProxyModel::setFavorites(const QStringList &ids) {
+    m_favorites = QSet<QString>(ids.begin(), ids.end());
+    if (m_favoritesOnly)
+        invalidateFilter();
+}
+
 bool SensorProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const {
     const QModelIndex idx = sourceModel()->index(row, 0, parent);
     const int type = sourceModel()->data(idx, SensorListModel::TypeRole).toInt();
     if (type == static_cast<int>(SensorType::Text))
         return false;
     if (m_type >= 0 && type != m_type)
+        return false;
+    if (m_favoritesOnly && !m_favorites.contains(sourceModel()->data(idx, SensorListModel::IdRole).toString()))
         return false;
     if (m_filter.isEmpty())
         return true;

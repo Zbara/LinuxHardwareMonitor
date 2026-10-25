@@ -120,6 +120,8 @@ AppController::AppController(AppOptions options, QObject *parent)
     connect(&m_wifiMonitor, &WifiInfoMonitor::updated, this, [this](const WifiInfoMap &info) { m_wifi = info; });
     m_serviceProxy.setSourceModel(&m_serviceModel);
     m_sensorProxy.setSourceModel(m_manager.model());
+    m_favorites = m_settings.value("favoriteSensors").toStringList();
+    m_sensorProxy.setFavorites(m_favorites);
     connect(&m_serviceManager, &ServiceManager::servicesReady, this, [this](const QVector<ServiceInfo> &list) {
         m_serviceModel.update(list);
         if (m_servicesListFailed) { // the list works again, drop the stale error
@@ -400,6 +402,16 @@ void AppController::setTrayEnabled(bool enabled) {
     m_trayEnabled = enabled;
     m_settings.setValue("trayEnabled", enabled);
     emit trayEnabledChanged();
+}
+
+void AppController::toggleFavorite(const QString &sensorId) {
+    if (sensorId.isEmpty())
+        return;
+    if (!m_favorites.removeOne(sensorId))
+        m_favorites.append(sensorId);
+    m_settings.setValue("favoriteSensors", m_favorites);
+    m_sensorProxy.setFavorites(m_favorites);
+    emit favoriteSensorsChanged();
 }
 
 void AppController::setTrayStyle(const QString &style) {

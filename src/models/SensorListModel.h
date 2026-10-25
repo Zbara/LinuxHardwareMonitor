@@ -4,6 +4,7 @@
 
 #include <QAbstractListModel>
 #include <QHash>
+#include <QSet>
 #include <QSortFilterProxyModel>
 
 // Flat list of all sensors, kept sorted by device so that QML can group it
@@ -60,10 +61,16 @@ public:
     void setFilterText(const QString &text);
     int typeFilter() const { return m_type; }
     void setTypeFilter(int type);
+    // When set, only the sensors whose id is in `favorites` are listed.
+    Q_PROPERTY(bool favoritesOnly READ favoritesOnly WRITE setFavoritesOnly NOTIFY favoritesOnlyChanged)
+    bool favoritesOnly() const { return m_favoritesOnly; }
+    void setFavoritesOnly(bool on);
+    void setFavorites(const QStringList &ids);
 
 signals:
     void filterTextChanged();
     void typeFilterChanged();
+    void favoritesOnlyChanged();
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
@@ -71,4 +78,6 @@ protected:
 private:
     QString m_filter;
     int m_type = -1;
+    bool m_favoritesOnly = false;
+    QSet<QString> m_favorites;
 };
