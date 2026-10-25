@@ -1,6 +1,7 @@
 #include "ui/AppController.h"
 
 #include "core/CommandLine.h"
+#include "core/QuitSignals.h"
 #include "ui/TrayIcon.h"
 
 #include <QApplication>
@@ -193,5 +194,8 @@ int main(int argc, char *argv[]) {
         });
     }
 
+    // Ctrl+C, `kill` and the end of the session quit normally (history saved, threads joined).
+    QuitSignals quitSignals;
+    QObject::connect(&quitSignals, &QuitSignals::quitRequested, &app, [](int) { QCoreApplication::quit(); });
     return app.exec();
 }
