@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.zbara.LinuxHardwareMonitor</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Linux Hardware Monitor</name>
+  <summary>Sensors, performance graphs and a task manager</summary>
+  <developer id="io.github.zbara">
+    <name>Zbara</name>
+  </developer>
+  <description>
+    <p>
+      A native Qt system monitor for Linux. It shows temperatures, fans, loads and clocks of the CPU, memory,
+      disks, network adapters, graphics cards and the battery, next to a process manager, systemd services and
+      startup applications.
+    </p>
+    <p>
+      It runs without root rights and shows only what the system exposes: a value that cannot be read is
+      displayed as N/A, never invented.
+    </p>
+    <ul>
+      <li>Task-manager style performance pages for every device</li>
+      <li>Sensor history with statistics, search, favourites and CSV export</li>
+      <li>Disk health from SMART, thermal throttling and stopped-fan warnings</li>
+      <li>Simulation mode to try other hardware</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">linux-hardware-monitor.desktop</launchable>
+  <url type="homepage">https://github.com/Zbara/LinuxHardwareMonitor</url>
+  <url type="bugtracker">https://github.com/Zbara/LinuxHardwareMonitor/issues</url>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/Zbara/LinuxHardwareMonitor/master/docs/screenshots/performance-cpu.png</image>
+      <caption>CPU performance page (simulated data)</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/Zbara/LinuxHardwareMonitor/master/docs/screenshots/sensors.png</image>
+      <caption>All sensors (simulated data)</caption>
+    </screenshot>
+  </screenshots>
+  <categories>
+    <category>System</category>
+    <category>Monitor</category>
+  </categories>
+  <provides>
+    <binary>LinuxHardwareMonitor</binary>
+  </provides>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+  <requires>
+    <display_length compare="ge">900</display_length>
+  </requires>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="0.1.0" date="2026-10-25">
+      <description>
+        <p>First public release.</p>
+      </description>
+    </release>
+  </releases>
+</component>

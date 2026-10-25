@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(LinuxHardwareMonitor VERSION 0.1 LANGUAGES CXX)
+project(LinuxHardwareMonitor VERSION 0.1.0 LANGUAGES CXX)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE) # optimised unless told otherwise
@@ -8,6 +8,12 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
+
+# Hardening that the Debian tools check for (the distribution compilers already enable PIE).
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-fstack-protector-strong)
+    add_link_options(-Wl,-z,relro -Wl,-z,now)
+endif()
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Widgets DBus Network Qml Quick QuickControls2 Test)
 qt_standard_project_setup(REQUIRES 6.5)
@@ -148,12 +154,49 @@ install(DIRECTORY mocks/ DESTINATION ${CMAKE_INSTALL_DATADIR}/linux-hardware-mon
 install(FILES packaging/copyright DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/linux-hardware-monitor)
 install(FILES packaging/linux-hardware-monitor.svg
         DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
+install(FILES packaging/lintian-overrides DESTINATION ${CMAKE_INSTALL_DATADIR}/lintian/overrides
+        RENAME linux-hardware-monitor)
+install(FILES packaging/io.github.zbara.LinuxHardwareMonitor.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
+
+# The changelog and the manual page are shipped compressed, as Debian policy asks. -n keeps the output
+# reproducible (no file name or time stamp inside).
+find_program(GZIP_PROGRAM gzip REQUIRED)
+set(HWMON_PACKAGING_OUT ${CMAKE_BINARY_DIR}/packaging)
+file(MAKE_DIRECTORY ${HWMON_PACKAGING_OUT})
+foreach(doc changelog LinuxHardwareMonitor.1)
+    execute_process(COMMAND ${GZIP_PROGRAM} -9n -c ${CMAKE_SOURCE_DIR}/packaging/${doc}
+                    OUTPUT_FILE ${HWMON_PACKAGING_OUT}/${doc}.gz COMMAND_ERROR_IS_FATAL ANY)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/packaging/${doc})
+endforeach()
+# The version has a revision (0.1.0-1), so this is the Debian changelog (changelog.Debian.gz).
+install(FILES ${HWMON_PACKAGING_OUT}/changelog.gz DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/linux-hardware-monitor
+        RENAME changelog.Debian.gz)
+install(FILES ${HWMON_PACKAGING_OUT}/LinuxHardwareMonitor.1.gz DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
+
+# Package version: <upstream>-<revision>. The packages for different distributions have the same version
+# but are built in a container of each (the dependencies come out right for it); HWMON_DISTRO_TAG
+# (e.g. ubuntu26.04) only goes into the file name.
+set(HWMON_DEB_REVISION 1)
+set(HWMON_DISTRO_TAG "" CACHE STRING "Distribution the package is built for, used in the file name")
+execute_process(COMMAND dpkg --print-architecture OUTPUT_VARIABLE HWMON_DEB_ARCH OUTPUT_STRIP_TRAILING_WHITESPACE
+                ERROR_QUIET)
+if(NOT HWMON_DEB_ARCH)
+    set(HWMON_DEB_ARCH amd64)
+endif()
 
 set(CPACK_PACKAGE_NAME "linux-hardware-monitor")
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Hardware sensors, performance graphs and a task manager")
-set(CPACK_PACKAGE_DESCRIPTION "Native Qt 6 system monitor: CPU, memory, disk, network, GPU and battery graphs, a process \
-manager, systemd services and startup apps. Runs without root.")
+set(CPACK_PACKAGE_DESCRIPTION
+"Native Qt 6 system monitor for Linux. It shows temperatures, fans, loads and
+clocks of the CPU, memory, disks, network adapters, graphics cards and the
+battery, next to a process manager, systemd services and startup applications.
+.
+It runs without root rights and shows only what the system exposes; a value
+that cannot be read is displayed as N/A, never invented.")
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/Zbara/LinuxHardwareMonitor")
+set(CPACK_DEBIAN_PACKAGE_RELEASE ${HWMON_DEB_REVISION})
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_PACKAGE_CONTACT "Linux Hardware Monitor maintainers <zbara.dev@gmail.com>")
 set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
@@ -163,5 +206,11 @@ set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 # QML modules are loaded at run time, so shlibdeps cannot see them.
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "qml6-module-qtquick, qml6-module-qtquick-controls, qml6-module-qtquick-layouts, qml6-module-qtquick-window, qml6-module-qtquick-templates")
 set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "network-manager, qt6-qpa-plugins")
-set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+# udisks2: disk health (SMART); pkexec + dmidecode: RAM module details, only on an explicit click.
+set(CPACK_DEBIAN_PACKAGE_SUGGESTS "udisks2, pkexec, dmidecode")
+if(HWMON_DISTRO_TAG)
+    set(CPACK_DEBIAN_FILE_NAME "linux-hardware-monitor_${PROJECT_VERSION}-${HWMON_DEB_REVISION}_${HWMON_DISTRO_TAG}_${HWMON_DEB_ARCH}.deb")
+else()
+    set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+endif()
 include(CPack)

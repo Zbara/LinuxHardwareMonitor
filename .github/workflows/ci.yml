@@ -4,12 +4,21 @@ on:
   push:
     branches: [master, main]
   pull_request:
+  workflow_call: # also used by the release workflow, which publishes the packages built here
 
 jobs:
   build:
+    name: ${{ matrix.tag }}
     runs-on: ubuntu-latest
-    # Qt 6.5+ is required; the distribution packages of the runner image can be older, so build in a newer release.
-    container: ubuntu:26.04
+    # Qt 6.5+ is required and the packages must have the dependencies of the distribution they are built
+    # for, so each one is built (and tested) in a container of that distribution.
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { image: "ubuntu:26.04", tag: ubuntu26.04 }
+          - { image: "debian:13", tag: debian13 }
     env:
       DEBIAN_FRONTEND: noninteractive
       QT_QPA_PLATFORM: offscreen
@@ -20,17 +29,25 @@ jobs:
           apt-get install -y --no-install-recommends build-essential cmake ninja-build python3 git ca-certificates \
               qt6-base-dev qt6-declarative-dev \
               qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts \
-              qml6-module-qtquick-window qml6-module-qtquick-templates dbus fonts-dejavu-core file
+              qml6-module-qtquick-window qml6-module-qtquick-templates \
+              dbus fonts-dejavu-core file lintian appstream desktop-file-utils
       - uses: actions/checkout@v4
       - name: Configure
-        run: cmake -S . -B build -G Ninja
+        run: cmake -S . -B build -G Ninja -DHWMON_DISTRO_TAG=${{ matrix.tag }}
       - name: Build
         run: cmake --build build
       - name: Test
         run: dbus-run-session -- ctest --test-dir build --output-on-failure
       - name: Package
         run: cd build && cpack -G DEB
+      - name: Check the metadata files
+        run: |
+          desktop-file-validate packaging/linux-hardware-monitor.desktop
+          appstreamcli validate --no-net packaging/io.github.zbara.LinuxHardwareMonitor.metainfo.xml
+      - name: Lintian
+        run: lintian --no-cfg --fail-on error,warning build/*.deb
       - uses: actions/upload-artifact@v4
         with:
-          name: deb
+          name: deb-${{ matrix.tag }}
           path: build/*.deb
+          if-no-files-found: error

@@ -21,6 +21,11 @@ find_package(Python3 COMPONENTS Interpreter)
 if(Python3_FOUND)
     add_test(NAME translations_complete
              COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/check_translations.py)
+    add_test(NAME release_notes
+             COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/release_notes.py)
+    set_tests_properties(release_notes PROPERTIES PASS_REGULAR_EXPRESSION "### Install.*### Verify the download")
+    add_test(NAME release_metadata
+             COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/check_release_metadata.py)
 endif()
 add_hwmon_test(tst_services)
 add_hwmon_test(tst_hardwareinfo)

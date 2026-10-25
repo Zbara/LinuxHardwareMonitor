@@ -1,0 +1,112 @@
+.TH LINUXHARDWAREMONITOR 1 "October 2026" "linux-hardware-monitor 0.1.0" "User Commands"
+.SH NAME
+LinuxHardwareMonitor \- sensors, performance graphs and a task manager
+.SH SYNOPSIS
+.B LinuxHardwareMonitor
+[\fIoptions\fR]
+.SH DESCRIPTION
+Linux Hardware Monitor shows the temperatures, fans, voltages, loads and
+clocks of the CPU, memory, disks, network adapters, graphics cards and the
+battery, together with a process manager, systemd services and startup
+applications. It runs without root privileges and reads only what the kernel
+and the system services expose; a value that cannot be read is shown as
+N/A, never as zero.
+.PP
+Without options the real hardware of this computer is shown. The other
+data sources are opt-in and are always announced in the window.
+.SH OPTIONS
+.TP
+.B \-\-help, \-h
+Show the list of options and exit.
+.TP
+.B \-\-version, \-v
+Show the version and exit.
+.TP
+.B \-\-dump\-json
+Print every sensor once as JSON and exit. No window or display is needed.
+Unavailable sensors have a null value.
+.TP
+.BI \-\-dump\-delay " ms"
+With \fB\-\-dump\-json\fR: wait this long between the two samples that rates
+need (default 500).
+.TP
+.B \-\-compact
+With \fB\-\-dump\-json\fR: print one line instead of indented output.
+.TP
+.BI \-\-mock " profile.json"
+Simulate other hardware from a profile. Profiles for several systems are
+installed in /usr/share/linux\-hardware\-monitor/mocks.
+.TP
+.BI \-\-mock\-speed " factor"
+Run the simulated clock faster, for example 10.
+.TP
+.BI \-\-run\-scenario " n"
+Trigger simulation action number \fIn\fR (0 is the first) right away.
+.TP
+.B \-\-scenario\-panel
+Open the simulation scenario panel at start.
+.TP
+.BI \-\-hwmon\-root " dir"
+Read hwmon data from a prepared directory tree instead of /sys/class/hwmon.
+.TP
+.BI \-\-proc\-root " dir"
+Read /proc data from a prepared directory tree.
+.TP
+.BI \-\-cpu\-root " dir"
+Read the CPU topology from a prepared tree instead of
+/sys/devices/system/cpu.
+.TP
+.BI \-\-power\-supply\-root " dir"
+Read batteries from a prepared tree instead of /sys/class/power_supply.
+.TP
+.BI \-\-drm\-root " dir"
+Read graphics cards from a prepared tree instead of /sys/class/drm.
+.TP
+.BI \-\-page " n"
+Open page \fIn\fR (0 to 6) first: Performance, Processes, Services, Startup,
+Sensors, Overview, Settings.
+.TP
+.BI \-\-resource " n"
+Select this resource on the Performance page.
+.TP
+.B \-\-cores
+Show the logical processors view of the CPU.
+.TP
+.BI \-\-load\-modules
+Load the RAM module details at start. On real hardware this asks for
+administrator rights.
+.TP
+.BI \-\-size " width height"
+Window size in pixels.
+.TP
+.BI \-\-screenshot " file.png"
+Save a screenshot of the window and exit.
+.TP
+.BI \-\-screenshot\-delay " ms"
+Wait this long before the screenshot (default 3500) so the charts have
+history.
+.TP
+.BI \-\-close\-after " ms"
+Close the window after this many milliseconds.
+.SH FILES
+.TP
+.I ~/.config/LinuxHardwareMonitor/LinuxHardwareMonitor.conf
+Settings.
+.TP
+.I ~/.local/share/LinuxHardwareMonitor/LinuxHardwareMonitor/history.bin
+The last minutes of sensor history, restored at the next start.
+.TP
+.I ~/.config/autostart/linux\-hardware\-monitor.desktop
+Created when "Start with the system" is switched on.
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 2
+The data source options are unusable, for example an invalid simulation
+profile. The program never falls back to real data in that case.
+.SH SEE ALSO
+Project page: https://github.com/Zbara/LinuxHardwareMonitor
+.SH AUTHOR
+Zbara <zbara.dev@gmail.com>

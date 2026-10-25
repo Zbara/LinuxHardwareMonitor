@@ -95,16 +95,33 @@ sensor dropout and fan changes). `--hwmon-root <dir>` runs the real hwmon parser
 (`tests/fixtures/`). Real hardware is always the default; simulation is opt-in and always announced by a bar at the top
 of the window. Details and the profile format: `mocks/README.md`.
 
-## Install and package
+## Install
+
+Download the package for your system from the [Releases](https://github.com/Zbara/LinuxHardwareMonitor/releases)
+page: `ubuntu26.04` (Ubuntu 26.04) or `debian13` (Debian 13). A package depends on the Qt version of its
+distribution, so the one for another release will not install.
 
 ```
-cmake --install build --prefix /usr/local          # binary, .desktop entry and icon
-cd build && cpack -G DEB                           # linux-hardware-monitor_<version>_amd64.deb
-sudo apt install ./linux-hardware-monitor_0.1_amd64.deb
+sha256sum -c SHA256SUMS --ignore-missing
+sudo apt install ./linux-hardware-monitor_0.1.0-1_ubuntu26.04_amd64.deb
 ```
 
-The default build type is `Release`. `packaging/` holds the desktop entry (localized) and the SVG icon. The maintainer
-address of the package is set in `CMakeLists.txt` (`CPACK_PACKAGE_CONTACT`).
+If `apt` prints a notice about the `_apt` user, copy the file out of your home directory first (e.g. to `/tmp`).
+When the release contains `SHA256SUMS.asc`, check it with `gpg --import signing-key.asc && gpg --verify SHA256SUMS.asc
+SHA256SUMS`. Maintainers: see `RELEASING.md`.
+
+## Build a package yourself
+
+```
+cmake -S . -B build -G Ninja -DHWMON_DISTRO_TAG=ubuntu26.04
+cmake --build build
+cd build && cpack -G DEB          # linux-hardware-monitor_0.1.0-1_ubuntu26.04_amd64.deb
+cmake --install build --prefix /usr/local      # or install without a package
+```
+
+The default build type is `Release`. `packaging/` holds the desktop entry (localized), the icon, the manual page,
+the AppStream file, the Debian changelog and copyright. The package is checked with `lintian` (clean at warning
+level) and `appstreamcli` in CI.
 
 ## Project layout
 

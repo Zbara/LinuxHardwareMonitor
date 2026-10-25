@@ -1,0 +1,2 @@
+# The package is published on GitHub, not uploaded to the Debian archive, so there is no ITP bug to close.
+linux-hardware-monitor: initial-upload-closes-no-bugs

@@ -1,0 +1,12 @@
+linux-hardware-monitor (0.1.0-1) unstable; urgency=medium
+
+  * First public release.
+  * Performance, Processes, Services, Startup apps, Sensors and Overview pages
+    with CPU, memory, disk, network, GPU and battery graphs.
+  * Sensor history with per-sensor statistics and CSV export.
+  * Disk health (SMART through udisks2), temperature unit setting, optional
+    notifications for overheating, thermal throttling and a stopped fan.
+  * Simulation mode, JSON dump of all sensors for scripts and headless machines.
+  * Translations: English, Russian, Ukrainian, German, Spanish.
+
+ -- Zbara <zbara.dev@gmail.com>  Sun, 25 Oct 2026 18:00:00 +0200

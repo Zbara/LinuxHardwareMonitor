@@ -28,6 +28,22 @@ private slots:
             QVERIFY2(text.contains(QString::fromLatin1(f.name)), f.name);
     }
 
+    // The manual page documents every option (troff writes '-' as '\\-').
+    void manPageCoversEveryFlag() {
+        QFile f(SOURCE_DIR "/packaging/LinuxHardwareMonitor.1");
+        QVERIFY2(f.open(QIODevice::ReadOnly), "packaging/LinuxHardwareMonitor.1");
+        const QString man = QString::fromUtf8(f.readAll());
+        for (const auto &flag : CommandLine::flags()) {
+            for (const QString &name : QString::fromLatin1(flag.name).split(", ")) {
+                if (!name.startsWith("--"))
+                    continue; // short aliases (-h, -v) share the entry of the long option
+                QString escaped = name;
+                escaped.replace("-", "\\-");
+                QVERIFY2(man.contains(escaped), qPrintable("not in the man page: " + name));
+            }
+        }
+    }
+
     // The table must not drift from main.cpp and the option parser: every flag the sources look
     // for appears in the help, and every documented flag is used somewhere.
     void tableMatchesTheSources() {
