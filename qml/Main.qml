@@ -42,6 +42,12 @@ ApplicationWindow {
     // Remembered here because the Performance page itself only exists while it is shown.
     property int resourceIndex: 0
     property bool coreView: false
+    // The command-line flags (--resource, --cores) arrive after the page was created.
+    onResourceIndexChanged: {
+        const page = performanceLoader.item
+        if (page && page.selected !== resourceIndex) page.selected = resourceIndex
+    }
+    onCoreViewChanged: if (performanceLoader.item && coreView) performanceLoader.item.coreView = true
 
     // Hardware data that is not from this machine is always announced.
     header: Rectangle {
@@ -245,13 +251,15 @@ ApplicationWindow {
 
         StackLayout {
             id: pages
+            // The loaders compare with currentIndex instead of using StackLayout.isCurrentItem: the attached
+            // object that one creates is leaked by Qt at exit (ASan reports it).
             Layout.fillWidth: true
             Layout.fillHeight: true
             // Only the visible page exists. Hidden pages used to keep every binding (and, on the
             // Sensors page, hundreds of live charts) running once a second for nothing.
             Loader {
                 id: performanceLoader
-                active: StackLayout.isCurrentItem
+                active: pages.currentIndex === 0
                 sourceComponent: PerformancePage {}
                 onLoaded: {
                     item.selected = window.resourceIndex
@@ -263,12 +271,12 @@ ApplicationWindow {
                 ignoreUnknownSignals: true
                 function onSelectedChanged() { if (performanceLoader.item) window.resourceIndex = performanceLoader.item.selected }
             }
-            Loader { active: StackLayout.isCurrentItem; sourceComponent: ProcessesPage {} }
-            Loader { active: StackLayout.isCurrentItem; sourceComponent: ServicesPage {} }
-            Loader { active: StackLayout.isCurrentItem; sourceComponent: StartupPage {} }
-            Loader { active: StackLayout.isCurrentItem; sourceComponent: SensorsPage {} }
-            Loader { active: StackLayout.isCurrentItem; sourceComponent: DashboardPage {} }
-            Loader { active: StackLayout.isCurrentItem; sourceComponent: SettingsPage {} }
+            Loader { active: pages.currentIndex === 1; sourceComponent: ProcessesPage {} }
+            Loader { active: pages.currentIndex === 2; sourceComponent: ServicesPage {} }
+            Loader { active: pages.currentIndex === 3; sourceComponent: StartupPage {} }
+            Loader { active: pages.currentIndex === 4; sourceComponent: SensorsPage {} }
+            Loader { active: pages.currentIndex === 5; sourceComponent: DashboardPage {} }
+            Loader { active: pages.currentIndex === 6; sourceComponent: SettingsPage {} }
         }
     }
 }
