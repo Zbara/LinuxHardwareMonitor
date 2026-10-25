@@ -83,12 +83,17 @@ QImage render(const QString &text, const QColor &background, int size) {
     return image;
 }
 
-QString tooltip(const QString &appName, double cpuUsage, double cpuTemp, double memUsage) {
+double toFahrenheit(double celsius) {
+    return celsius * 9.0 / 5.0 + 32.0;
+}
+
+QString tooltip(const QString &appName, double cpuUsage, double cpuTemp, double memUsage, bool fahrenheit) {
     QStringList parts;
     if (std::isfinite(cpuUsage))
         parts << QStringLiteral("CPU %1 %").arg(qRound(cpuUsage));
     if (std::isfinite(cpuTemp))
-        parts << QStringLiteral("%1 °C").arg(qRound(cpuTemp));
+        parts << (fahrenheit ? QStringLiteral("%1 °F").arg(qRound(toFahrenheit(cpuTemp)))
+                             : QStringLiteral("%1 °C").arg(qRound(cpuTemp)));
     if (std::isfinite(memUsage))
         parts << QStringLiteral("RAM %1 %").arg(qRound(memUsage));
     return parts.isEmpty() ? appName : appName + QLatin1Char('\n') + parts.join(QStringLiteral(" · "));
@@ -132,6 +137,13 @@ void TrayController::setStyle(const QString &style) {
     update(m_usage, m_temp, m_mem);
 }
 
+void TrayController::setFahrenheit(bool on) {
+    if (on == m_fahrenheit)
+        return;
+    m_fahrenheit = on;
+    update(m_usage, m_temp, m_mem);
+}
+
 void TrayController::setVisible(bool visible) {
     m_tray->setVisible(visible && isAvailable());
 }
@@ -144,14 +156,14 @@ void TrayController::update(double cpuUsage, double cpuTemp, double memUsage) {
     if (m_style == QLatin1String("app")) {
         // The program icon; the live numbers are still available in the tooltip.
         m_tray->setIcon(QIcon(QPixmap::fromImage(TrayIcon::renderAppIcon(64))));
-        m_tray->setToolTip(TrayIcon::tooltip(tr("Hardware Monitor"), cpuUsage, cpuTemp, memUsage));
+        m_tray->setToolTip(TrayIcon::tooltip(tr("Hardware Monitor"), cpuUsage, cpuTemp, memUsage, m_fahrenheit));
         return;
     }
 
     QString text;
     QColor color;
     if (std::isfinite(cpuTemp)) {
-        text = QString::number(qRound(cpuTemp));
+        text = QString::number(qRound(m_fahrenheit ? TrayIcon::toFahrenheit(cpuTemp) : cpuTemp));
         color = TrayIcon::colorForTemperature(cpuTemp);
     } else if (std::isfinite(cpuUsage)) {
         text = QString::number(qRound(cpuUsage)); // no temperature sensor: show the load instead
@@ -161,5 +173,5 @@ void TrayController::update(double cpuUsage, double cpuTemp, double memUsage) {
         color = QColor(QStringLiteral("#5f6a78"));
     }
     m_tray->setIcon(QIcon(QPixmap::fromImage(TrayIcon::render(text, color))));
-    m_tray->setToolTip(TrayIcon::tooltip(tr("Hardware Monitor"), cpuUsage, cpuTemp, memUsage));
+    m_tray->setToolTip(TrayIcon::tooltip(tr("Hardware Monitor"), cpuUsage, cpuTemp, memUsage, m_fahrenheit));
 }

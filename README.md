@@ -20,6 +20,7 @@ interface. No Electron, no web view, no root: everything comes from `/sys`, `/pr
 - **History across restarts** – the last ~15 minutes of every sensor are saved on exit (and every 5 minutes) to `~/.local/share/LinuxHardwareMonitor/history.bin`; live charts start fresh after a restart, while the sensor detail window (click a sensor on the Sensors page) shows the restored history with the downtime as a gap. Not used in simulation or fixture mode.
 - **Overheat notifications** – optional desktop notification (freedesktop `Notify` over D-Bus) when a temperature sensor reaches a threshold you choose; off by default.
 - **Keyboard** – `Ctrl+1`…`Ctrl+7` switch pages, `Ctrl+F` focuses the search field of the Processes, Services and Sensors pages.
+- **Temperature unit** – Celsius or Fahrenheit (Settings); only what is shown changes, thresholds and data stay in Celsius.
 - **Settings** – update interval, history length, dark/light theme, language, start with the system, CSV export of the history.
 - **Languages** – English, Русский, Українська, Deutsch, Español (switchable at runtime, follows the system by default).
 

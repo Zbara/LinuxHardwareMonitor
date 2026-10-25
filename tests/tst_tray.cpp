@@ -92,6 +92,14 @@ private slots:
         QCOMPARE(TrayIcon::render("7", Qt::blue, 22).size(), QSize(22, 22));
     }
 
+    void fahrenheitIsConvertedForDisplayOnly() {
+        QCOMPARE(TrayIcon::toFahrenheit(0), 32.0);
+        QCOMPARE(TrayIcon::toFahrenheit(100), 212.0);
+        QCOMPARE(TrayIcon::toFahrenheit(-40), -40.0);
+        QCOMPARE(TrayIcon::tooltip("App", 12.0, 67.2, 38.0, true), QString("App\nCPU 12 % · 153 °F · RAM 38 %"));
+        QCOMPARE(TrayIcon::tooltip("App", 12.0, NAN, 38.0, true), QString("App\nCPU 12 % · RAM 38 %")); // still nothing invented
+    }
+
     void tooltipOmitsUnknownValues() {
         QCOMPARE(TrayIcon::tooltip("App", 12.4, 67.2, 38.0), QString("App\nCPU 12 % · 67 °C · RAM 38 %"));
         QCOMPARE(TrayIcon::tooltip("App", 12.0, NAN, NAN), QString("App\nCPU 12 %"));

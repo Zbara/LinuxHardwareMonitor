@@ -87,6 +87,7 @@ class AppController : public QObject {
     Q_PROPERTY(QString trayStyle READ trayStyle WRITE setTrayStyle NOTIFY trayStyleChanged)
     Q_PROPERTY(bool trayAvailable READ trayAvailable NOTIFY trayAvailableChanged)
     Q_PROPERTY(bool autostart READ autostart WRITE setAutostart NOTIFY autostartChanged)
+    Q_PROPERTY(bool useFahrenheit READ useFahrenheit WRITE setUseFahrenheit NOTIFY useFahrenheitChanged)
     Q_PROPERTY(bool overheatNotify READ overheatNotify WRITE setOverheatNotify NOTIFY overheatNotifyChanged)
     Q_PROPERTY(int overheatThreshold READ overheatThreshold WRITE setOverheatThreshold NOTIFY overheatThresholdChanged)
     Q_PROPERTY(int historySeconds READ historySeconds WRITE setHistorySeconds NOTIFY historySecondsChanged)
@@ -144,6 +145,8 @@ public:
     Q_INVOKABLE void quit();
     bool autostart() const { return m_autostart.isEnabled(); }
     void setAutostart(bool enabled);
+    bool useFahrenheit() const { return m_fahrenheit; }
+    void setUseFahrenheit(bool on);
     bool overheatNotify() const { return m_overheatNotify; }
     void setOverheatNotify(bool on);
     int overheatThreshold() const { return m_overheat.threshold(); }
@@ -191,6 +194,7 @@ signals:
     void overheat(const QString &message);
     void overheatThresholdChanged();
     void overheatNotifyChanged();
+    void useFahrenheitChanged();
     void autostartChanged();
     void trayEnabledChanged();
     void trayStyleChanged();
@@ -217,6 +221,7 @@ private:
     SensorManager m_manager;
     QString exportCsvFile(const QString &label, const QString &sensorId);
     OverheatMonitor m_overheat;
+    bool m_fahrenheit = false; // display only: all data and thresholds stay in Celsius
     bool m_overheatNotify = false; // opt-in: no popups unless the user asks for them
     Autostart m_autostart;
     Localization m_localization;

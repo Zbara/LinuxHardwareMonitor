@@ -39,9 +39,20 @@ QtObject {
     readonly property int radius: 10
     readonly property int spacing: 12
 
+    // Data and thresholds are always Celsius; only what is shown changes.
+    readonly property bool fahrenheit: app.useFahrenheit
+    function toFahrenheit(c) { return c * 9 / 5 + 32 }
+    function tempText(celsius, digits) {
+        if (celsius === undefined || celsius === null || isNaN(celsius))
+            return na
+        return (fahrenheit ? toFahrenheit(celsius) : celsius).toFixed(digits === undefined ? 0 : digits) + (fahrenheit ? " °F" : " °C")
+    }
+
     function format(value, unit) {
         if (value === undefined || value === null || isNaN(value))
             return na
+        if (unit === "°C")
+            return tempText(value, 1)
         const digits = unit === "RPM" || unit === "MHz" || unit === "%" ? 0 : unit === "MB/s" ? 2 : 1
         return value.toFixed(digits) + " " + unit
     }

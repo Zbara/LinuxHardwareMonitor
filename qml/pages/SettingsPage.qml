@@ -144,6 +144,16 @@ ScrollView {
                 title: qsTr("Appearance")
 
                 SettingRow {
+                    label: qsTr("Temperature unit")
+                    ComboBox {
+                        anchors.right: parent.right
+                        width: 220
+                        model: [qsTr("Celsius (°C)"), qsTr("Fahrenheit (°F)")]
+                        currentIndex: app.useFahrenheit ? 1 : 0
+                        onActivated: app.useFahrenheit = currentIndex === 1
+                    }
+                }
+                SettingRow {
                     label: qsTr("Dark theme")
                     Toggle {
                         anchors.right: parent.right
@@ -174,7 +184,7 @@ ScrollView {
                         width: 220
                         enabled: app.overheatNotify
                         readonly property var values: [70, 80, 85, 90, 95, 100]
-                        model: values.map(v => v + " °C")
+                        model: values.map(v => Theme.tempText(v, 0))
                         currentIndex: Math.max(0, values.indexOf(app.overheatThreshold))
                         onActivated: app.overheatThreshold = values[currentIndex]
                     }

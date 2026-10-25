@@ -2,6 +2,7 @@
 
 #include <QRegularExpression>
 #include "core/Notifier.h"
+#include "TrayIcon.h"
 
 #include "core/ProcessControl.h"
 #include "mock/MockFacts.h"
@@ -78,6 +79,7 @@ AppController::AppController(AppOptions options, QObject *parent)
     m_manager.setHistorySeconds(m_historySeconds);
     m_overheat.setThreshold(m_settings.value("overheatThreshold", 90).toInt());
     m_overheatNotify = m_settings.value("overheatNotify", false).toBool();
+    m_fahrenheit = m_settings.value("fahrenheit", false).toBool();
     m_simClock.start();
     if (qEnvironmentVariableIsSet("HWMON_PROFILE")) { // prints per-second cost of the C++ side of each refresh
         auto *t = new QTimer(this);
@@ -181,6 +183,14 @@ void AppController::setOverheatThreshold(int celsius) {
     m_overheat.setThreshold(celsius);
     m_settings.setValue("overheatThreshold", celsius);
     emit overheatThresholdChanged();
+}
+
+void AppController::setUseFahrenheit(bool on) {
+    if (on == m_fahrenheit)
+        return;
+    m_fahrenheit = on;
+    m_settings.setValue("fahrenheit", on);
+    emit useFahrenheitChanged();
 }
 
 void AppController::setOverheatNotify(bool on) {
@@ -805,7 +815,9 @@ void AppController::rebuildSummaries() {
     for (const auto &row : m_manager.model()->rows())
         readings.push_back(row.reading);
     for (const auto &a : m_overheat.update(readings)) {
-        const QString text = tr("%1 — %2: %3 °C").arg(a.deviceName, a.sensorName).arg(a.value, 0, 'f', 1);
+        const QString text = m_fahrenheit
+            ? tr("%1 — %2: %3 °F").arg(a.deviceName, a.sensorName).arg(TrayIcon::toFahrenheit(a.value), 0, 'f', 1)
+            : tr("%1 — %2: %3 °C").arg(a.deviceName, a.sensorName).arg(a.value, 0, 'f', 1);
         emit overheat(text);
         if (m_overheatNotify)
             Notifier::send(tr("Temperature warning"), text);

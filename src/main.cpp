@@ -79,6 +79,8 @@ int main(int argc, char *argv[]) {
     syncTray();
     tray.setStyle(controller.trayStyle());
     QObject::connect(&controller, &AppController::trayStyleChanged, &tray, [&] { tray.setStyle(controller.trayStyle()); });
+    tray.setFahrenheit(controller.useFahrenheit());
+    QObject::connect(&controller, &AppController::useFahrenheitChanged, &tray, [&] { tray.setFahrenheit(controller.useFahrenheit()); });
     QObject::connect(&controller, &AppController::languageChanged, &tray, &TrayController::retranslate);
     QObject::connect(&controller, &AppController::summariesChanged, &tray, [&] {
         const QVariantList list = controller.highlights();

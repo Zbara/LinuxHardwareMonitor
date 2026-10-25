@@ -27,7 +27,7 @@ Rectangle {
         if (unit === "%") return Math.round(v) + "%"
         if (unit === "MB/s") return Theme.formatRate(v)
         if (unit === "MHz") return v >= 1000 ? (v / 1000).toFixed(1) + " GHz" : Math.round(v) + " MHz"
-        if (unit === "°C") return Math.round(v) + " °C"
+        if (unit === "°C") return Theme.tempText(v, 0)
         if (unit === "GB") return v.toFixed(v < 10 ? 1 : 0) + " " + Theme.unitGB
         return Theme.formatRateScale(v, unit)
     }

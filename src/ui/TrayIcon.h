@@ -24,8 +24,12 @@ QImage renderAppIcon(int size = 64);
 // Blue when cool, amber when warm, red when hot.
 QColor colorForTemperature(double celsius);
 
-// "CPU 12 % · 67 °C · RAM 38 %"; unknown values are left out, never shown as zero.
-QString tooltip(const QString &appName, double cpuUsage, double cpuTemp, double memUsage);
+// Celsius to Fahrenheit.
+double toFahrenheit(double celsius);
+
+// "CPU 12 % · 67 °C · RAM 38 %"; unknown values are left out, never shown as zero. Temperatures are
+// given in Celsius and shown in Fahrenheit ("153 °F") when asked to.
+QString tooltip(const QString &appName, double cpuUsage, double cpuTemp, double memUsage, bool fahrenheit = false);
 
 } // namespace TrayIcon
 
@@ -43,6 +47,8 @@ public:
     // "app" (the program icon, default) or "temperature" (a coloured tile with the CPU temperature).
     void setStyle(const QString &style);
     void setVisible(bool visible);
+    // Show temperatures in Fahrenheit (data stays in Celsius; colours still follow Celsius).
+    void setFahrenheit(bool on);
     // Re-applies translated texts after a language change.
     void retranslate();
     // Redraws the icon and tooltip. NaN means "unknown".
@@ -58,5 +64,6 @@ private:
     QAction *m_toggleAction;
     QAction *m_quitAction;
     QString m_style = QStringLiteral("app");
+    bool m_fahrenheit = false;
     double m_usage = NAN, m_temp = NAN, m_mem = NAN;
 };

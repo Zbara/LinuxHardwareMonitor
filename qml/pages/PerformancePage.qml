@@ -23,7 +23,10 @@ Item {
     }
     function ok(ref) { return ref !== undefined && ref !== null && ref.available }
     function pct(ref) { return ok(ref) ? Math.round(ref.value) + "%" : Theme.na }
-    function num(ref, digits, unit) { return ok(ref) ? ref.value.toFixed(digits) + (unit ? " " + unit : "") : Theme.na }
+    function num(ref, digits, unit) {
+        if (!ok(ref)) return Theme.na
+        return unit === "°C" ? Theme.tempText(ref.value, digits) : ref.value.toFixed(digits) + (unit ? " " + unit : "")
+    }
     function rate(ref) { return ok(ref) ? Theme.formatRate(ref.value) : Theme.na }
     function ghz(mhz) { return mhz === undefined || mhz === null || isNaN(mhz) ? Theme.na : (mhz / 1000).toFixed(2) + " GHz" }
     function or(v, fallback) { return v === undefined || v === null || v === "" ? fallback : v }
