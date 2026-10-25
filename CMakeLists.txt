@@ -126,6 +126,7 @@ include(GNUInstallDirs)
 install(TARGETS LinuxHardwareMonitor RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES packaging/linux-hardware-monitor.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(DIRECTORY mocks/ DESTINATION ${CMAKE_INSTALL_DATADIR}/linux-hardware-monitor/mocks FILES_MATCHING PATTERN "*.json")
+install(FILES packaging/copyright DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/linux-hardware-monitor)
 install(FILES packaging/linux-hardware-monitor.svg
         DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
 
