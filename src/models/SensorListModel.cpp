@@ -94,6 +94,63 @@ void SensorListModel::update(const SensorReading &reading, bool hasStats, double
 
 SensorProxyModel::SensorProxyModel(QObject *parent) : QSortFilterProxyModel(parent) {
     setDynamicSortFilter(true);
+    sort(0, Qt::AscendingOrder); // lessThan() decides; without a key it keeps the source order
+}
+
+void SensorProxyModel::sortBy(const QString &key) {
+    if (key == m_sortKey && !m_descending) {
+        m_descending = true;
+    } else if (key == m_sortKey) {
+        m_sortKey.clear(); // third click: back to the natural order
+        m_descending = false;
+    } else {
+        m_sortKey = key;
+        m_descending = false;
+    }
+    // The direction is applied in lessThan(), so the Qt sort order stays ascending.
+    invalidate();
+    emit sortChanged();
+}
+
+bool SensorProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const {
+    const QAbstractItemModel *m = sourceModel();
+    const bool natural = left.row() < right.row(); // the source list is sorted by device, type, name
+    if (m_sortKey.isEmpty())
+        return natural;
+    // Different devices keep the order of the source list: only the rows inside a group move.
+    if (m->data(left, SensorListModel::DeviceIdRole) != m->data(right, SensorListModel::DeviceIdRole))
+        return natural;
+
+    const bool leftOk = m->data(left, SensorListModel::AvailableRole).toBool();
+    const bool rightOk = m->data(right, SensorListModel::AvailableRole).toBool();
+    if (m_sortKey != QLatin1String("status") && leftOk != rightOk)
+        return leftOk; // a sensor without a value goes last in either direction
+
+    int c = 0; // < 0: left first when ascending
+    if (m_sortKey == QLatin1String("name")) {
+        static const QCollator collator = [] {
+            QCollator col;
+            col.setNumericMode(true);
+            col.setCaseSensitivity(Qt::CaseInsensitive);
+            return col;
+        }();
+        c = collator.compare(m->data(left, SensorListModel::NameRole).toString(),
+                             m->data(right, SensorListModel::NameRole).toString());
+    } else if (m_sortKey == QLatin1String("status")) {
+        c = int(rightOk) - int(leftOk); // available first when ascending
+    } else {
+        const int role = m_sortKey == QLatin1String("min")   ? SensorListModel::MinRole
+                         : m_sortKey == QLatin1String("max") ? SensorListModel::MaxRole
+                                                             : SensorListModel::ValueRole;
+        const QVariant lv = m->data(left, role), rv = m->data(right, role);
+        // No statistics yet (QVariant()) behaves like an unavailable value.
+        if (lv.isValid() != rv.isValid())
+            return lv.isValid();
+        c = lv.toDouble() < rv.toDouble() ? -1 : lv.toDouble() > rv.toDouble() ? 1 : 0;
+    }
+    if (c == 0)
+        return natural;
+    return m_descending ? c > 0 : c < 0;
 }
 
 void SensorProxyModel::setFilterText(const QString &text) {

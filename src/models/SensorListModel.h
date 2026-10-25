@@ -67,15 +67,28 @@ public:
     void setFavoritesOnly(bool on);
     void setFavorites(const QStringList &ids);
 
+    // Sorting inside each device group (groups keep their order, so the section headers stay intact).
+    // Keys: "name", "value", "min", "max", "status"; "" is the natural order of the list.
+    Q_PROPERTY(QString sortKey READ sortKey NOTIFY sortChanged)
+    Q_PROPERTY(bool sortDescending READ sortDescending NOTIFY sortChanged)
+    QString sortKey() const { return m_sortKey; }
+    bool sortDescending() const { return m_descending; }
+    // The same key again flips the direction, a third time returns to the natural order.
+    Q_INVOKABLE void sortBy(const QString &key);
+
 signals:
+    void sortChanged();
     void filterTextChanged();
     void typeFilterChanged();
     void favoritesOnlyChanged();
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 
 private:
+    QString m_sortKey;
+    bool m_descending = false;
     QString m_filter;
     int m_type = -1;
     bool m_favoritesOnly = false;

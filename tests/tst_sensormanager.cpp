@@ -69,6 +69,44 @@ private slots:
         QVERIFY(one.data().contains("\na,"));
     }
 
+    void sensorProxySortsInsideDeviceGroups() {
+        SensorManager m;
+        auto make = [](const QString &id, const QString &device, double v, bool ok = true) {
+            SensorReading r = reading(id, v, ok);
+            r.deviceId = device;
+            r.deviceName = device;
+            r.name = id;
+            return r;
+        };
+        m.applyReadings({make("a1", "A", 30), make("a2", "A", 10), make("a3", "A", 20), make("a4", "A", 0, false),
+                         make("b1", "B", 5), make("b2", "B", 50)});
+        SensorProxyModel proxy;
+        proxy.setSourceModel(m.model());
+        auto order = [&] {
+            QStringList ids;
+            for (int i = 0; i < proxy.rowCount(); ++i)
+                ids << proxy.data(proxy.index(i, 0), SensorListModel::IdRole).toString();
+            return ids;
+        };
+        QCOMPARE(order(), (QStringList{"a1", "a2", "a3", "a4", "b1", "b2"})); // natural order
+
+        proxy.sortBy("value");
+        QCOMPARE(order(), (QStringList{"a2", "a3", "a1", "a4", "b1", "b2"})); // ascending, unavailable last
+        proxy.sortBy("value");
+        QVERIFY(proxy.sortDescending());
+        QCOMPARE(order(), (QStringList{"a1", "a3", "a2", "a4", "b2", "b1"})); // still last, groups stay in place
+        proxy.sortBy("value"); // third click: natural again
+        QCOMPARE(proxy.sortKey(), QString());
+        QCOMPARE(order(), (QStringList{"a1", "a2", "a3", "a4", "b1", "b2"}));
+
+        proxy.sortBy("name");
+        proxy.sortBy("name");
+        QCOMPARE(order(), (QStringList{"a3", "a2", "a1", "a4", "b2", "b1"})); // by name, descending; a4 has no value: last
+
+        proxy.sortBy("status"); // a new key starts ascending: available first, ties in natural order
+        QCOMPARE(order(), (QStringList{"a1", "a2", "a3", "a4", "b1", "b2"}));
+    }
+
     void sensorProxyFiltersByTextAndType() {
         SensorManager m;
         SensorReading cpu = reading("cpu_temp", 50);

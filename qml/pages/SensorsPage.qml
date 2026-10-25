@@ -110,9 +110,14 @@ Item {
                         delegate: Text {
                             required property int index
                             required property string modelData
-                            text: modelData
-                            color: Theme.textMuted
+                            // The history column is a chart and cannot be sorted.
+                            readonly property string key: ["name", "value", "min", "max", "", "status"][index]
+                            readonly property bool sorted: key !== "" && app.sensorFilter.sortKey === key
+                            text: modelData + (sorted ? (app.sensorFilter.sortDescending ? " ▼" : " ▲") : "")
+                            color: sorted ? Theme.text : Theme.textMuted
                             font.pixelSize: 12
+                            TapHandler { enabled: parent.key !== ""; onTapped: app.sensorFilter.sortBy(parent.key) }
+                            HoverHandler { cursorShape: parent.key !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor }
                             Layout.fillWidth: index === 0
                             Layout.preferredWidth: index === 0 ? 100 : (index >= 4 ? 100 : 110)
                             horizontalAlignment: index === 0 ? Text.AlignLeft : index === 4 ? Text.AlignHCenter : Text.AlignRight
