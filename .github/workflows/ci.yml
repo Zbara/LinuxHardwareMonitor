@@ -32,10 +32,20 @@ jobs:
               qml6-module-qtquick-window qml6-module-qtquick-templates \
               dbus fonts-dejavu-core file lintian appstream desktop-file-utils
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the tags, so a release is built as "v0.2.0" and not as a bare commit
+      - name: Let git read the workspace
+        # The container user is not the owner of the checkout and git refuses such a directory; without this the
+        # build cannot ask git which commit it comes from and --version / the About page lose their Build line.
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Configure
         run: cmake -S . -B build -G Ninja -DHWMON_DISTRO_TAG=${{ matrix.tag }}
       - name: Build
         run: cmake --build build
+      - name: Show the version
+        run: |
+          build/LinuxHardwareMonitor --version
+          build/LinuxHardwareMonitor --version | grep -q '^Build: ' # fail when the commit could not be determined
       - name: Test
         run: dbus-run-session -- ctest --test-dir build --output-on-failure
       - name: Package
