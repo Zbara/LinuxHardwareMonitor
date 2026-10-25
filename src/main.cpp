@@ -1,5 +1,6 @@
 #include "ui/AppController.h"
 
+#include "core/CommandLine.h"
 #include "ui/TrayIcon.h"
 
 #include <QApplication>
@@ -8,12 +9,27 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
+#include <QFileInfo>
+#include <QTextStream>
 #include <QQuickWindow>
 #include <QTimer>
 
 #include <cmath>
 
 int main(int argc, char *argv[]) {
+    // --help and --version answer before any Qt GUI object exists, so they work without a display.
+    {
+        QStringList args;
+        for (int i = 1; i < argc; ++i)
+            args << QString::fromLocal8Bit(argv[i]);
+        const bool help = CommandLine::wantsHelp(args), version = CommandLine::wantsVersion(args);
+        if (help || version) {
+            const QString text = help ? CommandLine::help(QFileInfo(QString::fromLocal8Bit(argv[0])).fileName())
+                                      : CommandLine::version();
+            QTextStream(stdout) << text << Qt::endl;
+            return 0;
+        }
+    }
     // The interface is flat 2D; the software scene graph needs ~150 MB less memory than the OpenGL one
     // and does not wake the discrete GPU. QT_QUICK_BACKEND=rhi (or any other value) overrides it.
     if (!qEnvironmentVariableIsSet("QT_QUICK_BACKEND") && !qEnvironmentVariableIsSet("QSG_RHI_BACKEND"))

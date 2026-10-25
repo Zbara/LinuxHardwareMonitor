@@ -41,6 +41,8 @@ add_library(hwmon_core STATIC
     src/core/SystemInfo.cpp
     src/core/ProcessMonitor.h
     src/core/ProcessMonitor.cpp
+    src/core/CommandLine.h
+    src/core/CommandLine.cpp
     src/core/Notifier.h
     src/core/Notifier.cpp
     src/core/SensorManager.h
@@ -80,6 +82,7 @@ add_library(hwmon_core STATIC
     src/ui/AppController.cpp
 )
 target_include_directories(hwmon_core PUBLIC src)
+target_compile_definitions(hwmon_core PUBLIC HWMON_VERSION="${PROJECT_VERSION}")
 target_link_libraries(hwmon_core PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets Qt6::DBus Qt6::Network Qt6::Qml)
 
 set_source_files_properties(qml/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)

@@ -48,7 +48,7 @@ ctest --test-dir build --output-on-failure
 ./build/LinuxHardwareMonitor
 ```
 
-Useful flags for screenshots and smoke tests: `--page <n>`, `--resource <n>`, `--size <w> <h>`,
+`LinuxHardwareMonitor --help` lists every option. Useful flags for screenshots and smoke tests: `--page <n>`, `--resource <n>`, `--size <w> <h>`,
 `--screenshot <file.png>` (e.g. `QT_QPA_PLATFORM=offscreen ./build/LinuxHardwareMonitor --page 0 --screenshot out.png`).
 
 ## Resource usage
