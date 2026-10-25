@@ -14,6 +14,8 @@
  "Period": "Період",
  "%1 s": "%1 с",
  "%1 min": "%1 хв",
+ "Alert above a limit of its own": "Сповістити при перевищенні власного порогу",
+ "Notifications are off (Settings > Alerts)": "Сповіщення вимкнено (Параметри > Сповіщення)",
  "Search sensors": "Пошук датчиків",
  "No sensors match the filter": "Немає датчиків, що відповідають фільтру",
  "Search services": "Пошук служб",

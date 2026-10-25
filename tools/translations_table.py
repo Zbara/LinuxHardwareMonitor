@@ -24,6 +24,8 @@ ROWS = [
     ("Period", "Период", "Період", "Zeitraum", "Período"),
     ("%1 s", "%1 с", "%1 с", "%1 s", "%1 s"),
     ("%1 min", "%1 мин", "%1 хв", "%1 Min.", "%1 min"),
+    ("Alert above a limit of its own", "Оповестить при превышении своего порога", "Сповістити при перевищенні власного порогу", "Bei eigener Grenze warnen", "Avisar al superar un límite propio"),
+    ("Notifications are off (Settings > Alerts)", "Уведомления выключены (Параметры > Оповещения)", "Сповіщення вимкнено (Параметри > Сповіщення)", "Benachrichtigungen sind aus (Einstellungen > Warnungen)", "Las notificaciones están desactivadas (Ajustes > Alertas)"),
     ("Search sensors", "Поиск датчиков", "Пошук датчиків", "Sensoren suchen", "Buscar sensores"),
     ("No sensors match the filter", "Нет датчиков, подходящих под фильтр", "Немає датчиків, що відповідають фільтру", "Keine Sensoren entsprechen dem Filter", "Ningún sensor coincide con el filtro"),
     ("Search services", "Поиск служб", "Пошук служб", "Dienste suchen", "Buscar servicios"),

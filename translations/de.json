@@ -14,6 +14,8 @@
  "Period": "Zeitraum",
  "%1 s": "%1 s",
  "%1 min": "%1 Min.",
+ "Alert above a limit of its own": "Bei eigener Grenze warnen",
+ "Notifications are off (Settings > Alerts)": "Benachrichtigungen sind aus (Einstellungen > Warnungen)",
  "Search sensors": "Sensoren suchen",
  "No sensors match the filter": "Keine Sensoren entsprechen dem Filter",
  "Search services": "Dienste suchen",

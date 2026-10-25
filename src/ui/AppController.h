@@ -138,6 +138,9 @@ public:
     void setTrayEnabled(bool enabled);
     QStringList favoriteSensors() const { return m_favorites; }
     Q_INVOKABLE void toggleFavorite(const QString &sensorId);
+    // A temperature limit of its own for one sensor, in Celsius (0 = none, the global limit applies).
+    Q_INVOKABLE double sensorAlert(const QString &sensorId) const { return m_overheat.sensorThreshold(sensorId); }
+    Q_INVOKABLE void setSensorAlert(const QString &sensorId, double celsius);
     QString trayStyle() const { return m_trayStyle; }
     void setTrayStyle(const QString &style);
     bool trayAvailable() const { return m_trayAvailable; }

@@ -79,6 +79,14 @@ AppController::AppController(AppOptions options, QObject *parent)
     m_manager.setHistorySeconds(m_historySeconds);
     m_overheat.setThreshold(m_settings.value("overheatThreshold", 90).toInt());
     m_overheatNotify = m_settings.value("overheatNotify", false).toBool();
+    {
+        QHash<QString, double> perSensor;
+        const QVariantMap saved = m_settings.value("sensorAlerts").toMap();
+        for (auto it = saved.begin(); it != saved.end(); ++it)
+            if (it.value().toDouble() > 0.0)
+                perSensor.insert(it.key(), it.value().toDouble());
+        m_overheat.setSensorThresholds(perSensor);
+    }
     m_fahrenheit = m_settings.value("fahrenheit", false).toBool();
     m_simClock.start();
     if (qEnvironmentVariableIsSet("HWMON_PROFILE")) { // prints per-second cost of the C++ side of each refresh
@@ -183,6 +191,19 @@ void AppController::setOverheatThreshold(int celsius) {
     m_overheat.setThreshold(celsius);
     m_settings.setValue("overheatThreshold", celsius);
     emit overheatThresholdChanged();
+}
+
+void AppController::setSensorAlert(const QString &sensorId, double celsius) {
+    if (sensorId.isEmpty())
+        return;
+    celsius = celsius > 0.0 ? std::clamp(celsius, 1.0, 150.0) : 0.0;
+    m_overheat.setSensorThreshold(sensorId, celsius);
+    QVariantMap saved = m_settings.value("sensorAlerts").toMap();
+    if (celsius > 0.0)
+        saved.insert(sensorId, celsius);
+    else
+        saved.remove(sensorId);
+    m_settings.setValue("sensorAlerts", saved);
 }
 
 void AppController::setUseFahrenheit(bool on) {

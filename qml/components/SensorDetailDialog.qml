@@ -14,6 +14,7 @@ Dialog {
     property var current            // latest value, undefined when the sensor is unavailable
     property var stats: ({})
     property string exportResult
+    property real alertLimit: 0     // Celsius, 0 = the global limit applies
 
     function show(id, name, device, sensorUnit, value) {
         sensorId = id
@@ -22,6 +23,7 @@ Dialog {
         unit = sensorUnit
         current = value
         exportResult = ""
+        alertLimit = app.sensorAlert(id)
         refresh()
         open()
     }
@@ -133,6 +135,47 @@ Dialog {
                     latestRunOnly: false
                 }
             }
+        }
+
+        // A limit of its own for this temperature sensor instead of the global one (Settings > Alerts).
+        RowLayout {
+            Layout.fillWidth: true
+            visible: dialog.unit === "°C"
+            spacing: 10
+            Toggle {
+                id: alertToggle
+                checked: dialog.alertLimit > 0
+                onToggled: {
+                    dialog.alertLimit = checked ? (app.overheatThreshold > 0 ? app.overheatThreshold : 90) : 0
+                    app.setSensorAlert(dialog.sensorId, dialog.alertLimit)
+                }
+            }
+            Label {
+                text: qsTr("Alert above a limit of its own")
+                color: Theme.text
+                font.pixelSize: 13
+            }
+            SpinBox {
+                enabled: alertToggle.checked
+                from: 30
+                to: 150
+                stepSize: 5
+                value: dialog.alertLimit > 0 ? dialog.alertLimit : app.overheatThreshold
+                textFromValue: v => Theme.tempText(v, 0)
+                onValueModified: {
+                    dialog.alertLimit = value
+                    app.setSensorAlert(dialog.sensorId, value)
+                }
+            }
+            Label {
+                Layout.fillWidth: true
+                visible: !app.overheatNotify
+                text: qsTr("Notifications are off (Settings > Alerts)")
+                color: Theme.textMuted
+                font.pixelSize: 11
+                elide: Text.ElideRight
+            }
+            Item { Layout.fillWidth: true; visible: app.overheatNotify }
         }
 
         RowLayout {
