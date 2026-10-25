@@ -12,12 +12,12 @@ QString fromLegacy(bool darkTheme) {
     return darkTheme ? QStringLiteral("dark") : QStringLiteral("light");
 }
 
-bool isDark(const QString &mode, Qt::ColorScheme system) {
+bool isDark(const QString &mode, SystemScheme system) {
     const QString m = normalize(mode);
     if (m == QLatin1String("light"))
         return false;
     if (m == QLatin1String("system"))
-        return system != Qt::ColorScheme::Light; // a desktop that does not say (Unknown) gets the default
+        return system != SystemScheme::Light; // a desktop that does not say (Unknown) gets the default
     return true;
 }
 

@@ -1,6 +1,6 @@
 # Releasing
 
-Packages are built by GitHub Actions for **Ubuntu 26.04** and **Debian 13** (a container of each, so the
+Packages are built by GitHub Actions for **Ubuntu 26.04**, **Ubuntu 24.04** and **Debian 13** (a container of each, so the
 dependencies are right for that release) and published as a GitHub release. Nothing is built by hand.
 
 ## Cut a release
@@ -56,7 +56,9 @@ desktop-file-validate packaging/linux-hardware-monitor.desktop
 
 ## Supported distributions
 
-The program needs Qt 6.5 or newer, which rules out Ubuntu 24.04 (Qt 6.4). To add a release, add a line to the
+The program needs Qt 6.4 or newer (6.4 is Ubuntu 24.04 and Debian 12; the few Qt 6.5 calls are guarded by `QT_VERSION`
+checks). Ubuntu 22.04 (Qt 6.2) is out: its Qt 6 packages ship no Qt Quick development files at all. For 22.04 the way
+forward would be an AppImage with its own Qt. To add a release, add a line to the
 matrix in `.github/workflows/ci.yml` (`image` and the `tag` used in the file name). The package depends on the Qt of
 the distribution it was built on (`qt6-declarative-private-abi (= <version>)`), so a package never installs on a
 different release than the one it was built for.

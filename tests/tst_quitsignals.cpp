@@ -28,6 +28,8 @@ private slots:
         child.start(APP_BINARY, {"--page", "0"});
         QVERIFY(child.waitForStarted(5000));
         QTest::qWait(1500);
+        // A child that already exited has pid 0, and kill(0, ...) would signal the whole process group of the test.
+        QVERIFY2(child.state() == QProcess::Running && child.processId() > 1, "the app did not stay running");
         ::kill(static_cast<pid_t>(child.processId()), SIGSTOP); // the "stuck" state: nothing is processed
         ::kill(static_cast<pid_t>(child.processId()), SIGTERM);
         ::kill(static_cast<pid_t>(child.processId()), SIGTERM);

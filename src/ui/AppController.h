@@ -8,6 +8,7 @@
 #include "mock/MockActions.h"
 #include "mock/MockProfile.h"
 #include "core/Localization.h"
+#include "core/ThemeMode.h"
 #include "core/WifiInfoMonitor.h"
 #include "core/ServiceManager.h"
 #include "core/CpuTemperature.h"
@@ -302,6 +303,6 @@ private:
     int m_historySeconds;
     QString m_themeMode = QStringLiteral("dark");
     bool m_dark = true;
-    static Qt::ColorScheme systemColorScheme();
+    static ThemeMode::SystemScheme systemColorScheme();
     void updateDark();
 };

@@ -8,16 +8,16 @@ class TstThemeMode : public QObject {
     Q_OBJECT
 private slots:
     void fixedModesIgnoreTheDesktop() {
-        for (Qt::ColorScheme s : {Qt::ColorScheme::Dark, Qt::ColorScheme::Light, Qt::ColorScheme::Unknown}) {
+        for (SystemScheme s : {SystemScheme::Dark, SystemScheme::Light, SystemScheme::Unknown}) {
             QVERIFY(isDark("dark", s));
             QVERIFY(!isDark("light", s));
         }
     }
 
     void systemFollowsTheDesktopAndDefaultsToDark() {
-        QVERIFY(isDark("system", Qt::ColorScheme::Dark));
-        QVERIFY(!isDark("system", Qt::ColorScheme::Light));
-        QVERIFY(isDark("system", Qt::ColorScheme::Unknown)); // no preference: the default theme
+        QVERIFY(isDark("system", SystemScheme::Dark));
+        QVERIFY(!isDark("system", SystemScheme::Light));
+        QVERIFY(isDark("system", SystemScheme::Unknown)); // no preference: the default theme
     }
 
     void unknownValuesAreDark() {
@@ -25,7 +25,7 @@ private slots:
         QCOMPARE(normalize(""), QString("dark"));
         QCOMPARE(normalize("system"), QString("system"));
         QCOMPARE(normalize("light"), QString("light"));
-        QVERIFY(isDark("garbage", Qt::ColorScheme::Light));
+        QVERIFY(isDark("garbage", SystemScheme::Light));
     }
 
     void theOldBooleanSettingIsKept() {

@@ -131,7 +131,12 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("app"), &controller);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &app,
                      [] { QCoreApplication::exit(1); }, Qt::QueuedConnection);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     engine.loadFromModule("HwMonitor", "Main");
+#else
+    engine.addImportPath(QStringLiteral("qrc:/qt/qml")); // Qt 6.5 does this itself
+    engine.load(QUrl(QStringLiteral("qrc:/qt/qml/HwMonitor/qml/Main.qml"))); // loadFromModule needs Qt 6.5
+#endif
 
     // ---- system tray: shows the CPU temperature, optional "keep running when the window is closed"
     TrayController tray;

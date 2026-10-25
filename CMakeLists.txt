@@ -15,8 +15,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_link_options(-Wl,-z,relro -Wl,-z,now)
 endif()
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Widgets DBus Network Qml Quick QuickControls2 Test)
-qt_standard_project_setup(REQUIRES 6.5)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Core Gui Widgets DBus Network Qml Quick QuickControls2 Test)
+# The project builds with Qt 6.4 (Ubuntu 24.04, Debian 12) and newer; REQUIRES is only understood from 6.5.
+if(Qt6_VERSION VERSION_GREATER_EQUAL 6.5)
+    qt_standard_project_setup(REQUIRES 6.5)
+else()
+    qt_standard_project_setup()
+endif()
 
 # Everything except the GUI entry point, shared by the app and the tests.
 add_library(hwmon_core STATIC
@@ -144,6 +149,7 @@ qt_add_executable(LinuxHardwareMonitor src/main.cpp)
 qt_add_qml_module(LinuxHardwareMonitor
     URI HwMonitor
     VERSION 1.0
+    RESOURCE_PREFIX /qt/qml
     QML_FILES
         qml/Main.qml
         qml/Theme.qml
@@ -234,8 +240,9 @@ set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
 set(CPACK_STRIP_FILES ON)
 set(CPACK_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-# QML modules are loaded at run time, so shlibdeps cannot see them.
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "qml6-module-qtquick, qml6-module-qtquick-controls, qml6-module-qtquick-layouts, qml6-module-qtquick-window, qml6-module-qtquick-templates")
+# QML modules are loaded at run time, so shlibdeps cannot see them. qtqml-workerscript is needed by Controls but the
+# Controls package of Ubuntu 24.04 does not depend on it: without it the window fails to load there.
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "qml6-module-qtquick, qml6-module-qtquick-controls, qml6-module-qtquick-layouts, qml6-module-qtquick-window, qml6-module-qtquick-templates, qml6-module-qtqml-workerscript")
 set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "network-manager, qt6-qpa-plugins")
 # udisks2: disk health (SMART); pkexec + dmidecode: RAM module details, only on an explicit click.
 set(CPACK_DEBIAN_PACKAGE_SUGGESTS "udisks2, pkexec, dmidecode")

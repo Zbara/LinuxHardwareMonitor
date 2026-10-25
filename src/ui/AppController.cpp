@@ -83,9 +83,11 @@ AppController::AppController(AppOptions options, QObject *parent)
                       ? ThemeMode::normalize(m_settings.value("themeMode").toString())
                       : ThemeMode::fromLegacy(m_settings.value("darkTheme", true).toBool());
     m_dark = ThemeMode::isDark(m_themeMode, systemColorScheme());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     if (auto *hints = QGuiApplication::styleHints()) { // the desktop switched between dark and light
         connect(hints, &QStyleHints::colorSchemeChanged, this, [this] { updateDark(); });
     }
+#endif
 
     m_trayEnabled = m_settings.value("trayEnabled", false).toBool();
     m_trayStyle = m_settings.value("trayStyle", "app").toString() == QLatin1String("temperature") ? QStringLiteral("temperature") : QStringLiteral("app");
@@ -639,9 +641,17 @@ void AppController::copyToClipboard(const QString &text) {
         clipboard->setText(text);
 }
 
-Qt::ColorScheme AppController::systemColorScheme() {
-    auto *hints = QGuiApplication::styleHints();
-    return hints ? hints->colorScheme() : Qt::ColorScheme::Unknown;
+ThemeMode::SystemScheme AppController::systemColorScheme() {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    if (auto *hints = QGuiApplication::styleHints()) {
+        switch (hints->colorScheme()) {
+        case Qt::ColorScheme::Dark: return ThemeMode::SystemScheme::Dark;
+        case Qt::ColorScheme::Light: return ThemeMode::SystemScheme::Light;
+        default: break;
+        }
+    }
+#endif
+    return ThemeMode::SystemScheme::Unknown; // Qt before 6.5 cannot tell: the default theme applies
 }
 
 void AppController::updateDark() {

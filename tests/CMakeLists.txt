@@ -24,6 +24,10 @@ if(Python3_FOUND)
     add_test(NAME release_notes
              COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/release_notes.py)
     set_tests_properties(release_notes PROPERTIES PASS_REGULAR_EXPRESSION "### Install.*### Verify the download")
+    # The interface itself: starts the application for every page (the unit tests never load the QML).
+    add_test(NAME smoke_pages
+             COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/smoke_pages.py $<TARGET_FILE:LinuxHardwareMonitor>)
+    set_tests_properties(smoke_pages PROPERTIES TIMEOUT 180)
     add_test(NAME release_metadata
              COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/check_release_metadata.py)
 endif()
