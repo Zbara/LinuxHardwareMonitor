@@ -73,6 +73,20 @@ Pages are created only while they are visible, nothing is prepared for the inter
 renderer by default (about 150-190 MB RSS and 2-5 % of one core on a 32-thread machine, versus ~330 MB with OpenGL).
 Set `QT_QUICK_BACKEND=rhi` (or `QSG_RHI_BACKEND=opengl`) to use the GPU renderer instead.
 
+## Sensor dump for scripts
+
+`LinuxHardwareMonitor --dump-json` prints every sensor once as JSON and exits. It needs no window or display, so it
+also works over SSH. Unavailable sensors have `"value": null` (never 0). Rates such as CPU load and network speed
+need two samples, so the sensors are read twice (`--dump-delay <ms>`, default 500) and the second round is printed;
+`--compact` gives one line. It also works with `--mock` and the test-tree flags.
+
+```
+LinuxHardwareMonitor --dump-json --compact | jq '.sensors[] | select(.type=="temperature") | {device, name, value}'
+```
+
+The sensor ids and device names identify the hardware (for example the NVIDIA GPU's UUID); look at the output
+before pasting it into a public bug report.
+
 ## Simulation and test data
 
 Try other hardware without owning it: `./build/LinuxHardwareMonitor --mock mocks/amd-desktop.json` shows a simulated

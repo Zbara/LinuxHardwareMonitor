@@ -2,6 +2,7 @@
 
 #include <QRegularExpression>
 #include "core/Notifier.h"
+#include "ProviderFactory.h"
 #include "core/SystemReport.h"
 #include "TrayIcon.h"
 
@@ -113,26 +114,10 @@ AppController::AppController(AppOptions options, QObject *parent)
         m_memoryModules = {{QStringLiteral("state"), QStringLiteral("error")}, {QStringLiteral("error"), message}};
         emit memoryModulesChanged();
     });
-    if (m_options.mock) {
-        // Simulation mode: one provider stands in for all the hardware ones.
-        auto mock = std::make_unique<MockProvider>(*m_options.mock);
-        mock->setSpeed(m_options.mockSpeed);
-        m_mockProvider = mock.get();
+    for (auto &provider : createProviders(m_options, &m_mockProvider))
+        m_manager.addProvider(std::move(provider));
+    if (m_options.mock)
         m_mockActions = MockActions::build(*m_options.mock);
-        m_manager.addProvider(std::move(mock));
-    } else {
-        // Empty roots mean the real /sys and /proc; fixture mode points them at test trees.
-        auto orDefault = [](const QString &path, const QString &fallback) { return path.isEmpty() ? fallback : path; };
-        const QString proc = orDefault(m_options.procRoot, QStringLiteral("/proc"));
-        const QString cpu = orDefault(m_options.cpuRoot, QStringLiteral("/sys/devices/system/cpu"));
-        m_manager.addProvider(std::make_unique<HwmonProvider>(orDefault(m_options.hwmonRoot, QStringLiteral("/sys/class/hwmon"))));
-        m_manager.addProvider(std::make_unique<SystemProvider>(proc, cpu));
-        m_manager.addProvider(std::make_unique<IoProvider>(proc));
-        m_manager.addProvider(std::make_unique<BatteryProvider>(orDefault(m_options.powerSupplyRoot, QStringLiteral("/sys/class/power_supply"))));
-        m_manager.addProvider(std::make_unique<DrmProvider>(orDefault(m_options.drmRoot, QStringLiteral("/sys/class/drm"))));
-        if (!m_options.fixtureMode()) // the NVIDIA driver is the real machine's, not the fixture's
-            m_manager.addProvider(std::make_unique<NvidiaProvider>());
-    }
     connect(&m_manager, &SensorManager::updated, this, &AppController::rebuildSummaries);
     // NetworkManager is the real machine's: neither a simulation nor test data may pick it up.
     if (!m_options.mock && !m_options.fixtureMode()) {

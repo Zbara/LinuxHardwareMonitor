@@ -2,6 +2,8 @@
 
 #include "core/CommandLine.h"
 #include "core/QuitSignals.h"
+#include "core/SensorSnapshot.h"
+#include "ui/ProviderFactory.h"
 #include "ui/TrayIcon.h"
 
 #include <QApplication>
@@ -10,12 +12,64 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
+#include <QCoreApplication>
+#include <QDateTime>
+#include <QFile>
+#include <QThread>
 #include <QFileInfo>
 #include <QTextStream>
 #include <QQuickWindow>
 #include <QTimer>
 
 #include <cmath>
+
+namespace {
+
+// `--dump-json [--dump-delay <ms>] [--compact]` plus the data-source flags. Rates (CPU load, disk and
+// network speed) need two samples, so the sensors are polled twice and the second round is printed.
+int runDump(int argc, char *argv[], const QStringList &args) {
+    QCoreApplication app(argc, argv);
+    app.setApplicationName(QStringLiteral("LinuxHardwareMonitor"));
+    app.setOrganizationName(QStringLiteral("LinuxHardwareMonitor"));
+
+    AppOptions options;
+    QString error;
+    if (!parseAppOptions(args, options, &error)) {
+        QTextStream(stderr) << error << Qt::endl;
+        return 2;
+    }
+    int delayMs = 500;
+    if (const int i = args.indexOf(QStringLiteral("--dump-delay")); i >= 0 && i + 1 < args.size())
+        delayMs = qBound(0, args.at(i + 1).toInt(), 60000);
+
+    auto providers = createProviders(options);
+    auto pollAll = [&providers] {
+        QVector<SensorReading> all;
+        for (auto &provider : providers) {
+            try {
+                all += provider->poll();
+            } catch (...) {
+                // One failing provider must not take the others down.
+            }
+        }
+        return all;
+    };
+    pollAll();
+    QThread::msleep(static_cast<unsigned long>(delayMs));
+    const QVector<SensorReading> readings = pollAll();
+
+    const QString mode = options.mock ? QStringLiteral("simulation (%1)").arg(QFileInfo(options.mockPath).fileName())
+                         : options.fixtureMode() ? QStringLiteral("test data")
+                                                 : QStringLiteral("real");
+    const QByteArray json = SensorSnapshot::toJson(readings, QStringLiteral(HWMON_VERSION), mode,
+                                                   QDateTime::currentDateTime(), args.contains(QStringLiteral("--compact")));
+    QFile out;
+    out.open(stdout, QIODevice::WriteOnly);
+    out.write(json);
+    return 0;
+}
+
+} // namespace
 
 int main(int argc, char *argv[]) {
     // --help and --version answer before any Qt GUI object exists, so they work without a display.
@@ -30,6 +84,15 @@ int main(int argc, char *argv[]) {
             QTextStream(stdout) << text << Qt::endl;
             return 0;
         }
+    }
+    // --dump-json prints the sensors once and exits. It runs before any GUI object exists, so it also
+    // works on a machine without a display.
+    {
+        QStringList args;
+        for (int i = 1; i < argc; ++i)
+            args << QString::fromLocal8Bit(argv[i]);
+        if (args.contains(QStringLiteral("--dump-json")))
+            return runDump(argc, argv, args);
     }
     // The interface is flat 2D; the software scene graph needs ~150 MB less memory than the OpenGL one
     // and does not wake the discrete GPU. QT_QUICK_BACKEND=rhi (or any other value) overrides it.
@@ -49,31 +112,10 @@ int main(int argc, char *argv[]) {
     // ---- hardware data source: real by default, simulation/fixtures only when asked for
     AppOptions options;
     {
-        const QStringList args = app.arguments();
-        auto value = [&](const QString &flag) {
-            const int i = args.indexOf(flag);
-            return i >= 0 && i + 1 < args.size() ? args.at(i + 1) : QString();
-        };
-        options.mockPath = value(QStringLiteral("--mock"));
-        if (const QString speed = value(QStringLiteral("--mock-speed")); !speed.isEmpty())
-            options.mockSpeed = std::max(0.1, speed.toDouble());
-        options.hwmonRoot = value(QStringLiteral("--hwmon-root"));
-        options.procRoot = value(QStringLiteral("--proc-root"));
-        options.cpuRoot = value(QStringLiteral("--cpu-root"));
-        options.powerSupplyRoot = value(QStringLiteral("--power-supply-root"));
-        options.drmRoot = value(QStringLiteral("--drm-root"));
-
-        if (!options.mockPath.isEmpty()) {
-            if (options.fixtureMode()) {
-                qCritical("--mock cannot be combined with --hwmon-root / --proc-root / --cpu-root / --power-supply-root");
-                return 2;
-            }
-            QString error;
-            options.mock = MockProfile::load(options.mockPath, &error);
-            if (!options.mock) {
-                qCritical("Cannot use mock profile %s: %s", qPrintable(options.mockPath), qPrintable(error));
-                return 2; // never silently fall back to real data when simulation was requested
-            }
+        QString error;
+        if (!parseAppOptions(app.arguments(), options, &error)) {
+            qCritical("%s", qPrintable(error));
+            return 2;
         }
     }
 

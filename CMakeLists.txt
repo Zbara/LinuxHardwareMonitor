@@ -51,6 +51,8 @@ add_library(hwmon_core STATIC
     src/core/DiskHealth.cpp
     src/core/DiskHealthMonitor.h
     src/core/DiskHealthMonitor.cpp
+    src/core/SensorSnapshot.h
+    src/core/SensorSnapshot.cpp
     src/core/Notifier.h
     src/core/Notifier.cpp
     src/core/SensorManager.h
@@ -87,6 +89,8 @@ add_library(hwmon_core STATIC
     src/ui/TrayIcon.h
     src/ui/TrayIcon.cpp
     src/ui/AppController.h
+    src/ui/AppOptions.cpp
+    src/ui/ProviderFactory.cpp
     src/ui/AppController.cpp
 )
 target_include_directories(hwmon_core PUBLIC src)

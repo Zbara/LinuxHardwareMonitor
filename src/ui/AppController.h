@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AppOptions.h"
 #include "core/Autostart.h"
 #include "core/DiskHealthMonitor.h"
 #include "core/DmiMemory.h"
@@ -25,25 +26,6 @@
 #include <QHash>
 #include <QVariantList>
 #include <QVariantMap>
-
-// How the app gets its hardware data. By default everything is read from the real machine;
-// the other modes are opt-in (command line) and always announced in the UI.
-struct AppOptions {
-    // Simulation mode: replace all hardware providers with a generated profile.
-    std::optional<MockProfile> mock;
-    QString mockPath;
-    double mockSpeed = 1.0; // simulated clock speed (scenarios happen faster)
-    // Fixture mode: read the real parsers from prepared directory trees instead of /sys and /proc.
-    QString hwmonRoot;
-    QString procRoot;
-    QString cpuRoot;
-    QString powerSupplyRoot;
-    QString drmRoot;
-
-    bool fixtureMode() const {
-        return !hwmonRoot.isEmpty() || !procRoot.isEmpty() || !cpuRoot.isEmpty() || !powerSupplyRoot.isEmpty() || !drmRoot.isEmpty();
-    }
-};
 
 // The single object QML talks to: models, dashboard summaries, settings.
 class MockProvider;
