@@ -72,8 +72,8 @@ cd build && cpack -G DEB                           # linux-hardware-monitor_<ver
 sudo apt install ./linux-hardware-monitor_0.1_amd64.deb
 ```
 
-The default build type is `Release`. `packaging/` holds the desktop entry (localized) and the SVG icon; change the
-maintainer address in `CMakeLists.txt` (`CPACK_PACKAGE_CONTACT`) before publishing.
+The default build type is `Release`. `packaging/` holds the desktop entry (localized) and the SVG icon. The maintainer
+address of the package is set in `CMakeLists.txt` (`CPACK_PACKAGE_CONTACT`).
 
 ## Project layout
 

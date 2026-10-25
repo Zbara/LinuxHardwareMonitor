@@ -134,7 +134,7 @@ set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Hardware sensors, performance graphs and a task manager")
 set(CPACK_PACKAGE_DESCRIPTION "Native Qt 6 system monitor: CPU, memory, disk, network, GPU and battery graphs, a process \
 manager, systemd services and startup apps. Runs without root.")
-set(CPACK_PACKAGE_CONTACT "Linux Hardware Monitor maintainers <maintainers@example.invalid>")
+set(CPACK_PACKAGE_CONTACT "Linux Hardware Monitor maintainers <zbara.dev@gmail.com>")
 set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
 set(CPACK_STRIP_FILES ON)
