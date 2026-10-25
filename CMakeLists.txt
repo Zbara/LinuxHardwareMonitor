@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(LinuxHardwareMonitor VERSION 0.2.0 LANGUAGES CXX)
+project(LinuxHardwareMonitor VERSION 0.2.1 LANGUAGES CXX)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE) # optimised unless told otherwise
@@ -206,7 +206,7 @@ foreach(doc changelog LinuxHardwareMonitor.1)
                     OUTPUT_FILE ${HWMON_PACKAGING_OUT}/${doc}.gz COMMAND_ERROR_IS_FATAL ANY)
     set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/packaging/${doc})
 endforeach()
-# The version has a revision (0.2.0-1), so this is the Debian changelog (changelog.Debian.gz).
+# The version has a revision (0.2.1-1), so this is the Debian changelog (changelog.Debian.gz).
 install(FILES ${HWMON_PACKAGING_OUT}/changelog.gz DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/linux-hardware-monitor
         RENAME changelog.Debian.gz)
 install(FILES ${HWMON_PACKAGING_OUT}/LinuxHardwareMonitor.1.gz DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)

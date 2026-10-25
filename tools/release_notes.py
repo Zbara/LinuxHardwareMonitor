@@ -18,7 +18,7 @@ print(f"""## Linux Hardware Monitor {upstream}
 
 ### Install
 
-Pick the package for your system (`ubuntu26.04` or `debian13`) and install it:
+Pick the package for your system (`ubuntu26.04`, `ubuntu24.04`, `ubuntu22.04` or `debian13`) and install it:
 
 ```
 sudo apt install ./linux-hardware-monitor_{version}_<system>_amd64.deb

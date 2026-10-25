@@ -121,7 +121,7 @@ distribution, so the one for another release will not install.
 
 ```
 sha256sum -c SHA256SUMS --ignore-missing
-sudo apt install ./linux-hardware-monitor_0.2.0-1_ubuntu26.04_amd64.deb
+sudo apt install ./linux-hardware-monitor_0.2.1-1_ubuntu26.04_amd64.deb
 ```
 
 If `apt` prints a notice about the `_apt` user, copy the file out of your home directory first (e.g. to `/tmp`).
@@ -149,7 +149,7 @@ prints is this one. Maintainers: see `RELEASING.md`.
 ```
 cmake -S . -B build -G Ninja -DHWMON_DISTRO_TAG=ubuntu26.04
 cmake --build build
-cd build && cpack -G DEB          # linux-hardware-monitor_0.2.0-1_ubuntu26.04_amd64.deb
+cd build && cpack -G DEB          # linux-hardware-monitor_0.2.1-1_ubuntu26.04_amd64.deb
 cmake --install build --prefix /usr/local      # or install without a package
 ```
 

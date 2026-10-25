@@ -1,3 +1,20 @@
+linux-hardware-monitor (0.2.1-1) unstable; urgency=medium
+
+  * Packages for Ubuntu 22.04 and Ubuntu 24.04: the program now builds with
+    Qt 6.2 and newer (before: 6.5).
+  * The package depends on qml6-module-qtqml-workerscript, which the window
+    needs and which the Controls package of Ubuntu 24.04 does not pull in.
+  * The packages know the commit they were built from: --version and the About
+    page show the build.
+  * Builds without warnings on the newest toolchains (Fedora 44, Arch Linux:
+    Qt 6.11 / 6.12, GCC 16). Proxy models use the filter-change calls of
+    Qt 6.9 where they exist.
+  * --dump-json reports an error when it cannot write its output.
+  * A test now starts the application for every page and fails on a QML
+    error; the quit-signal test can no longer signal its whole process group.
+
+ -- Zbara <zbara.dev@gmail.com>  Sun, 25 Oct 2026 20:59:52 +0200
+
 linux-hardware-monitor (0.2.0-1) unstable; urgency=medium
 
   * New setting for the CPU temperature: the package sensor (default), the
