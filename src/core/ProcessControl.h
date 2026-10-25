@@ -9,6 +9,7 @@ namespace ProcessControl {
 
 int sendSignal(int pid, bool force); // SIGTERM, or SIGKILL when force is set
 int setPriority(int pid, int nice);  // nice is clamped to -20..19
+int setSuspended(int pid, bool suspended); // SIGSTOP (pause) or SIGCONT (resume); both are reversible
 
 // CPUs (logical processor indices) the process may run on; empty with *error set on failure.
 QVector<int> affinity(int pid, int *error = nullptr);

@@ -120,6 +120,8 @@
  "Priority (nice)": "Priorität (nice)",
  "Properties": "Eigenschaften",
  "Running for": "Läuft seit",
+ "Suspend": "Anhalten",
+ "Resume": "Fortsetzen",
  "Set priority": "Priorität festlegen",
  "Sleeping": "Schläft",
  "Virtual memory": "Virtueller Speicher",

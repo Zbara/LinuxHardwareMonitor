@@ -278,6 +278,16 @@ QString AppController::endProcess(int pid, bool force) {
     return describe(ProcessControl::sendSignal(pid, force));
 }
 
+QString AppController::suspendProcesses(const QVariantList &pids, bool suspend) {
+    int firstError = 0;
+    for (const QVariant &pid : pids) {
+        const int err = ProcessControl::setSuspended(pid.toInt(), suspend);
+        if (err != 0 && err != ESRCH && firstError == 0)
+            firstError = err;
+    }
+    return describe(firstError);
+}
+
 QString AppController::endProcesses(const QVariantList &pids, bool force) {
     int firstError = 0;
     for (const QVariant &pid : pids) {

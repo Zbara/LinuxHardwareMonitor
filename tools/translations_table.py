@@ -130,6 +130,8 @@ ROWS = [
     ("Priority (nice)", "Приоритет (nice)", "Пріоритет (nice)", "Priorität (nice)", "Prioridad (nice)"),
     ("Properties", "Свойства", "Властивості", "Eigenschaften", "Propiedades"),
     ("Running for", "Работает уже", "Працює вже", "Läuft seit", "En ejecución desde hace"),
+    ("Suspend", "Приостановить", "Призупинити", "Anhalten", "Suspender"),
+    ("Resume", "Продолжить", "Продовжити", "Fortsetzen", "Reanudar"),
     ("Set priority", "Задать приоритет", "Встановити пріоритет", "Priorität festlegen", "Establecer prioridad"),
     ("Sleeping", "Спит", "Спить", "Schläft", "Durmiendo"),
     ("Virtual memory", "Виртуальная память", "Віртуальна пам'ять", "Virtueller Speicher", "Memoria virtual"),

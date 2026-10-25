@@ -459,6 +459,14 @@ Item {
             text: qsTr("Force kill")
             onTriggered: page.askEnd(true)
         }
+        MenuItem {
+            text: qsTr("Suspend")
+            onTriggered: page.message = app.suspendProcesses(app.processes.pidsFor(page.selectedKey), true)
+        }
+        MenuItem {
+            text: qsTr("Resume")
+            onTriggered: page.message = app.suspendProcesses(app.processes.pidsFor(page.selectedKey), false)
+        }
         MenuSeparator {}
         Menu {
             title: qsTr("Set priority")

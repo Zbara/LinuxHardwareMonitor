@@ -22,6 +22,12 @@ int sendSignal(int pid, bool force) {
     return ::kill(pid, force ? SIGKILL : SIGTERM) == 0 ? 0 : errno;
 }
 
+int setSuspended(int pid, bool suspended) {
+    if (refused(pid))
+        return EINVAL;
+    return ::kill(pid, suspended ? SIGSTOP : SIGCONT) == 0 ? 0 : errno;
+}
+
 int setPriority(int pid, int nice) {
     if (refused(pid))
         return EINVAL;

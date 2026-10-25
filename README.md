@@ -11,7 +11,7 @@ interface. No Electron, no web view, no root: everything comes from `/sys`, `/pr
   NetworkManager), GPUs of any mix of vendors - NVIDIA (load, VRAM, clocks, power, encoder/decoder, driver/CUDA/PCI IDs), AMD (load, VRAM, temperature, fan, power, clocks) and Intel (clocks, power) and the laptop battery
   (charge, health, power, time remaining).
 - **Processes** – applications grouped by name with expandable children, heat-map columns (CPU, memory, disk),
-  sorting, search, End task / Force kill, process priority (nice), processor affinity, Properties dialog.
+  sorting, search, End task / Force kill, Suspend / Resume, process priority (nice), processor affinity, Properties dialog.
 - **Services** – systemd services over D-Bus: filter, search, start / stop / restart (asks for your password through polkit).
 - **Startup apps** – XDG autostart entries with enable/disable (system entries are overridden in your own
   `~/.config/autostart`, never edited in `/etc`).

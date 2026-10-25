@@ -120,6 +120,8 @@
  "Priority (nice)": "Приоритет (nice)",
  "Properties": "Свойства",
  "Running for": "Работает уже",
+ "Suspend": "Приостановить",
+ "Resume": "Продолжить",
  "Set priority": "Задать приоритет",
  "Sleeping": "Спит",
  "Virtual memory": "Виртуальная память",

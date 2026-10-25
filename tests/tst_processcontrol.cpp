@@ -1,6 +1,7 @@
 #include "core/ProcessControl.h"
 #include "core/ProcessScanner.h"
 
+#include <QFile>
 #include <QProcess>
 #include <QtTest>
 
@@ -31,6 +32,29 @@ private slots:
         QCOMPARE(child.exitStatus(), QProcess::CrashExit); // died from SIGTERM
         // Already gone: ESRCH, which callers treat as "nothing to do".
         QCOMPARE(ProcessControl::sendSignal(pid, false), ESRCH);
+    }
+
+    void suspendAndResumeAChild() {
+        QProcess child;
+        child.start("sleep", {"60"});
+        QVERIFY(child.waitForStarted());
+        const int pid = int(child.processId());
+        auto state = [pid] {
+            QFile f(QString("/proc/%1/stat").arg(pid));
+            if (!f.open(QIODevice::ReadOnly))
+                return QChar();
+            const QByteArray stat = f.readAll();
+            return QChar(stat.at(stat.lastIndexOf(") ") + 2)); // the state letter follows the command name
+        };
+        QCOMPARE(ProcessControl::setSuspended(pid, true), 0);
+        QTRY_COMPARE_WITH_TIMEOUT(state(), QChar('T'), 2000);
+        QCOMPARE(ProcessControl::setSuspended(pid, false), 0);
+        QTRY_VERIFY_WITH_TIMEOUT(state() != QChar('T'), 2000);
+        QCOMPARE(ProcessControl::setSuspended(1, true), EINVAL);          // never init
+        QCOMPARE(ProcessControl::setSuspended(int(getpid()), true), EINVAL); // never ourselves
+        child.kill();
+        child.waitForFinished(3000);
+        QCOMPARE(ProcessControl::setSuspended(pid, false), ESRCH);
     }
 
     void forceKillWorks() {

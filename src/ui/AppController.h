@@ -175,6 +175,8 @@ public:
     Q_INVOKABLE QVariantMap processDetails(int pid) const { return ProcessScanner::details(pid); }
     // Same for several PIDs (an application group); returns the first error.
     Q_INVOKABLE QString endProcesses(const QVariantList &pids, bool force);
+    // Pauses (SIGSTOP) or resumes (SIGCONT) every process of a row; "" on success, else a message.
+    Q_INVOKABLE QString suspendProcesses(const QVariantList &pids, bool suspend);
 
     // Writes the history to a timestamped CSV in the Documents folder.
     // Returns the file path, or an empty string on failure.
