@@ -48,6 +48,17 @@ and the orange bar says so. To make your own: `LinuxHardwareMonitor --mock mocks
 Anything that cannot be read without privileges (DIMM details, SMART data, RAPL energy counters) is shown as
 "N/A" or left out; the app never invents values.
 
+## Supported systems
+
+| System | Qt | How it is tested |
+|--------|----|------------------|
+| Ubuntu 26.04, 24.04, 22.04 | 6.10, 6.4, 6.2 | built, tested and packaged (`.deb`) by CI; the package installed into a clean system |
+| Debian 13 | 6.8 | built, tested and packaged (`.deb`) by CI; the released package installed into a clean system |
+| Fedora 44, Arch Linux | 6.11, 6.12 | builds from source with no warnings, all tests pass and every page loads in a container; no packages yet |
+
+Other distributions with Qt 6.2 or newer should build from source (see below); Debian 12 (Qt 6.4) is expected to work
+like Ubuntu 24.04 but has not been tried. Only Linux is supported: the program reads `/sys` and `/proc`.
+
 ## Dependencies (Ubuntu / Debian)
 
 ```
@@ -57,7 +68,7 @@ sudo apt install build-essential cmake ninja-build python3 \
     qml6-module-qtquick-window qml6-module-qtquick-templates qml6-module-qtqml-workerscript
 ```
 
-On Ubuntu 22.04 (Qt 6.2) the build also needs `libqt6opengl6-dev`.
+On Ubuntu 22.04 (Qt 6.2) the build also needs `libqt6opengl6-dev` and `libgl1-mesa-dev`.
 
 Optional at runtime: the proprietary NVIDIA driver (`libnvidia-ml.so.1`) for GPU metrics, NetworkManager for Wi-Fi
 details, systemd for the Services page. Without them the corresponding parts are simply empty.

@@ -2,6 +2,7 @@
 
 #include <QSocketNotifier>
 
+#include <atomic>
 #include <csignal>
 #include <cerrno>
 #include <fcntl.h>
@@ -12,12 +13,15 @@ namespace {
 int g_pipe[2] = {-1, -1};
 constexpr int kSignals[] = {SIGINT, SIGTERM, SIGHUP};
 
-volatile sig_atomic_t g_count = 0;
+// How many signals arrived. A lock-free atomic is safe to use in a signal handler (incrementing a volatile is
+// deprecated in C++20).
+std::atomic<int> g_count{0};
+static_assert(std::atomic<int>::is_always_lock_free);
 
 void handler(int sig) {
     // A second signal means the first did not get the program out (a stuck thread, a blocked call):
     // give up on the orderly shutdown and let the default action end the process.
-    if (++g_count > 1) {
+    if (g_count.fetch_add(1) >= 1) {
         ::signal(sig, SIG_DFL);
         ::raise(sig);
         return;

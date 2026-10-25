@@ -19,8 +19,9 @@ jobs:
         include:
           - { image: "ubuntu:26.04", tag: ubuntu26.04 }
           - { image: "ubuntu:24.04", tag: ubuntu24.04 } # Qt 6.4: builds with the guards for the Qt 6.5 API
-          # Qt 6.2: Qt6Quick needs Qt6OpenGL, which is a package of its own there (merged into qt6-base-dev later)
-          - { image: "ubuntu:22.04", tag: ubuntu22.04, extra: libqt6opengl6-dev }
+          # Qt 6.2: Qt6Quick needs Qt6OpenGL (a package of its own there) and the OpenGL headers, which qt6-base-dev
+          # only pulls in from later versions on
+          - { image: "ubuntu:22.04", tag: ubuntu22.04, extra: "libqt6opengl6-dev libgl1-mesa-dev" }
           - { image: "debian:13", tag: debian13 }
     env:
       DEBIAN_FRONTEND: noninteractive

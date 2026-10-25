@@ -46,7 +46,7 @@ private slots:
         text.text = "595.99";
         const QByteArray json = SensorSnapshot::toJson(
             {make("b/temp", SensorType::Temperature, 55.5), make("a/fan", SensorType::FanSpeed, 0, false), text},
-            "1.2", "real", QDateTime(QDate(2026, 10, 25), QTime(12, 0), Qt::UTC), true);
+            "1.2", "real", QDateTime::fromString("2026-10-25T12:00:00Z", Qt::ISODate), true);
         const QJsonObject root = QJsonDocument::fromJson(json).object();
         QCOMPARE(root["program"].toString(), QString("LinuxHardwareMonitor"));
         QCOMPARE(root["version"].toString(), QString("1.2"));

@@ -3,6 +3,8 @@
 
 #include <QtTest>
 
+#include <unistd.h> // sysconf; newer compilers no longer get it through Qt
+
 namespace {
 
 // Fields after ")" start at state; utime=field 14, stime=15, num_threads=20,

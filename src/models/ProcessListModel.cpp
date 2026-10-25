@@ -1,5 +1,7 @@
 #include "ProcessListModel.h"
 
+#include "FilterChange.h"
+
 #include <algorithm>
 
 namespace {
@@ -246,17 +248,19 @@ bool ProcessProxyModel::expanded(const QString &groupName) const {
 void ProcessProxyModel::setFilterText(const QString &text) {
     if (text == m_filter)
         return;
+    HWMON_BEGIN_FILTER_CHANGE();
     m_filter = text.trimmed().toLower();
-    invalidateFilter();
+    HWMON_END_FILTER_CHANGE();
     if (rowCount() > 0)
         emit dataChanged(index(0, 0), index(rowCount() - 1, 0), {ExpandedRole});
     emit filterTextChanged();
 }
 
 void ProcessProxyModel::toggleExpanded(const QString &groupName) {
+    HWMON_BEGIN_FILTER_CHANGE();
     if (!m_expanded.remove(groupName))
         m_expanded.insert(groupName);
-    invalidateFilter();
+    HWMON_END_FILTER_CHANGE();
     if (rowCount() > 0)
         emit dataChanged(index(0, 0), index(rowCount() - 1, 0), {ExpandedRole});
 }

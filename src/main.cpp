@@ -67,8 +67,10 @@ int runDump(int argc, char *argv[], const QStringList &args) {
     const QByteArray json = SensorSnapshot::toJson(readings, BuildInfo::version(), mode,
                                                    QDateTime::currentDateTime(), args.contains(QStringLiteral("--compact")));
     QFile out;
-    out.open(stdout, QIODevice::WriteOnly);
-    out.write(json);
+    if (!out.open(stdout, QIODevice::WriteOnly) || out.write(json) != json.size()) {
+        QTextStream(stderr) << "cannot write to the standard output" << Qt::endl;
+        return 1;
+    }
     return 0;
 }
 

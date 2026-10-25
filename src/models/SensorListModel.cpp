@@ -1,5 +1,7 @@
 #include "SensorListModel.h"
 
+#include "FilterChange.h"
+
 #include <QCollator>
 
 #include <algorithm>
@@ -157,31 +159,38 @@ void SensorProxyModel::setFilterText(const QString &text) {
     const QString normalized = text.trimmed().toLower();
     if (normalized == m_filter)
         return;
+    HWMON_BEGIN_FILTER_CHANGE();
     m_filter = normalized;
-    invalidateFilter();
+    HWMON_END_FILTER_CHANGE();
     emit filterTextChanged();
 }
 
 void SensorProxyModel::setTypeFilter(int type) {
     if (type == m_type)
         return;
+    HWMON_BEGIN_FILTER_CHANGE();
     m_type = type;
-    invalidateFilter();
+    HWMON_END_FILTER_CHANGE();
     emit typeFilterChanged();
 }
 
 void SensorProxyModel::setFavoritesOnly(bool on) {
     if (on == m_favoritesOnly)
         return;
+    HWMON_BEGIN_FILTER_CHANGE();
     m_favoritesOnly = on;
-    invalidateFilter();
+    HWMON_END_FILTER_CHANGE();
     emit favoritesOnlyChanged();
 }
 
 void SensorProxyModel::setFavorites(const QStringList &ids) {
-    m_favorites = QSet<QString>(ids.begin(), ids.end());
-    if (m_favoritesOnly)
-        invalidateFilter();
+    if (m_favoritesOnly) {
+        HWMON_BEGIN_FILTER_CHANGE();
+        m_favorites = QSet<QString>(ids.begin(), ids.end());
+        HWMON_END_FILTER_CHANGE();
+    } else {
+        m_favorites = QSet<QString>(ids.begin(), ids.end()); // not used for filtering yet
+    }
 }
 
 bool SensorProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const {

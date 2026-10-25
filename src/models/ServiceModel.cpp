@@ -1,5 +1,7 @@
 #include "ServiceModel.h"
 
+#include "FilterChange.h"
+
 namespace {
 
 // Lower is shown first when sorting by status.
@@ -92,16 +94,18 @@ ServiceProxyModel::ServiceProxyModel(QObject *parent) : QSortFilterProxyModel(pa
 void ServiceProxyModel::setFilterText(const QString &text) {
     if (text.trimmed().toLower() == m_filter)
         return;
+    HWMON_BEGIN_FILTER_CHANGE();
     m_filter = text.trimmed().toLower();
-    invalidateFilter();
+    HWMON_END_FILTER_CHANGE();
     emit filterTextChanged();
 }
 
 void ServiceProxyModel::setStateFilter(const QString &state) {
     if (state == m_stateFilter)
         return;
+    HWMON_BEGIN_FILTER_CHANGE();
     m_stateFilter = state;
-    invalidateFilter();
+    HWMON_END_FILTER_CHANGE();
     emit stateFilterChanged();
 }
 
