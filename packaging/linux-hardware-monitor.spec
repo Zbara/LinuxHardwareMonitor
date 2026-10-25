@@ -1,5 +1,5 @@
 Name:           linux-hardware-monitor
-Version:        0.2.1
+Version:        0.2.2
 Release:        1%{?dist}
 Summary:        Hardware sensors, performance graphs and a task manager
 License:        GPL-3.0-or-later
@@ -77,6 +77,10 @@ dbus-run-session -- ctest --test-dir %{__cmake_builddir} --output-on-failure --t
 %{_datadir}/linux-hardware-monitor/
 
 %changelog
+* Sun Oct 25 2026 Zbara <zbara.dev@gmail.com> - 0.2.2-1
+- Packages for Fedora (RPM) and Arch Linux (PKGBUILD), built and tested in CI.
+- The source archive is published with every release.
+
 * Sun Oct 25 2026 Zbara <zbara.dev@gmail.com> - 0.2.1-1
 - Packages for Ubuntu 22.04 and 24.04; the program builds with Qt 6.2 and newer.
 - The packages know the commit they were built from (--version, About page).

@@ -1,6 +1,6 @@
 # Maintainer: Zbara <zbara.dev@gmail.com>
 pkgname=linux-hardware-monitor
-pkgver=0.2.1
+pkgver=0.2.2
 pkgrel=1
 pkgdesc='Hardware sensors, performance graphs and a task manager'
 arch=('x86_64' 'aarch64')

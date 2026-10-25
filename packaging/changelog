@@ -1,3 +1,13 @@
+linux-hardware-monitor (0.2.2-1) unstable; urgency=medium
+
+  * Packages for Fedora (RPM, with a source RPM) and Arch Linux (PKGBUILD and
+    .SRCINFO); the source archive is published with every release.
+  * CI builds, tests and lints them in clean Fedora and Arch containers.
+  * The Debian-only files are installed only with HWMON_DEBIAN_PACKAGING, and
+    HWMON_GIT_DESCRIBE gives a build from a source archive its Build line.
+
+ -- Zbara <zbara.dev@gmail.com>  Sun, 25 Oct 2026 22:00:00 +0200
+
 linux-hardware-monitor (0.2.1-1) unstable; urgency=medium
 
   * Packages for Ubuntu 22.04 and Ubuntu 24.04: the program now builds with
