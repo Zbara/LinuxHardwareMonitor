@@ -100,6 +100,7 @@ qt_add_qml_module(LinuxHardwareMonitor
         qml/pages/SettingsPage.qml
         qml/components/BarCard.qml
         qml/components/ChartCard.qml
+        qml/components/SensorDetailDialog.qml
         qml/components/CoreGrid.qml
         qml/components/InfoCard.qml
         qml/components/NavItem.qml

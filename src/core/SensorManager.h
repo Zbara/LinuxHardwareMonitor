@@ -38,9 +38,20 @@ public:
     qint64 applyNanoseconds() const { return m_applyNs; }
     QVector<SensorHistory::Sample> history(const QString &sensorId) const;
 
-    // Writes the in-memory history as CSV (gaps have an empty value).
-    // Returns the number of samples written.
-    int exportCsv(QIODevice &out) const;
+    // Summary of the valid samples in a sensor's history window.
+    struct HistoryStats {
+        bool valid = false; // false when the sensor has no valid sample
+        double min = 0.0;
+        double max = 0.0;
+        double average = 0.0;
+        int samples = 0;
+        double spanSeconds = 0.0; // oldest to newest valid sample
+    };
+    HistoryStats historyStats(const QString &sensorId) const;
+
+    // Writes the in-memory history as CSV (gaps have an empty value), for every sensor or only for
+    // `onlySensorId`. Returns the number of samples written.
+    int exportCsv(QIODevice &out, const QString &onlySensorId = {}) const;
 
     // Sensor history that survives restarts. exportHistory() serialises the recent samples of every
     // numeric sensor (compressed); importHistory() stages them, and each sensor picks its samples up

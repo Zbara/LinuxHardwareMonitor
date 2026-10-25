@@ -1,4 +1,6 @@
 #include "AppController.h"
+
+#include <QRegularExpression>
 #include "core/Notifier.h"
 
 #include "core/ProcessControl.h"
@@ -278,17 +280,38 @@ QString AppController::endProcesses(const QVariantList &pids, bool force) {
 }
 
 QString AppController::exportHistory() {
+    return exportCsvFile(QStringLiteral("history"), {});
+}
+
+QString AppController::exportSensor(const QString &sensorId) {
+    if (sensorId.isEmpty())
+        return {};
+    // The id contains '/', '@' and ':' - keep the file name to plain characters.
+    QString name = sensorId;
+    name.replace(QRegularExpression(QStringLiteral("[^A-Za-z0-9_.-]+")), QStringLiteral("_"));
+    return exportCsvFile(name.left(60), sensorId);
+}
+
+QString AppController::exportCsvFile(const QString &label, const QString &sensorId) {
     QString dir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     if (dir.isEmpty())
         dir = QDir::homePath();
-    const QString path = dir + QStringLiteral("/hwmonitor-history-")
+    const QString path = dir + QStringLiteral("/hwmonitor-") + label + QLatin1Char('-')
                          + QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-HHmmss"))
                          + QStringLiteral(".csv");
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
         return {};
-    m_manager.exportCsv(file);
+    m_manager.exportCsv(file, sensorId);
     return file.error() == QFileDevice::NoError ? path : QString();
+}
+
+QVariantMap AppController::sensorStats(const QString &sensorId) const {
+    const auto st = m_manager.historyStats(sensorId);
+    if (!st.valid)
+        return {};
+    return {{"min", st.min}, {"max", st.max}, {"average", st.average},
+            {"samples", st.samples}, {"spanSeconds", st.spanSeconds}};
 }
 
 QVariantList AppController::simulationActions() const {

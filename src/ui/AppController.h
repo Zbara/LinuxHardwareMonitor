@@ -176,6 +176,10 @@ public:
     // Writes the history to a timestamped CSV in the Documents folder.
     // Returns the file path, or an empty string on failure.
     Q_INVOKABLE QString exportHistory();
+    // CSV of a single sensor; returns the file path or "" on failure.
+    Q_INVOKABLE QString exportSensor(const QString &sensorId);
+    // {min, max, average, samples, spanSeconds} over the history window; empty when there is no data.
+    Q_INVOKABLE QVariantMap sensorStats(const QString &sensorId) const;
 
     // Points are (seconds ago <= 0, value); gaps have a NaN value.
     Q_INVOKABLE QVariantList history(const QString &sensorId) const;
@@ -211,6 +215,7 @@ private:
     void fillHardwareLists(const QHash<QString, const SensorListModel::Row *> &byId);
 
     SensorManager m_manager;
+    QString exportCsvFile(const QString &label, const QString &sensorId);
     OverheatMonitor m_overheat;
     bool m_overheatNotify = false; // opt-in: no popups unless the user asks for them
     Autostart m_autostart;

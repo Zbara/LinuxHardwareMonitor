@@ -200,7 +200,32 @@ int SensorManager::importHistory(const QByteArray &data, qint64 nowMs) {
     return staged;
 }
 
-int SensorManager::exportCsv(QIODevice &out) const {
+SensorManager::HistoryStats SensorManager::historyStats(const QString &sensorId) const {
+    HistoryStats st;
+    double sum = 0.0;
+    qint64 first = 0, last = 0;
+    for (const auto &s : history(sensorId)) {
+        if (!s.valid)
+            continue;
+        if (!st.valid) {
+            st.valid = true;
+            st.min = st.max = s.value;
+            first = s.timestampMs;
+        }
+        st.min = std::min(st.min, s.value);
+        st.max = std::max(st.max, s.value);
+        sum += s.value;
+        last = s.timestampMs;
+        ++st.samples;
+    }
+    if (st.valid) {
+        st.average = sum / st.samples;
+        st.spanSeconds = (last - first) / 1000.0;
+    }
+    return st;
+}
+
+int SensorManager::exportCsv(QIODevice &out, const QString &onlySensorId) const {
     auto quote = [](const QString &field) {
         if (!field.contains(QLatin1Char(',')) && !field.contains(QLatin1Char('"'))
             && !field.contains(QLatin1Char('\n')))
@@ -214,7 +239,7 @@ int SensorManager::exportCsv(QIODevice &out) const {
     int count = 0;
     for (const auto &row : m_model.rows()) {
         const SensorReading &r = row.reading;
-        if (r.type == SensorType::Text)
+        if (r.type == SensorType::Text || (!onlySensorId.isEmpty() && r.id != onlySensorId))
             continue;
         const QString prefix = quote(r.id) + QLatin1Char(',') + quote(r.deviceName) + QLatin1Char(',')
                                + quote(r.name) + QLatin1Char(',') + quote(r.unit) + QLatin1Char(',');

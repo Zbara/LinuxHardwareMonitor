@@ -24,6 +24,29 @@ SensorReading reading(const QString &id, double value, bool available = true) {
 class TstSensorManager : public QObject {
     Q_OBJECT
 private slots:
+    void historyStatsAndSingleSensorCsv() {
+        SensorManager m;
+        QVERIFY(!m.historyStats("a").valid);
+        m.applyReadings({reading("a", 40), reading("b", 1)});
+        m.applyReadings({reading("a", 60), reading("b", 2)});
+        m.applyReadings({reading("a", 0, false), reading("b", 3)}); // a gap is not a sample
+        const auto st = m.historyStats("a");
+        QVERIFY(st.valid);
+        QCOMPARE(st.samples, 2);
+        QCOMPARE(st.min, 40.0);
+        QCOMPARE(st.max, 60.0);
+        QCOMPARE(st.average, 50.0);
+
+        QBuffer all, one;
+        all.open(QIODevice::WriteOnly);
+        one.open(QIODevice::WriteOnly);
+        const int nAll = m.exportCsv(all);
+        const int nOne = m.exportCsv(one, "a");
+        QVERIFY(nOne > 0 && nOne < nAll);
+        QVERIFY(!one.data().contains("\nb,")); // only the requested sensor
+        QVERIFY(one.data().contains("\na,"));
+    }
+
     void sensorProxyFiltersByTextAndType() {
         SensorManager m;
         SensorReading cpu = reading("cpu_temp", 50);

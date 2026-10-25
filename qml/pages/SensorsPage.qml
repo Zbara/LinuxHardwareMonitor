@@ -162,11 +162,16 @@ Item {
                         required property var maxValue
                         required property string sensorId
                         required property int type
+                        required property string deviceName
 
                         width: list.width
                         height: 38
                         color: hover.hovered ? Theme.surfaceAlt : "transparent"
-                        HoverHandler { id: hover }
+                        HoverHandler { id: hover; cursorShape: Qt.PointingHandCursor }
+                        TapHandler {
+                            onTapped: detail.show(row.sensorId, row.name, row.deviceName, row.unit,
+                                                  row.available ? row.value : undefined)
+                        }
 
                         RowLayout {
                             anchors.fill: parent
@@ -253,4 +258,6 @@ Item {
             }
         }
     }
+
+    SensorDetailDialog { id: detail }
 }
