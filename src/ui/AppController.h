@@ -17,6 +17,7 @@
 #include "models/StartupModel.h"
 
 #include <QElapsedTimer>
+#include <memory>
 #include <QObject>
 #include <QPointF>
 #include <QSettings>
@@ -276,7 +277,7 @@ private:
     MockProvider *m_mockProvider = nullptr; // owned by the SensorManager once started
     QVector<MockAction> m_mockActions;
     QElapsedTimer m_simClock;
-    WifiInfoMonitor m_wifiMonitor;
+    std::unique_ptr<WifiInfoMonitor> m_wifiMonitor; // only on the real machine
     WifiInfoMap m_wifi;
     QVector<HardwareInfo::Volume> m_volumes;
     qint64 m_volumesStamp = 0;

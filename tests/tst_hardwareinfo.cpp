@@ -1,6 +1,7 @@
 #include "core/HardwareInfo.h"
 #include "core/SystemInfo.h"
 
+#include <QTemporaryDir>
 #include <QtTest>
 
 namespace {
@@ -15,6 +16,37 @@ void write(const QString &path, const QByteArray &content) {
 class TstHardwareInfo : public QObject {
     Q_OBJECT
 private slots:
+    void aDiskBelongsOnlyToItsOwnController() {
+        QVERIFY(HardwareInfo::diskBelongsToController("nvme1n1", "nvme1"));
+        QVERIFY(HardwareInfo::diskBelongsToController("nvme1n1p2", "nvme1"));
+        QVERIFY(HardwareInfo::diskBelongsToController("sda", "sda"));
+        QVERIFY(!HardwareInfo::diskBelongsToController("nvme10n1", "nvme1")); // a different controller
+        QVERIFY(!HardwareInfo::diskBelongsToController("nvme1n1", "nvme10"));
+        QVERIFY(!HardwareInfo::diskBelongsToController("sdab", "sda"));
+        QVERIFY(!HardwareInfo::diskBelongsToController("nvme0n1", ""));
+    }
+
+    void netCountersAreTheChangingPartOfNet() {
+        QTemporaryDir dir;
+        const QString base = dir.path() + "/eth0";
+        QVERIFY(QDir().mkpath(base + "/statistics"));
+        auto put = [](const QString &path, const QString &text) {
+            QFile f(path);
+            QVERIFY(f.open(QIODevice::WriteOnly));
+            f.write(text.toUtf8());
+        };
+        put(base + "/mtu", "1500\n");
+        put(base + "/address", "aa:bb:cc:dd:ee:ff\n");
+        put(base + "/statistics/rx_bytes", "1000\n");
+        const auto c = HardwareInfo::netCounters("eth0", dir.path());
+        QCOMPARE(c.mtu, 1500);
+        QCOMPARE(c.rxBytes, qint64(1000));
+        QVERIFY(c.mac.isEmpty());      // the static facts are not read here
+        QVERIFY(c.busAddress.isEmpty());
+        QCOMPARE(HardwareInfo::net("eth0", dir.path()).mac, QString("aa:bb:cc:dd:ee:ff"));
+        QCOMPARE(HardwareInfo::net("eth0", dir.path()).rxBytes, qint64(1000));
+    }
+
     void diskDetails() {
         QTemporaryDir dir;
         write(dir.path() + "/nvme0n1/device/serial", "SN123 \n");

@@ -16,6 +16,8 @@
  "%1 min": "%1 min",
  "Alert above a limit of its own": "Avisar al superar un límite propio",
  "Notifications are off (Settings > Alerts)": "Las notificaciones están desactivadas (Ajustes > Alertas)",
+ "Permission denied (changing the processors of another user's process needs administrator rights)": "Permiso denegado (cambiar los procesadores de un proceso ajeno requiere permisos de administrador)",
+ "Not available with test data": "No disponible con datos de prueba",
  "Search sensors": "Buscar sensores",
  "No sensors match the filter": "Ningún sensor coincide con el filtro",
  "Search services": "Buscar servicios",

@@ -12,7 +12,16 @@ namespace {
 int g_pipe[2] = {-1, -1};
 constexpr int kSignals[] = {SIGINT, SIGTERM, SIGHUP};
 
+volatile sig_atomic_t g_count = 0;
+
 void handler(int sig) {
+    // A second signal means the first did not get the program out (a stuck thread, a blocked call):
+    // give up on the orderly shutdown and let the default action end the process.
+    if (++g_count > 1) {
+        ::signal(sig, SIG_DFL);
+        ::raise(sig);
+        return;
+    }
     const int saved = errno;
     const unsigned char byte = static_cast<unsigned char>(sig);
     // Nothing else is allowed here; a full pipe just means a quit is already pending.
@@ -48,6 +57,7 @@ QuitSignals::QuitSignals(QObject *parent) : QObject(parent) {
 }
 
 QuitSignals::~QuitSignals() {
+    g_count = 0;
     struct sigaction sa {};
     sa.sa_handler = SIG_DFL;
     sigemptyset(&sa.sa_mask);

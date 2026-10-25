@@ -16,6 +16,8 @@
  "%1 min": "%1 хв",
  "Alert above a limit of its own": "Сповістити при перевищенні власного порогу",
  "Notifications are off (Settings > Alerts)": "Сповіщення вимкнено (Параметри > Сповіщення)",
+ "Permission denied (changing the processors of another user's process needs administrator rights)": "Відмовлено в доступі (зміна процесорів чужого процесу потребує прав адміністратора)",
+ "Not available with test data": "Недоступно з тестовими даними",
  "Search sensors": "Пошук датчиків",
  "No sensors match the filter": "Немає датчиків, що відповідають фільтру",
  "Search services": "Пошук служб",

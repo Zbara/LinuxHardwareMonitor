@@ -134,7 +134,11 @@ AppController::AppController(AppOptions options, QObject *parent)
             m_manager.addProvider(std::make_unique<NvidiaProvider>());
     }
     connect(&m_manager, &SensorManager::updated, this, &AppController::rebuildSummaries);
-    connect(&m_wifiMonitor, &WifiInfoMonitor::updated, this, [this](const WifiInfoMap &info) { m_wifi = info; });
+    // NetworkManager is the real machine's: neither a simulation nor test data may pick it up.
+    if (!m_options.mock && !m_options.fixtureMode()) {
+        m_wifiMonitor = std::make_unique<WifiInfoMonitor>();
+        connect(m_wifiMonitor.get(), &WifiInfoMonitor::updated, this, [this](const WifiInfoMap &info) { m_wifi = info; });
+    }
     m_serviceProxy.setSourceModel(&m_serviceModel);
     m_sensorProxy.setSourceModel(m_manager.model());
     m_favorites = m_settings.value("favoriteSensors").toStringList();
@@ -178,7 +182,8 @@ AppController::AppController(AppOptions options, QObject *parent)
 }
 
 void AppController::setIntervalMs(int ms) {
-    if (ms == m_intervalMs)
+    // Only the offered values: 0 would make the polling timer spin, and anything else is not meant to be saved.
+    if (ms == m_intervalMs || !(ms == 500 || ms == 1000 || ms == 2000 || ms == 5000))
         return;
     m_intervalMs = ms;
     m_settings.setValue("intervalMs", ms);
@@ -303,7 +308,7 @@ QString AppController::setProcessAffinity(int pid, const QVariantList &cpus) {
         list.push_back(c.toInt());
     const int err = ProcessControl::setAffinity(pid, list);
     return err == EPERM || err == EACCES
-               ? tr("Permission denied (raising priority or changing another user's process needs administrator rights)")
+               ? tr("Permission denied (changing the processors of another user's process needs administrator rights)")
                : describe(err);
 }
 
@@ -469,6 +474,12 @@ void AppController::loadMemoryModules() {
         return;
     if (m_options.mock) { // simulation: no privileged call, the profile describes the modules
         applyMemoryInfo(MockFacts::memory(*m_options.mock));
+        return;
+    }
+    if (m_options.fixtureMode()) { // test data: never run the real machine's privileged dmidecode
+        m_memoryModules = {{QStringLiteral("state"), QStringLiteral("error")},
+                           {QStringLiteral("error"), tr("Not available with test data")}};
+        emit memoryModulesChanged();
         return;
     }
     m_memoryModules = {{QStringLiteral("state"), QStringLiteral("loading")}};
@@ -639,7 +650,7 @@ void AppController::fillHardwareLists(const QHash<QString, const SensorListModel
                 continue;
             const int at = r.deviceId.indexOf(QLatin1Char('@'));
             const QString parent = at >= 0 ? r.deviceId.mid(at + 1).section(QLatin1Char('#'), 0, 0) : QString();
-            if (parent.isEmpty() || !disk.startsWith(parent))
+            if (!HardwareInfo::diskBelongsToController(disk, parent))
                 continue;
             if (!best || r.name == QLatin1String("Composite"))
                 best = &row;
@@ -724,7 +735,7 @@ void AppController::fillHardwareLists(const QHash<QString, const SensorListModel
         d["up"] = sensorRef(find("net/" + n + "_write"));
         d["signal"] = sensorRef(find("net/" + n + "_signal"));
         if (!m_options.mock) {
-            const auto nd = HardwareInfo::net(n); // counters and MTU/duplex change at runtime
+            const auto nd = HardwareInfo::netCounters(n); // counters and MTU/duplex change at runtime
             auto num = [](qint64 v) { return v >= 0 ? QVariant(double(v)) : QVariant(); };
             d["mtu"] = nd.mtu >= 0 ? QVariant(nd.mtu) : QVariant();
             d["duplex"] = nd.duplex;

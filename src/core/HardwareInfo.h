@@ -35,6 +35,11 @@ DiskUsage diskUsage(const QString &disk, const QVector<Volume> &volumes,
                     const QString &sysClassBlock = QStringLiteral("/sys/class/block"));
 QVector<Volume> mountedVolumes(); // from QStorageInfo
 
+// True when the temperature sensor of `controller` (the parent device of an hwmon sensor, "nvme1" or "sda")
+// belongs to the block device `disk`: the same name or a namespace/partition suffix ("nvme1n1", "nvme1n1p2"),
+// never a longer name that merely starts the same way ("nvme10n1").
+bool diskBelongsToController(const QString &disk, const QString &controller);
+
 struct NetDetails {
     QString mac;
     QString driver;
@@ -45,6 +50,9 @@ struct NetDetails {
     qint64 rxBytes = -1, txBytes = -1, rxPackets = -1, txPackets = -1, errors = -1, dropped = -1;
 };
 NetDetails net(const QString &iface, const QString &sysNet = QStringLiteral("/sys/class/net"));
+// Only the fields that change at run time (MTU, duplex, counters). `net()` also resolves the device
+// links and PCI ids, which is wasteful to repeat every second for every interface.
+NetDetails netCounters(const QString &iface, const QString &sysNet = QStringLiteral("/sys/class/net"));
 
 // Looks a PCI vendor/device up in pci.ids; either part may be empty when unknown.
 QPair<QString, QString> pciNames(const QString &vendorId, const QString &deviceId, const QString &pciIdsPath = {});

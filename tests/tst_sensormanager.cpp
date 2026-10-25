@@ -263,6 +263,26 @@ private slots:
         QVERIFY(h[0].valid && !h[1].valid && h[2].valid && !h[3].valid && h[4].valid); // gaps stay gaps, not zeros
     }
 
+    void samplesFromTheFutureAreIgnored() {
+        // A file saved while the clock was wrong (or a hostile one) can hold samples that lie after "now";
+        // they must not be planted in front of the real ones.
+        const qint64 now = QDateTime::currentMSecsSinceEpoch();
+        SensorManager a;
+        a.applyReadings({reading("t", 1)});
+        a.applyReadings({reading("t", 2)});
+        const QByteArray blob = a.exportHistory(now); // samples taken at ~now
+
+        SensorManager b;
+        b.setHistorySeconds(3600);
+        QCOMPARE(b.importHistory(blob, now - 2 * 3600 * 1000), 0); // the loader's clock says it is 2 hours earlier
+        b.applyReadings({reading("t", 9)});
+        QCOMPARE(b.history("t").size(), 1); // only the real reading
+
+        SensorManager c;
+        c.setHistorySeconds(3600);
+        QCOMPARE(c.importHistory(blob, now + 1000), 1); // the normal case still works
+    }
+
     void corruptOrForeignHistoryDataIsIgnored() {
         const qint64 now = QDateTime::currentMSecsSinceEpoch();
         SensorManager m;

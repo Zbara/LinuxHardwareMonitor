@@ -1,5 +1,6 @@
 #include "WifiInfoMonitor.h"
 
+#include <QDBusArgument>
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusObjectPath>
@@ -81,12 +82,13 @@ QDBusMessage call(QDBusConnection &bus, const QString &path, const QString &ifac
     return bus.call(msg, QDBus::Block, 1500);
 }
 
-QVariant prop(QDBusConnection &bus, const QString &path, const QString &iface, const QString &name) {
+// All properties of one interface in a single round trip (7 on the access point alone).
+QVariantMap allProps(QDBusConnection &bus, const QString &path, const QString &iface) {
     const QDBusMessage reply = call(bus, path, QStringLiteral("org.freedesktop.DBus.Properties"),
-                                    QStringLiteral("Get"), {iface, name});
+                                    QStringLiteral("GetAll"), {iface});
     if (reply.type() != QDBusMessage::ReplyMessage || reply.arguments().isEmpty())
         return {};
-    return reply.arguments().constFirst().value<QDBusVariant>().variant();
+    return qdbus_cast<QVariantMap>(reply.arguments().constFirst().value<QDBusArgument>());
 }
 
 WifiInfo query(QDBusConnection &bus, const QString &ifaceName) {
@@ -96,26 +98,25 @@ WifiInfo query(QDBusConnection &bus, const QString &ifaceName) {
     if (device.type() != QDBusMessage::ReplyMessage || device.arguments().isEmpty())
         return info;
 
-    const QString wireless = QStringLiteral("org.freedesktop.NetworkManager.Device.Wireless");
     const QString devicePath = device.arguments().constFirst().value<QDBusObjectPath>().path();
-    const QVariant ap = prop(bus, devicePath, wireless, QStringLiteral("ActiveAccessPoint"));
-    const QString apPath = ap.value<QDBusObjectPath>().path();
+    const QVariantMap wireless = allProps(bus, devicePath, QStringLiteral("org.freedesktop.NetworkManager.Device.Wireless"));
+    const QString apPath = wireless.value(QStringLiteral("ActiveAccessPoint")).value<QDBusObjectPath>().path();
     if (apPath.isEmpty() || apPath == QLatin1String("/"))
         return info;
 
-    const QString apIface = QStringLiteral("org.freedesktop.NetworkManager.AccessPoint");
+    const QVariantMap ap = allProps(bus, apPath, QStringLiteral("org.freedesktop.NetworkManager.AccessPoint"));
     info.connected = true;
-    info.ssid = WifiHelpers::decodeSsid(prop(bus, apPath, apIface, QStringLiteral("Ssid")).toByteArray());
-    info.bssid = prop(bus, apPath, apIface, QStringLiteral("HwAddress")).toString();
-    info.frequencyMhz = prop(bus, apPath, apIface, QStringLiteral("Frequency")).toInt();
+    info.ssid = WifiHelpers::decodeSsid(ap.value(QStringLiteral("Ssid")).toByteArray());
+    info.bssid = ap.value(QStringLiteral("HwAddress")).toString();
+    info.frequencyMhz = ap.value(QStringLiteral("Frequency")).toInt();
     info.channel = WifiHelpers::channelForFrequency(info.frequencyMhz);
     info.band = WifiHelpers::bandForFrequency(info.frequencyMhz);
-    info.strengthPercent = prop(bus, apPath, apIface, QStringLiteral("Strength")).toInt();
-    info.mode = WifiHelpers::modeLabel(prop(bus, apPath, apIface, QStringLiteral("Mode")).toUInt());
-    info.security = WifiHelpers::securityLabel(prop(bus, apPath, apIface, QStringLiteral("Flags")).toUInt(),
-                                               prop(bus, apPath, apIface, QStringLiteral("WpaFlags")).toUInt(),
-                                               prop(bus, apPath, apIface, QStringLiteral("RsnFlags")).toUInt());
-    const uint kbit = prop(bus, devicePath, wireless, QStringLiteral("Bitrate")).toUInt();
+    info.strengthPercent = ap.value(QStringLiteral("Strength")).toInt();
+    info.mode = WifiHelpers::modeLabel(ap.value(QStringLiteral("Mode")).toUInt());
+    info.security = WifiHelpers::securityLabel(ap.value(QStringLiteral("Flags")).toUInt(),
+                                               ap.value(QStringLiteral("WpaFlags")).toUInt(),
+                                               ap.value(QStringLiteral("RsnFlags")).toUInt());
+    const uint kbit = wireless.value(QStringLiteral("Bitrate")).toUInt();
     info.bitrateMbps = kbit > 0 ? static_cast<int>(kbit / 1000) : -1;
     return info;
 }

@@ -1,5 +1,7 @@
 #include "HardwareInfo.h"
 
+#include <QRegularExpression>
+
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -86,16 +88,14 @@ QVector<Volume> mountedVolumes() {
     return out;
 }
 
-NetDetails net(const QString &iface, const QString &sysNet) {
+bool diskBelongsToController(const QString &disk, const QString &controller) {
+    static const QRegularExpression suffix(QStringLiteral("^(n\\d+)?(p\\d+)?$"));
+    return !controller.isEmpty() && disk.startsWith(controller) && suffix.match(disk.mid(controller.size())).hasMatch();
+}
+
+NetDetails netCounters(const QString &iface, const QString &sysNet) {
     const QString base = sysNet + QLatin1Char('/') + iface;
     NetDetails d;
-    d.mac = readLine(base + QLatin1String("/address"));
-    const QString driver = QFileInfo(base + QLatin1String("/device/driver")).canonicalFilePath();
-    d.driver = driver.isEmpty() ? QString() : QFileInfo(driver).fileName();
-    const QString dev = QFileInfo(base + QLatin1String("/device")).canonicalFilePath();
-    d.busAddress = dev.isEmpty() ? QString() : QFileInfo(dev).fileName();
-    d.vendorId = stripHexPrefix(readLine(base + QLatin1String("/device/vendor")));
-    d.deviceId = stripHexPrefix(readLine(base + QLatin1String("/device/device")));
     d.mtu = static_cast<int>(readNumber(base + QLatin1String("/mtu")));
     d.duplex = readLine(base + QLatin1String("/duplex"));
     d.rxBytes = readNumber(base + QLatin1String("/statistics/rx_bytes"));
@@ -110,6 +110,19 @@ NetDetails net(const QString &iface, const QString &sysNet) {
     const qint64 txDrop = readNumber(base + QLatin1String("/statistics/tx_dropped"));
     if (rxDrop >= 0 && txDrop >= 0)
         d.dropped = rxDrop + txDrop;
+    return d;
+}
+
+NetDetails net(const QString &iface, const QString &sysNet) {
+    const QString base = sysNet + QLatin1Char('/') + iface;
+    NetDetails d = netCounters(iface, sysNet);
+    d.mac = readLine(base + QLatin1String("/address"));
+    const QString driver = QFileInfo(base + QLatin1String("/device/driver")).canonicalFilePath();
+    d.driver = driver.isEmpty() ? QString() : QFileInfo(driver).fileName();
+    const QString dev = QFileInfo(base + QLatin1String("/device")).canonicalFilePath();
+    d.busAddress = dev.isEmpty() ? QString() : QFileInfo(dev).fileName();
+    d.vendorId = stripHexPrefix(readLine(base + QLatin1String("/device/vendor")));
+    d.deviceId = stripHexPrefix(readLine(base + QLatin1String("/device/device")));
     return d;
 }
 

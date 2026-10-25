@@ -187,8 +187,8 @@ int SensorManager::importHistory(const QByteArray &data, qint64 nowMs) {
             if (in.status() != QDataStream::Ok)
                 return 0;
             const qint64 ts = savedAtMs + relative;
-            if (ts < oldest)
-                continue; // outside the history window
+            if (ts < oldest || ts > nowMs)
+                continue; // outside the history window; a clock that was wrong when saving must not plant future points
             SensorHistory::Sample sample;
             sample.timestampMs = ts;
             sample.valid = !std::isnan(value);
