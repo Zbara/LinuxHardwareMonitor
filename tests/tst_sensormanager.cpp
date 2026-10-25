@@ -172,10 +172,12 @@ private slots:
         QCOMPARE(b.importHistory(blob, now + 20000), 1); // loaded 20 s after saving; "gone" never had a value
         b.applyReadings({reading("t", 99), reading("other", 5)});
         const auto h = b.history("t");
-        QCOMPARE(h.size(), 6);                 // 5 restored + the new reading
+        QCOMPARE(h.size(), 7);                 // 5 restored + a gap marker + the new reading
         QCOMPARE(h[0].value, 40.0);
         QCOMPARE(h[4].value, 44.0);
-        QCOMPARE(h[5].value, 99.0);
+        QVERIFY(!h[5].valid);                  // the downtime is a gap: no line across it
+        QCOMPARE(h[5].timestampMs, h[4].timestampMs + 1);
+        QCOMPARE(h[6].value, 99.0);
         // Restored samples keep the times they were taken at (not shifted to the load time).
         QVERIFY(h[4].timestampMs <= now && h[4].timestampMs > now - 5000);
         QCOMPARE(b.history("other").size(), 1); // unknown to the file: starts fresh
@@ -197,8 +199,8 @@ private slots:
         QCOMPARE(soon.importHistory(blob, now + 1000), 1);
         soon.applyReadings({reading("t", 50)});
         const auto h = soon.history("t");
-        QCOMPARE(h.size(), 4);
-        QVERIFY(h[0].valid && !h[1].valid && h[2].valid && h[3].valid); // the gap stays a gap, not a zero
+        QCOMPARE(h.size(), 5);
+        QVERIFY(h[0].valid && !h[1].valid && h[2].valid && !h[3].valid && h[4].valid); // gaps stay gaps, not zeros
     }
 
     void corruptOrForeignHistoryDataIsIgnored() {
@@ -231,7 +233,7 @@ private slots:
         b.setHistorySeconds(3600);
         QCOMPARE(b.importHistory(a.exportHistory(now, 10), now + 1000), 1); // "label" is not exported
         b.applyReadings({reading("t", 0)});
-        QCOMPARE(b.history("t").size(), 11); // newest 10 + the new reading
+        QCOMPARE(b.history("t").size(), 12); // newest 10 + the gap marker + the new reading
         QCOMPARE(b.history("t")[0].value, 40.0);
     }
 

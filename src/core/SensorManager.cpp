@@ -266,8 +266,13 @@ void SensorManager::applyReadings(const QVector<SensorReading> &readings) {
         if (it == m_states.end()) {
             it = m_states.insert(r.id, State{r, SensorHistory(historyCapacity()), false, 0, 0});
             // Samples from the previous run, if any, come first (the clock gap between runs stays a gap).
-            for (const auto &old : m_pendingHistory.take(r.id))
+            const auto restored = m_pendingHistory.take(r.id);
+            for (const auto &old : restored)
                 it->history.push(old.timestampMs, old.valid ? std::optional<double>(old.value) : std::nullopt);
+            // The program was not running between the two sessions: end the restored run with an explicit
+            // gap sample, or a chart would join the last old and the first new sample with a straight line.
+            if (!restored.isEmpty() && restored.last().valid)
+                it->history.push(restored.last().timestampMs + 1, std::nullopt);
         }
         State &s = it.value();
         s.last = r;

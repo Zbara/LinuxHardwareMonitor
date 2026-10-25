@@ -130,6 +130,7 @@ Dialog {
                     gridColor: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.16)
                     grid: true
                     filled: true
+                    latestRunOnly: false
                 }
             }
         }
