@@ -19,9 +19,10 @@ private slots:
         const QColor red = TrayIcon::colorForTemperature(95);
         const QImage icon = TrayIcon::render("95", red);
         QCOMPARE(icon.size(), QSize(64, 64));
-        // The corner is transparent (rounded), the middle of the left edge is the background colour.
+        // The corner is transparent (rounded); the strip above the text is the background colour. (A point at the
+        // side would be hit by wide fonts such as DejaVu Bold, whose two digits span almost the whole width.)
         QCOMPARE(qAlpha(icon.pixel(0, 0)), 0);
-        const QColor edge = icon.pixelColor(6, 32);
+        const QColor edge = icon.pixelColor(32, 4);
         QCOMPARE(edge.alpha(), 255);
         QCOMPARE(edge.red(), red.red());
         // Text needs a font; a minimal container (CI) may have none, and then every digit is the same "missing glyph" box.
