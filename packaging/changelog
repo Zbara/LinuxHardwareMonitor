@@ -1,3 +1,19 @@
+linux-hardware-monitor (0.2.0-1) unstable; urgency=medium
+
+  * New setting for the CPU temperature: the package sensor (default), the
+    hottest core or the average of the cores. The tiles say which reading
+    they show and the tray follows the choice.
+  * New theme setting: follow the desktop, dark or light. The choice of earlier
+    versions is kept.
+  * Overheat notifications are grouped, one per device instead of one for each
+    of the processor's core sensors.
+  * About page: author and website, the build (commit), Qt version, system and
+    graphics backend. --version prints the build, Qt and license as well.
+  * The settings are a centred column and long hints wrap instead of being cut.
+  * The README has its License and Author sections.
+
+ -- Zbara <zbara.dev@gmail.com>  Sun, 25 Oct 2026 18:41:08 +0200
+
 linux-hardware-monitor (0.1.0-1) unstable; urgency=medium
 
   * First public release.

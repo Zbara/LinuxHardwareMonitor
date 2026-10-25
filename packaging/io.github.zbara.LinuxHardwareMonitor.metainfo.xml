@@ -55,6 +55,16 @@
   </requires>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="0.2.0" date="2026-10-25">
+      <description>
+        <ul>
+          <li>Choose which reading is the CPU temperature: the package sensor, the hottest core or the average of the cores</li>
+          <li>Theme setting that can follow the desktop</li>
+          <li>Overheat notifications are grouped per device</li>
+          <li>About page with the author, the build and the system details</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-10-25">
       <description>
         <p>First public release.</p>
