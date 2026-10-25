@@ -15,6 +15,7 @@
 class Poller : public QObject {
     Q_OBJECT
 public:
+    static constexpr int kSecondPollDelayMs = 250;
     explicit Poller(std::vector<std::unique_ptr<ISensorProvider>> providers)
         : m_providers(std::move(providers)) {}
 
@@ -26,6 +27,9 @@ public slots:
         }
         m_timer->start(intervalMs);
         pollOnce();
+        // Rates (CPU load, disk and network throughput) need two samples. A quick second poll fills them
+        // in within a fraction of a second instead of showing N/A for a whole update interval at start.
+        QTimer::singleShot(kSecondPollDelayMs, this, &Poller::pollOnce);
     }
 
     void setInterval(int intervalMs) {

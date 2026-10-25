@@ -1,4 +1,5 @@
 #include "core/SensorManager.h"
+#include "providers/ISensorProvider.h"
 
 #include <QBuffer>
 #include <QtTest>
@@ -19,11 +20,32 @@ SensorReading reading(const QString &id, double value, bool available = true) {
     return r;
 }
 
+// Like a rate sensor: nothing to report on the first poll, a value from the second on.
+class RateLikeProvider : public ISensorProvider {
+public:
+    QString name() const override { return "rate-like"; }
+    QVector<SensorReading> poll() override {
+        return {reading("rate", 7.0, m_polls++ > 0)};
+    }
+
+private:
+    int m_polls = 0;
+};
+
 } // namespace
 
 class TstSensorManager : public QObject {
     Q_OBJECT
 private slots:
+    void secondPollFollowsStartQuickly() {
+        SensorManager m;
+        m.addProvider(std::make_unique<RateLikeProvider>());
+        m.start(5000); // the regular interval is far away
+        // The value must appear well before the first regular tick, not after a whole interval.
+        QTRY_VERIFY_WITH_TIMEOUT(m.model()->rowCount() == 1 && m.model()->rows()[0].reading.available, 1500);
+        m.stop();
+    }
+
     void historyStatsAndSingleSensorCsv() {
         SensorManager m;
         QVERIFY(!m.historyStats("a").valid);
