@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Qt 6.5+ is required; the distribution packages of the runner image can be older, so build in a newer release.
+    container: ubuntu:26.04
+    env:
+      DEBIAN_FRONTEND: noninteractive
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends build-essential cmake ninja-build python3 git ca-certificates \
+              qt6-base-dev qt6-declarative-dev \
+              qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts \
+              qml6-module-qtquick-window qml6-module-qtquick-templates dbus
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -G Ninja
+      - name: Build
+        run: cmake --build build
+      - name: Test
+        run: dbus-run-session -- ctest --test-dir build --output-on-failure
+      - name: Package
+        run: cd build && cpack -G DEB
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deb
+          path: build/*.deb
