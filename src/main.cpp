@@ -182,7 +182,11 @@ int main(int argc, char *argv[]) {
     const QStringList args = app.arguments();
     if (const int i = args.indexOf(QStringLiteral("--screenshot")); i >= 0 && i + 1 < args.size()) {
         const QString path = args.at(i + 1);
-        QTimer::singleShot(3500, &app, [&engine, path] {
+        // `--screenshot-delay <ms>` waits longer (default 3.5 s) so the charts have history.
+        int delayMs = 3500;
+        if (const int d = args.indexOf(QStringLiteral("--screenshot-delay")); d >= 0 && d + 1 < args.size())
+            delayMs = qMax(0, args.at(d + 1).toInt());
+        QTimer::singleShot(delayMs, &app, [&engine, path] {
             const auto windows = engine.rootObjects();
             auto *window = windows.isEmpty() ? nullptr : qobject_cast<QQuickWindow *>(windows.first());
             QCoreApplication::exit(window && window->grabWindow().save(path) ? 0 : 1);

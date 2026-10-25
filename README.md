@@ -3,6 +3,21 @@
 A native Qt 6 / QML system monitor for Linux that combines a hardware sensor viewer with a Task Manager–style
 interface. No Electron, no web view, no root: everything comes from `/sys`, `/proc`, D-Bus and (optionally) NVIDIA NVML.
 
+![Performance: CPU](docs/screenshots/performance-cpu.png)
+
+<details>
+<summary>More screenshots</summary>
+
+![Performance: NVIDIA GPU](docs/screenshots/performance-gpu.png)
+![Sensors](docs/screenshots/sensors.png)
+![Overview](docs/screenshots/overview.png)
+
+</details>
+
+The screenshots use the simulation mode (`mocks/hybrid-amd-nvidia-laptop.json`), so every number in them is made up
+and the orange bar says so. To make your own: `LinuxHardwareMonitor --mock mocks/<profile>.json --page 0
+--size 1480 860 --screenshot-delay 65000 --screenshot out.png` (offscreen: prefix `QT_QPA_PLATFORM=offscreen`).
+
 ## Features
 
 - **Performance** – CPU (overall and per-core load, frequency, temperature, caches, topology), memory

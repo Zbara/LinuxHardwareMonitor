@@ -23,6 +23,7 @@ const QList<Flag> &flags() {
         {"--load-modules", "", "load the RAM module details at start (on real hardware this asks for administrator rights)"},
         {"--size", "<w> <h>", "window size in pixels"},
         {"--screenshot", "<file.png>", "save a screenshot of the window and exit"},
+        {"--screenshot-delay", "<ms>", "wait this long before the screenshot (default 3500) so the charts have history"},
         {"--close-after", "<ms>", "close the window after this many milliseconds"},
         {"--help, -h", "", "show this text"},
         {"--version, -v", "", "show the version"},
