@@ -106,7 +106,9 @@ Item {
             tiles: [
                 tile(qsTr("Utilization"), pct(util), "▣", { sparkId: util.sensorId, sparkFixedMax: 100 }),
                 tile(qsTr("Speed"), ghz(freq.value), "◔", { sparkId: freq.sensorId }),
-                tile(qsTr("Temperature"), num(temp, 0, "°C"), "♨", { sparkId: temp.id || "", accent: Theme.hot }),
+                tile(qsTr("Temperature"), num(temp, 0, "°C"), "♨", { sparkId: temp.id || "", accent: Theme.hot,
+                                                                  hint: temp.id ? Theme.cpuTempHint(d.cpuTempSource) : "",
+                                                                  tip: temp.id ? Theme.cpuTempTip(d.cpuTempSource, d.cpuTempName) : "" }),
                 tile(qsTr("Processes"), app.processCount > 0 ? app.processCount : "…", "▤"),
                 tile(qsTr("Threads"), app.processCount > 0 ? app.threadCount : "…", "≋"),
                 tile(qsTr("Handles"), d.fileHandles !== undefined ? Math.round(d.fileHandles) : Theme.na, "⌗"),
@@ -757,6 +759,8 @@ Item {
                                     accent: info.accent !== undefined ? info.accent : page.current.color
                                     sparkId: info.sparkId
                                     sparkFixedMax: info.sparkFixedMax
+                                    hint: info.hint !== undefined ? info.hint : ""
+                                    tip: info.tip !== undefined ? info.tip : ""
                                     bar: info.bar
                                 }
                             }

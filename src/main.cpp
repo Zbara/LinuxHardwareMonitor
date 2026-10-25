@@ -1,6 +1,7 @@
 #include "ui/AppController.h"
 
 #include "core/CommandLine.h"
+#include "core/CpuTemperature.h"
 #include "core/QuitSignals.h"
 #include "core/SensorSnapshot.h"
 #include "ui/ProviderFactory.h"
@@ -56,7 +57,8 @@ int runDump(int argc, char *argv[], const QStringList &args) {
     };
     pollAll();
     QThread::msleep(static_cast<unsigned long>(delayMs));
-    const QVector<SensorReading> readings = pollAll();
+    QVector<SensorReading> readings = pollAll();
+    CpuTemperature::addDerived(readings); // the same extra sensors the application lists
 
     const QString mode = options.mock ? QStringLiteral("simulation (%1)").arg(QFileInfo(options.mockPath).fileName())
                          : options.fixtureMode() ? QStringLiteral("test data")

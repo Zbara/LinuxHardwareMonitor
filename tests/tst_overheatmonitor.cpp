@@ -76,6 +76,29 @@ private slots:
         QCOMPARE(m.update({temp("ssd", 75), temp("cpu", 150)}).size(), 1);
     }
 
+    void derivedSensorsAreNotCheckedTwice() {
+        OverheatMonitor m;
+        m.setThreshold(90);
+        QCOMPARE(m.update({temp("derived/cpu_temp_hottest_core", 99), temp("derived/cpu_temp_avg", 95)}).size(), 0);
+        QCOMPARE(m.update({temp("core0", 99)}).size(), 1); // the real sensor still alerts
+    }
+
+    void oneMessagePerDeviceWithTheHottestSensor() {
+        auto alert = [](const char *device, const char *sensor, double v) {
+            return OverheatMonitor::Alert{QString(sensor), QString(device), QString(sensor), v};
+        };
+        const auto groups = OverheatMonitor::groupByDevice({alert("CPU", "Core 1", 91), alert("GPU", "GPU", 93), alert("CPU", "Package", 97),
+                                                            alert("CPU", "Core 2", 92)});
+        QCOMPARE(groups.size(), 2);
+        QCOMPARE(groups[0].deviceName, QString("CPU"));   // devices keep the order they first appeared in
+        QCOMPARE(groups[0].sensorName, QString("Package"));
+        QCOMPARE(groups[0].value, 97.0);
+        QCOMPARE(groups[0].others, 2);
+        QCOMPARE(groups[1].deviceName, QString("GPU"));
+        QCOMPARE(groups[1].others, 0);
+        QVERIFY(OverheatMonitor::groupByDevice({}).isEmpty());
+    }
+
     void zeroThresholdDisables() {
         OverheatMonitor m;
         m.setThreshold(0);

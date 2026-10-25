@@ -35,6 +35,10 @@ and the orange bar says so. To make your own: `LinuxHardwareMonitor --mock mocks
 - **History across restarts** – the last ~15 minutes of every sensor are saved on exit (and every 5 minutes) to `~/.local/share/LinuxHardwareMonitor/history.bin`; live charts start fresh after a restart, while the sensor detail window (click a sensor on the Sensors page) shows the restored history with the downtime as a gap. Not used in simulation or fixture mode.
 - **Overheat notifications** – optional desktop notification (freedesktop `Notify` over D-Bus) when a temperature sensor reaches a threshold you choose, when the processor reports thermal throttling (Intel `thermal_throttle` counter), when an NVIDIA card reports a thermal slowdown, or when a fan that was spinning reads 0 RPM while the CPU/GPU is hot; off by default, one message per event. A temperature sensor can have a threshold of its own (in its detail window), which replaces the global one for that sensor.
 - **Keyboard** – `Ctrl+1`…`Ctrl+7` switch pages, `Ctrl+F` focuses the search field of the Processes, Services and Sensors pages.
+- **CPU temperature source** – Intel and AMD report several readings: one for the whole package (the hottest spot,
+  what throttling reacts to) and one per core, and tools disagree on which is "the" CPU temperature (a package reading
+  is typically 5-10 °C above the cores' average). Settings > Appearance lets you pick the package sensor (default),
+  the hottest core or the average of the cores; the tiles say which one they show and the tray follows the choice.
 - **Temperature unit** – Celsius or Fahrenheit (Settings); only what is shown changes, thresholds and data stay in Celsius.
 - **System information** – Settings > About copies a short description of the hardware, versions and renderer for a bug report. It never contains serial numbers, MAC/IP addresses or Wi-Fi names.
 - **Settings** – update interval, history length, dark/light theme, language, start with the system, CSV export of the history.

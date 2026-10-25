@@ -154,6 +154,18 @@ ScrollView {
                     }
                 }
                 SettingRow {
+                    label: qsTr("CPU temperature")
+                    hint: qsTr("Which reading the tiles and the tray show")
+                    ComboBox {
+                        anchors.right: parent.right
+                        width: 220
+                        readonly property var values: ["package", "hottest", "average"]
+                        model: [qsTr("Package (hottest spot)"), qsTr("Hottest core"), qsTr("Average of the cores")]
+                        currentIndex: Math.max(0, values.indexOf(app.cpuTempSource))
+                        onActivated: app.cpuTempSource = values[currentIndex]
+                    }
+                }
+                SettingRow {
                     label: qsTr("Dark theme")
                     Toggle {
                         anchors.right: parent.right

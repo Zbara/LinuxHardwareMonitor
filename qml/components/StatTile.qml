@@ -13,6 +13,13 @@ Rectangle {
     property string sparkId: ""      // live mini chart under the value
     property real bar: -1            // 0..1 progress bar under the value (-1: none)
     property real sparkFixedMax: 0
+    property string hint: ""         // small note beside the value, e.g. which sensor it is
+    property string tip: ""          // tooltip for the whole tile
+
+    HoverHandler { id: tipHover }
+    ToolTip.visible: tile.tip !== "" && tipHover.hovered
+    ToolTip.delay: 500
+    ToolTip.text: tile.tip
 
     implicitHeight: 86
     radius: Theme.radius
@@ -53,13 +60,27 @@ Rectangle {
                     elide: Text.ElideRight
                     Layout.fillWidth: true
                 }
-                Text {
-                    text: tile.value
-                    color: Theme.text
-                    font.pixelSize: 20
-                    font.weight: Font.DemiBold
-                    elide: Text.ElideRight
+                RowLayout {
                     Layout.fillWidth: true
+                    spacing: 6
+                    Text {
+                        text: tile.value
+                        color: Theme.text
+                        font.pixelSize: 20
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideRight
+                        Layout.fillWidth: tile.hint === ""
+                    }
+                    Text {
+                        visible: tile.hint !== ""
+                        text: tile.hint
+                        color: Theme.textMuted
+                        font.pixelSize: 11
+                        elide: Text.ElideRight
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignBottom
+                        Layout.bottomMargin: 3
+                    }
                 }
             }
         }

@@ -10,6 +10,7 @@
 #include "core/Localization.h"
 #include "core/WifiInfoMonitor.h"
 #include "core/ServiceManager.h"
+#include "core/CpuTemperature.h"
 #include "core/CpuThrottleReader.h"
 #include "core/OverheatMonitor.h"
 #include "core/ThermalWatch.h"
@@ -78,6 +79,8 @@ class AppController : public QObject {
     Q_PROPERTY(QString trayStyle READ trayStyle WRITE setTrayStyle NOTIFY trayStyleChanged)
     Q_PROPERTY(bool trayAvailable READ trayAvailable NOTIFY trayAvailableChanged)
     Q_PROPERTY(bool autostart READ autostart WRITE setAutostart NOTIFY autostartChanged)
+    // Which reading is "the CPU temperature": "package" (default), "hottest" core or "average" of the cores.
+    Q_PROPERTY(QString cpuTempSource READ cpuTempSource WRITE setCpuTempSource NOTIFY cpuTempSourceChanged)
     Q_PROPERTY(bool useFahrenheit READ useFahrenheit WRITE setUseFahrenheit NOTIFY useFahrenheitChanged)
     Q_PROPERTY(bool overheatNotify READ overheatNotify WRITE setOverheatNotify NOTIFY overheatNotifyChanged)
     Q_PROPERTY(int overheatThreshold READ overheatThreshold WRITE setOverheatThreshold NOTIFY overheatThresholdChanged)
@@ -143,6 +146,8 @@ public:
     Q_INVOKABLE void quit();
     bool autostart() const { return m_autostart.isEnabled(); }
     void setAutostart(bool enabled);
+    QString cpuTempSource() const { return CpuTemperature::sourceName(m_cpuTempSource); }
+    void setCpuTempSource(const QString &name);
     bool useFahrenheit() const { return m_fahrenheit; }
     void setUseFahrenheit(bool on);
     bool overheatNotify() const { return m_overheatNotify; }
@@ -205,6 +210,7 @@ signals:
     void overheatThresholdChanged();
     void overheatNotifyChanged();
     void useFahrenheitChanged();
+    void cpuTempSourceChanged();
     void autostartChanged();
     void trayEnabledChanged();
     void trayStyleChanged();
@@ -234,6 +240,7 @@ private:
     ThermalWatch m_thermalWatch;
     std::unique_ptr<CpuThrottleReader> m_cpuThrottle; // not in simulation mode
     bool m_windowActive = true;
+    CpuTemperature::Source m_cpuTempSource = CpuTemperature::Source::Package;
     bool m_fahrenheit = false; // display only: all data and thresholds stay in Celsius
     bool m_overheatNotify = false; // opt-in: no popups unless the user asks for them
     Autostart m_autostart;

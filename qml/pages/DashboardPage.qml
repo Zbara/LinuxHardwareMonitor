@@ -30,6 +30,8 @@ ScrollView {
         Layout.fillWidth: true
         Layout.preferredWidth: 150
         label: info.title
+        hint: slot === 0 && info.available ? Theme.cpuTempHint(info.source) : ""
+        tip: slot === 0 && info.available ? Theme.cpuTempTip(info.source, info.sensorName) : ""
         value: !info.available ? Theme.na
                : slot === 8 && page.gpuMemoryTotal() > 0 ? Theme.gb(info.value, 1) + " / " + Theme.gb(page.gpuMemoryTotal(), 0)
                : Theme.format(info.value, info.unit)

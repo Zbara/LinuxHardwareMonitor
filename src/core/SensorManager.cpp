@@ -1,5 +1,7 @@
 #include "SensorManager.h"
 
+#include "CpuTemperature.h"
+
 #include <QDataStream>
 #include <QElapsedTimer>
 #include <QMetaObject>
@@ -46,6 +48,7 @@ public slots:
                 // One failing provider must not affect the others.
             }
         }
+        CpuTemperature::addDerived(all); // average / hottest core, so they have a history like any sensor
         emit polled(all);
     }
 

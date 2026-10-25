@@ -48,6 +48,16 @@ QtObject {
         return (fahrenheit ? toFahrenheit(celsius) : celsius).toFixed(digits === undefined ? 0 : digits) + (fahrenheit ? " °F" : " °C")
     }
 
+    // Which CPU temperature reading a tile shows: a short note next to the value and a tooltip.
+    function cpuTempHint(source) {
+        return source === "average" ? qsTr("cores avg") : source === "hottest" ? qsTr("hottest core") : qsTr("package")
+    }
+    function cpuTempTip(source, sensorName) {
+        return source === "average" ? qsTr("Average of all cores")
+             : source === "hottest" ? qsTr("The hottest core")
+             : qsTr("Sensor: %1").arg(sensorName)
+    }
+
     function format(value, unit) {
         if (value === undefined || value === null || isNaN(value))
             return na

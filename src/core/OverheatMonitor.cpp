@@ -8,6 +8,26 @@ void OverheatMonitor::setSensorThreshold(const QString &sensorId, double celsius
     m_alerted.remove(sensorId); // judge the sensor afresh against its new limit
 }
 
+QVector<OverheatMonitor::Group> OverheatMonitor::groupByDevice(const QVector<Alert> &alerts) {
+    QVector<Group> groups;
+    QHash<QString, int> index; // device -> position, keeps the order in which devices first appeared
+    for (const Alert &a : alerts) {
+        const auto found = index.constFind(a.deviceName);
+        if (found == index.constEnd()) {
+            index.insert(a.deviceName, static_cast<int>(groups.size()));
+            groups.push_back({a.deviceName, a.sensorName, a.value, 0});
+            continue;
+        }
+        Group &g = groups[*found];
+        ++g.others;
+        if (a.value > g.value) {
+            g.value = a.value;
+            g.sensorName = a.sensorName;
+        }
+    }
+    return groups;
+}
+
 QVector<OverheatMonitor::Alert> OverheatMonitor::update(const QVector<SensorReading> &readings) {
     QVector<Alert> alerts;
     if (m_threshold <= 0.0 && m_perSensor.isEmpty()) {
@@ -16,7 +36,8 @@ QVector<OverheatMonitor::Alert> OverheatMonitor::update(const QVector<SensorRead
     }
 
     for (const SensorReading &r : readings) {
-        if (r.type != SensorType::Temperature || !r.available)
+        // Derived values (average / hottest core) are computed from sensors that are checked themselves.
+        if (r.type != SensorType::Temperature || !r.available || r.id.startsWith(QLatin1String("derived/")))
             continue;
         const double limit = m_perSensor.value(r.id, m_threshold);
         if (limit <= 0.0) {

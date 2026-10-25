@@ -92,6 +92,7 @@ AppController::AppController(AppOptions options, QObject *parent)
         m_overheat.setSensorThresholds(perSensor);
     }
     m_fahrenheit = m_settings.value("fahrenheit", false).toBool();
+    m_cpuTempSource = CpuTemperature::sourceFromName(m_settings.value("cpuTempSource", "package").toString());
     if (!m_options.mock)
         m_cpuThrottle = std::make_unique<CpuThrottleReader>(m_options.cpuRoot.isEmpty() ? QStringLiteral("/sys/devices/system/cpu")
                                                                                          : m_options.cpuRoot);
@@ -205,6 +206,16 @@ void AppController::setSensorAlert(const QString &sensorId, double celsius) {
     else
         saved.remove(sensorId);
     m_settings.setValue("sensorAlerts", saved);
+}
+
+void AppController::setCpuTempSource(const QString &name) {
+    const auto source = CpuTemperature::sourceFromName(name);
+    if (source == m_cpuTempSource)
+        return;
+    m_cpuTempSource = source;
+    m_settings.setValue("cpuTempSource", CpuTemperature::sourceName(source));
+    emit cpuTempSourceChanged();
+    rebuildSummaries(); // the tiles and the tray should follow at once
 }
 
 void AppController::setUseFahrenheit(bool on) {
@@ -915,10 +926,15 @@ void AppController::rebuildSummaries() {
     QVector<SensorReading> readings;
     for (const auto &row : m_manager.model()->rows())
         readings.push_back(row.reading);
-    for (const auto &a : m_overheat.update(readings)) {
-        const QString text = m_fahrenheit
-            ? tr("%1 — %2: %3 °F").arg(a.deviceName, a.sensorName).arg(TrayIcon::toFahrenheit(a.value), 0, 'f', 1)
-            : tr("%1 — %2: %3 °C").arg(a.deviceName, a.sensorName).arg(a.value, 0, 'f', 1);
+    // One message per device and cycle: a processor has dozens of core sensors that cross the limit together,
+    // and a notification for each would bury the desktop.
+    auto fmtTemp = [this](double c) {
+        return m_fahrenheit ? tr("%1 °F").arg(TrayIcon::toFahrenheit(c), 0, 'f', 1) : tr("%1 °C").arg(c, 0, 'f', 1);
+    };
+    for (const OverheatMonitor::Group &g : OverheatMonitor::groupByDevice(m_overheat.update(readings))) {
+        const QString text = g.others == 0
+            ? tr("%1 — %2: %3").arg(g.deviceName, g.sensorName, fmtTemp(g.value))
+            : tr("%1 — %2: %3, and %4 more sensors").arg(g.deviceName, g.sensorName, fmtTemp(g.value)).arg(g.others);
         emit overheat(text);
         if (m_overheatNotify)
             Notifier::send(tr("Temperature warning"), text);
@@ -928,7 +944,7 @@ void AppController::rebuildSummaries() {
                                                                 QDateTime::currentMSecsSinceEpoch())) {
         auto hot = [&](double c) {
             return m_fahrenheit ? tr("%1 °F").arg(TrayIcon::toFahrenheit(c), 0, 'f', 0) : tr("%1 °C").arg(c, 0, 'f', 0);
-        };
+        }; // whole degrees: this is a warning, not a reading
         const bool known = !std::isnan(e.temperature);
         QString text;
         switch (e.kind) {
@@ -971,21 +987,10 @@ void AppController::rebuildSummaries() {
     const SensorListModel::Row *gpuUtil = nullptr;
     const SensorListModel::Row *gpuMem = nullptr;
     QString gpuName;
-    const SensorListModel::Row *cpuTemp = nullptr;
 
     for (const auto &row : m_manager.model()->rows()) {
         const SensorReading &r = row.reading;
         byId.insert(r.id, &row);
-        // A stable "the CPU temperature" sensor: package / die readings win over single cores.
-        if (r.category == DeviceCategory::Cpu && r.type == SensorType::Temperature && r.available) {
-            const bool preferred = r.name.startsWith(QLatin1String("Package")) || r.name.startsWith(QLatin1String("Tctl"))
-                                   || r.name.startsWith(QLatin1String("Tdie"));
-            const bool curPreferred = cpuTemp && (cpuTemp->reading.name.startsWith(QLatin1String("Package"))
-                                                  || cpuTemp->reading.name.startsWith(QLatin1String("Tctl"))
-                                                  || cpuTemp->reading.name.startsWith(QLatin1String("Tdie")));
-            if (!cpuTemp || (preferred && !curPreferred))
-                cpuTemp = &row;
-        }
         if (r.category == DeviceCategory::Gpu && gpuName.isEmpty())
             gpuName = r.deviceName;
         if (r.category == DeviceCategory::Gpu && r.available) {
@@ -1034,12 +1039,23 @@ void AppController::rebuildSummaries() {
         }
     }
 
+    // The one CPU temperature the overview, the Performance page and the tray agree on.
+    const CpuTemperature::Choice cpuChoice = CpuTemperature::pick(readings, m_cpuTempSource);
+    const SensorListModel::Row *cpuTemp = cpuChoice.reading ? byId.value(cpuChoice.reading->id, nullptr) : nullptr;
+
     m_highlights.clear();
-    m_highlights << highlight(tr("CPU Temperature"), "°C", cpu.hottest, cpu.available, cpu.total)
+    m_highlights << highlight(tr("CPU Temperature"), "°C", cpuTemp, cpu.available, cpu.total)
                  << highlight(tr("GPU Temperature"), "°C", gpu.hottest, gpu.available, gpu.total)
                  << highlight(tr("Storage Temperature"), "°C", storage.hottest, storage.available,
                               storage.total)
                  << highlight(tr("Fan Speed"), "RPM", fan, fanAvailable, fanTotal);
+
+    {
+        // Tell the interface which reading it shows (after a fallback this may differ from the setting).
+        QVariantMap first = m_highlights.first().toMap();
+        first["source"] = CpuTemperature::sourceName(cpuChoice.used);
+        m_highlights[0] = first;
+    }
 
     auto usable = [&](const char *id) {
         const auto *row = byId.value(QString::fromLatin1(id), nullptr);
@@ -1118,6 +1134,8 @@ void AppController::rebuildSummaries() {
     m_details["load15"] = info.load15 >= 0 ? QVariant(info.load15) : QVariant();
     m_details["gpuName"] = gpuName;
     m_details["cpuTemp"] = sensorRef(cpuTemp);
+    m_details["cpuTempSource"] = CpuTemperature::sourceName(cpuChoice.used);
+    m_details["cpuTempName"] = cpuTemp ? cpuTemp->reading.name : QString();
     {
         QVariantList cores;
         for (int i = 0; i < info.logicalCpus; ++i) {

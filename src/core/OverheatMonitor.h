@@ -18,6 +18,16 @@ public:
         double value = 0.0;
     };
 
+    // The alerts of one cycle collapsed to one entry per device: its hottest sensor and how many others
+    // crossed the limit with it. (A processor has dozens of core sensors that rise together.)
+    struct Group {
+        QString deviceName;
+        QString sensorName;
+        double value = 0.0;
+        int others = 0;
+    };
+    static QVector<Group> groupByDevice(const QVector<Alert> &alerts);
+
     void setThreshold(double celsius) { m_threshold = celsius; }
     double threshold() const { return m_threshold; }
 
